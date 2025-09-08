@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getPostById } from "@/lib/mockData";
 
-type Params = { params: { id: string } };
-
-export async function GET(_req: Request, { params }: Params) {
-    const post = getPostById(params.id);
+export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+    const { id } = await ctx.params;
+    const post = getPostById(id);
     if (!post) {
         return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
     return NextResponse.json(post);
 }
+
 
 
