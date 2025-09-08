@@ -23,7 +23,7 @@ export default function BlogIndex() {
         <div className="mx-auto max-w-6xl px-4 py-12">
             <div className="mb-8">
                 <h1 className="text-3xl sm:text-4xl font-bold">All posts</h1>
-                <p className="opacity-80">Read the latest from MustBlog.</p>
+                <p className="opacity-80">Read the latest from Blogcafeai.</p>
             </div>
             {loading ? (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">

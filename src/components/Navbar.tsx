@@ -14,7 +14,7 @@ export default function Navbar() {
         <header className="sticky top-0 z-50 backdrop-blur bg-background/70 border-b border-white/10">
             <nav className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
                 <Link href="/" className="font-bold text-lg" style={{ color: "var(--brand-muted-blue)" }}>
-                    MustBlog
+                    Blogcafeai
                 </Link>
                 <ul className="hidden sm:flex items-center gap-6">
                     {navItems.map((item) => {

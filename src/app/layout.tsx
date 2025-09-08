@@ -16,20 +16,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "MustBlog – World-class Next.js Blog UI",
-    template: "%s – MustBlog",
+    default: "Blogcafeai – World-class Blog UI",
+    template: "%s – Blogcafeai",
   },
   description: "Subtle animations, premium color palette, and delightful reading experience.",
   metadataBase: new URL("https://example.com"),
-  keywords: ["Next.js", "Blog", "UI", "Animations", "Design"],
+  keywords: ["Blog", "UI", "Animations", "Design"],
   openGraph: {
-    title: "MustBlog – World-class Next.js Blog UI",
+    title: "Blogcafeai – World-class Blog UI",
     description: "Subtle animations, premium color palette, and delightful reading experience.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MustBlog – World-class Next.js Blog UI",
+    title: "Blogcafeai – World-class Next.js Blog UI",
     description: "Subtle animations, premium color palette, and delightful reading experience.",
   },
 };
