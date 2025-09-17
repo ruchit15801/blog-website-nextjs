@@ -1,0 +1,168 @@
+/* NAVBAR  */
+.navbar-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(10px);
+  background: var(--background, #fff);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.navbar-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-link {
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  color: var(--brand-teal, teal);
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 35%;
+  background: var(--background, #fff);
+  border: 1px solid #ddd;
+  padding: 0.5rem 0;
+  list-style: none;
+  min-width: 180px;
+  display: none;
+}
+
+.nav-item.open > .dropdown {
+  display: block;
+}
+
+.dropdown li {
+  padding: 0.25rem 1rem;
+}
+
+.dropdown li a {
+  text-decoration: none;
+  display: block;
+  padding: 0.25rem 0;
+}
+
+.has-sub {
+  position: relative;
+}
+
+.has-sub .sub {
+  left: 100%;
+  top: 0;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.buy-btn {
+  background: linear-gradient(180deg, #9895ff 0%, #514dcc 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.buy-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* HERO SECTION  */
+.hero-section{
+    border-bottom: 1px solid #e1e1e8;
+}
+.trending-section h5 {
+    font-size: 0.75rem;
+    color: #696981;
+    margin-bottom: 2rem;
+    font-weight: 800;
+    letter-spacing: .1rem;
+    line-height: 1.2;
+}
+.trending-section-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap : .375rem;
+    width: max-content;
+    background-color: #fff;
+    box-shadow: 0px 5px 25px 0px rgba(114 , 114 , 255, .12);
+    padding: .75rem 1.25rem .75rem 1.125rem;
+    transition: .25s;
+    border-radius: 100px;
+    position: relative;
+}
+.trending-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.trending-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border: 1px solid #ffffff8a;
+  color: #29294b;
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.2;
+  letter-spacing: .04rem;
+  transition: all 0.25s;
+}
+
+.trending-btn:hover {
+  box-shadow: 0 4px 10px rgba(152,149,255,0.5);
+}
+
+.second-row {
+  width: 100%;           
+  margin-top: 1rem;      
+}
