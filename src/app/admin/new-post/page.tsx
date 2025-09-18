@@ -92,6 +92,17 @@ export default function NewPostPage() {
                 status,
             });
             setMessage("Post created successfully.");
+            // Reset form fields (keep token locked)
+            setTitle("");
+            setSubtitle("");
+            setCategoryName("");
+            setTags("");
+            setStatus("published");
+            setBannerFile(null);
+            setImageFiles([]);
+            setImageUrls("");
+            if (editorRef.current) editorRef.current.innerHTML = "";
+            setContentHtml("");
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
             setMessage(message || "Failed to create post");
@@ -225,17 +236,17 @@ export default function NewPostPage() {
                             <button type="button" className="btn btn-secondary" onClick={() => exec("underline")}>Underline</button>
                             <button type="button" className="btn btn-secondary" onClick={() => exec("insertUnorderedList")}>• List</button>
                             <button type="button" className="btn btn-secondary" onClick={() => exec("insertOrderedList")}>1. List</button>
-                            <button type="button" className="btn btn-secondary" onClick={() => exec("formatBlock", "<h2>")}>H2</button>
-                            <button type="button" className="btn btn-secondary" onClick={() => exec("formatBlock", "<h3>")}>H3</button>
-                            <button type="button" className="btn btn-secondary" onClick={() => exec("formatBlock", "<p>")}>P</button>
-                            <button type="button" className="btn btn-secondary" onClick={() => exec("formatBlock", "<blockquote>")}>Quote</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => exec("formatBlock", "h2")}>H2</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => exec("formatBlock", "h3")}>H3</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => exec("formatBlock", "p")}>P</button>
+                            <button type="button" className="btn btn-secondary" onClick={() => exec("formatBlock", "blockquote")}>Quote</button>
                             <button type="button" className="btn btn-secondary" onClick={() => exec("createLink", prompt("Enter URL", "https://") || "")}>Link</button>
                             <button type="button" className="btn btn-secondary" onClick={() => { document.execCommand("removeFormat"); }}>Clear</button>
                             <span className="ml-auto text-xs text-muted">{wordCount} words</span>
                         </div>
                         <div
                             ref={editorRef}
-                            className="min-h-[260px] rounded-xl p-4 bg-white/5 border border-white/10 card-hover"
+                            className="min-h-[260px] rounded-xl p-4 bg-white/5 border border-white/10 card-hover editor-area"
                             contentEditable
                             suppressContentEditableWarning
                             onInput={(e) => setContentHtml((e.target as HTMLDivElement).innerHTML)}

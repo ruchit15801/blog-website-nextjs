@@ -160,3 +160,13 @@ a[style] { text-underline-offset: 3px; }
   outline: 3px solid var(--ring);
   outline-offset: 2px;
 }
+
+/* ContentEditable editor default styles */
+.editor-area h1, .editor-area h2, .editor-area h3 { font-weight: 700; margin: 1rem 0 .5rem; }
+.editor-area h1 { font-size: 1.875rem; }
+.editor-area h2 { font-size: 1.5rem; }
+.editor-area h3 { font-size: 1.25rem; }
+.editor-area p { margin: .5rem 0; line-height: 1.7; }
+.editor-area ul { list-style: disc; padding-left: 1.25rem; margin: .5rem 0; }
+.editor-area ol { list-style: decimal; padding-left: 1.25rem; margin: .5rem 0; }
+.editor-area blockquote { border-left: 3px solid var(--brand-teal); padding-left: .75rem; margin: .75rem 0; opacity: .9; }
