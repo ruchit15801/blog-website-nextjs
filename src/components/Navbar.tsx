@@ -116,6 +116,14 @@ export default function Navbar() {
                             Contact
                         </Link>
                     </li>
+                    <li>
+                        <Link
+                            href="/admin/new-post"
+                            className={`nav-link ${pathname === "/admin/new-post" ? "active" : ""}`}
+                        >
+                            New Post
+                        </Link>
+                    </li>
                 </ul>
 
 

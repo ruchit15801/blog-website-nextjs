@@ -1,20 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a; /* slate-900 for stronger contrast on light */
+  --background: #0a0a0a; /* solid black background for clarity */
+  --foreground: #e5e7eb; /* light text on dark */
   /* Brand palette */
   --brand-muted-blue: #4A90E2;
   --brand-teal: #1ABC9C;
   --brand-amber: #F5A623;
   --surface: #0a0a0a0d; /* light translucent for cards */
-  --ring: color-mix(in oklab, var(--brand-muted-blue), black 15%);
+  --ring: color-mix(in oklab, var(--brand-muted-blue), white 25%);
   --muted-foreground: #475569; /* slate-600 */
-   --cs-site-background: linear-gradient(
-    180deg,
-    var(--cs-light-site-background-start, #fdfdff) 0%,
-    var(--cs-light-site-background-end, #f8f7ff) 100%
-  );
+  --cs-site-background: #0a0a0a; /* force solid dark */
 }
 
 @theme inline {
@@ -30,15 +26,15 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #e5e7eb; /* gray-200 for better readability */
-    --surface: #ffffff0f;
-    --ring: color-mix(in oklab, var(--brand-teal), white 10%);
-    --muted-foreground: #cbd5e1; /* slate-300 */
+    --foreground: #e5e7eb;
+    --surface: #ffffff14; /* slightly brighter for card contrast */
+    --ring: color-mix(in oklab, var(--brand-teal), white 20%);
+    --muted-foreground: #cbd5e1;
   }
 }
 
 body {
-  background: var(--cs-site-background);
+  background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
