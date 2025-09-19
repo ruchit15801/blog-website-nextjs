@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Moon, Search, Sun } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronUp, Moon, Search, Sun } from "lucide-react";
 
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
@@ -31,16 +31,16 @@ export default function Navbar() {
                         onMouseEnter={() => setOpenMenu("home")}
                         onMouseLeave={() => setOpenMenu(null)}
                     >
-                        <button className="nav-link flex items-center gap-1">
+                        <button className="nav-link flex items-center gap-1 bg-gray-100 px-2 py-2 rounded-md">
                             HomePages
                             {openMenu === "home" ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
 
                         {openMenu === "home" && (
                             <ul className="dropdown absolute top-full left-0 mt-1 w-48 bg-white border shadow-lg rounded-md z-50">
-                                <li><Link href="/classic-list" className="block px-4 py-2 hover:bg-gray-100">Classic List</Link></li>
-                                <li><Link href="/classic-grid" className="block px-4 py-2 hover:bg-gray-100">Classic Grid</Link></li>
-                                <li><Link href="/classic-grid" className="block px-4 py-2 hover:bg-gray-100">Classic Overlay</Link></li>
+                                <li><Link href="/classicList" className="block px-4 py-2 hover:bg-gray-100">Classic List</Link></li>
+                                <li><Link href="/" className="block px-4 py-2 hover:bg-gray-100">Classic Grid</Link></li>
+                                <li><Link href="/classicOverlay" className="block px-4 py-2 hover:bg-gray-100">Classic Overlay</Link></li>
                                 <li><Link href="/classic-grid" className="block px-4 py-2 hover:bg-gray-100">Hero Slider</Link></li>
                                 <li><Link href="/classic-grid" className="block px-4 py-2 hover:bg-gray-100">Classic Grid</Link></li>
                                 <li><Link href="/classic-grid" className="block px-4 py-2 hover:bg-gray-100">Classic Grid</Link></li>
@@ -56,70 +56,65 @@ export default function Navbar() {
                         onMouseEnter={() => setOpenMenu("features")}
                         onMouseLeave={() => setOpenMenu(null)}
                     >
-                        <button className="nav-link flex items-center gap-1">
+                        <button className="nav-link flex items-center gap-1 hover:bg-gray-100 px-2 py-2">
                             Features
                             {openMenu === "features" ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
 
                         {openMenu === "features" && (
                             <ul className="dropdown absolute top-full left-0 mt-1 w-56 bg-white border shadow-lg rounded-md z-50">
-                                <li className="has-sub relative">
-                                    <span className="flex justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                        Widgets <ChevronDown size={14} />
+                                <li className="has-sub relative group">
+                                    <span className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                        Post Headers
+                                        <ChevronRight size={14} className="ml-2 text-gray-500" />
                                     </span>
-                                    <ul className="dropdown sub absolute top-0 left-full mt-0 w-48 bg-white border shadow-lg rounded-md">
-                                        <li><Link href="/widgets/basic" className="block px-4 py-2 hover:bg-gray-100">Basic</Link></li>
-                                        <li><Link href="/widgets/advanced" className="block px-4 py-2 hover:bg-gray-100">Advanced</Link></li>
-                                        <li><Link href="/widgets/pro" className="block px-4 py-2 hover:bg-gray-100">Pro</Link></li>
+                                    <ul className="absolute top-0 left-full mt-0 w-48 bg-white shadow-lg rounded-md hidden group-hover:block">
+                                        <li><Link href="/widgets/basic" className="block px-4 py-2 hover:bg-gray-100">Standard</Link></li>
+                                        <li><Link href="/widgets/advanced" className="block px-4 py-2 hover:bg-gray-100">Split</Link></li>
+                                        <li><Link href="/widgets/pro" className="block px-4 py-2 hover:bg-gray-100">Overlay</Link></li>
                                     </ul>
                                 </li>
 
-                                <li className="has-sub relative">
-                                    <span className="flex justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                        Layouts <ChevronDown size={14} />
+                                {/* ---- Layouts ---- */}
+                                <li className="has-sub relative group">
+                                    <span className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                                        Layouts
+                                        <ChevronRight size={14} className="ml-2 text-gray-500" />
                                     </span>
-                                    <ul className="dropdown sub absolute top-0 left-full mt-0 w-48 bg-white border shadow-lg rounded-md">
-                                        <li><Link href="/layouts/grid" className="block px-4 py-2 hover:bg-gray-100">Grid</Link></li>
-                                        <li><Link href="/layouts/masonry" className="block px-4 py-2 hover:bg-gray-100">Masonry</Link></li>
+                                    <ul className="absolute top-0 left-full mt-0 w-48 bg-white shadow-lg rounded-md hidden group-hover:block">
+                                        <li><Link href="/layouts/grid" className="block px-4 py-2 hover:bg-gray-100">Right Sidebar</Link></li>
+                                        <li><Link href="/layouts/masonry" className="block px-4 py-2 hover:bg-gray-100">Left Sidebar</Link></li>
+                                        <li><Link href="/layouts/masonry" className="block px-4 py-2 hover:bg-gray-100">Without Sidebar</Link></li>
                                     </ul>
                                 </li>
 
-                                <li className="has-sub relative">
-                                    <span className="flex justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                        Elements <ChevronDown size={14} />
-                                    </span>
-                                    <ul className="dropdown sub absolute top-0 left-full mt-0 w-48 bg-white border shadow-lg rounded-md">
-                                        <li><Link href="/elements/buttons" className="block px-4 py-2 hover:bg-gray-100">Buttons</Link></li>
-                                        <li><Link href="/elements/cards" className="block px-4 py-2 hover:bg-gray-100">Cards</Link></li>
-                                        <li><Link href="/elements/forms" className="block px-4 py-2 hover:bg-gray-100">Forms</Link></li>
-                                    </ul>
-                                </li>
-
+                                <li><Link href="/features/auto-load" className="block px-4 py-2 hover:bg-gray-100">Auto Load Next Post</Link></li>
                                 <li><Link href="/features/analytics" className="block px-4 py-2 hover:bg-gray-100">Analytics</Link></li>
                             </ul>
                         )}
+                        
                     </li>
 
-                    <li>
+                    <li className="pt-2">
                         <Link
                             href="/about"
-                            className={`nav-link ${pathname === "/about" ? "active" : ""}`}
+                            className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
                         >
                             About
                         </Link>
                     </li>
-                    <li>
+                    <li className="pt-2">
                         <Link
                             href="/contact"
-                            className={`nav-link ${pathname === "/contact" ? "active" : ""}`}
+                            className={`nav-link ${pathname === "/contact" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
                         >
                             Contact
                         </Link>
                     </li>
-                    <li>
+                    <li className="pt-2">
                         <Link
                             href="/admin/new-post"
-                            className={`nav-link ${pathname === "/admin/new-post" ? "active" : ""}`}
+                            className={`nav-link ${pathname === "/admin/new-post" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
                         >
                             New Post
                         </Link>

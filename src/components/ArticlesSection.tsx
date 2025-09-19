@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Clock, ExternalLink, MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function ArticlesSection() {
@@ -247,26 +248,39 @@ export default function ArticlesSection() {
             <div className="lg:col-span-2 flex flex-col">
                 {/* Outer wrapper for articles */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {paginatedArticles.map((a, index) => (
-                        <article
-                            key={index}
-                            className="flex flex-col bg-white rounded-xl shadow hover:shadow-md overflow-hidden transition-shadow group"
-                        >
-                            {/* Image */}
-                            <div className="relative w-full h-56">
-                                <Image
-                                    src={a.image}
-                                    alt={a.title}
-                                    fill
-                                    className="object-cover"
-                                />
+                    {paginatedArticles.map((a) => (
+                        <Link key={a.id} href={`/articles/${a.id}`}>
+                            <article
+                                className="flex flex-col overflow-hidden group"
+                            >
+                                {/* Image */}
+                                <div className="relative w-full h-56">
+                                    <Image
+                                        src={a.image}
+                                        alt={a.title}
+                                        fill
+                                        className="object-cover rounded-2xl"
+                                    />
 
-                                {/* Top-Left Tag */}
-                                <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                                    {Array.isArray(a.tag) ? (
-                                        a.tag.map((t: string, i: number) => (
+                                    {/* Top-Left Tag */}
+                                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                                        {Array.isArray(a.tag) ? (
+                                            a.tag.map((t: string, i: number) => (
+                                                <span
+                                                    key={i}
+                                                    className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase"
+                                                    style={{
+                                                        lineHeight: 1.2,
+                                                        color: "#222",
+                                                        letterSpacing: ".1em",
+                                                        transition: ".25s",
+                                                    }}
+                                                >
+                                                    {t}
+                                                </span>
+                                            ))
+                                        ) : (
                                             <span
-                                                key={i}
                                                 className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase"
                                                 style={{
                                                     lineHeight: 1.2,
@@ -275,50 +289,38 @@ export default function ArticlesSection() {
                                                     transition: ".25s",
                                                 }}
                                             >
-                                                {t}
+                                                {a.tag}
                                             </span>
-                                        ))
-                                    ) : (
-                                        <span
-                                            className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase"
-                                            style={{
-                                                lineHeight: 1.2,
-                                                color: "#222",
-                                                letterSpacing: ".1em",
-                                                transition: ".25s",
-                                            }}
-                                        >
-                                            {a.tag}
+                                        )}
+                                    </div>
+
+                                    {/* Right-Top “min read” – visible on hover */}
+                                    <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/10 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ fontWeight: 700 }}>
+                                        <Clock className="w-5 h-5" />
+                                        <span style={{ fontSize: '16px' }}>{a.readTime} min read</span>
+                                    </div>
+                                </div>
+
+                                {/* Content */}
+                                <div className="py-4 px-1 flex flex-col gap-2">
+                                    {/* Author & Date */}
+                                    <div className="flex items-center text-sm text-gray-500 gap-1">
+                                        <span className="font-medium text-gray-700">
+                                            <span style={{ color: '#5955d1', fontWeight: 600, fontSize: '.925rem', lineHeight: 1.2 }}>{a.author}</span>
                                         </span>
-                                    )}
+                                        <span style={{ color: '#696981', fontWeight: 600, lineHeight: 1.2, letterSpacing: '-.02em' }}> on {a.date}</span>
+                                    </div>
+
+                                    {/* Title */}
+                                    <h2 style={{ fontSize: '1.3125rem', fontWeight: 700, letterSpacing: '-.04em', lineHeight: 1.2 }}>
+                                        {a.title}
+                                    </h2>
+
+                                    {/* Excerpt */}
+                                    <p className="text-gray-600 text-sm" style={{ fontWeight: 400, fontSize: '1rem', lineHeight: 1.55, color: '#696981', maxWidth: '640px' }}>{a.excerpt}</p>
                                 </div>
-
-                                {/* Right-Top “min read” – visible on hover */}
-                                <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/10 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ fontWeight: 700 }}>
-                                    <Clock className="w-5 h-5" />
-                                    <span style={{ fontSize: '16px' }}>{a.readTime} min read</span>
-                                </div>
-                            </div>
-
-                            {/* Content */}
-                            <div className="p-4 flex flex-col gap-2">
-                                {/* Author & Date */}
-                                <div className="flex items-center text-sm text-gray-500 gap-1">
-                                    <a href="#" className="font-medium text-gray-700">
-                                        <span style={{ color: '#5955d1', fontWeight: 600, fontSize: '.925rem', lineHeight: 1.2 }}>{a.author}</span>
-                                    </a>
-                                    <span style={{ color: '#696981', fontWeight: 600, lineHeight: 1.2, letterSpacing: '-.02em' }}> on {a.date}</span>
-                                </div>
-
-                                {/* Title */}
-                                <h2 style={{ fontSize: '1.3125rem', fontWeight: 700, letterSpacing: '-.04em', lineHeight: 1.2 }}>
-                                    {a.title}
-                                </h2>
-
-                                {/* Excerpt */}
-                                <p className="text-gray-600 text-sm" style={{ fontWeight: 400, fontSize: '1rem', lineHeight: 1.55, color: '#696981', maxWidth: '640px' }}>{a.excerpt}</p>
-                            </div>
-                        </article>
+                            </article>
+                        </Link>
                     ))}
                 </div>
                 {/* Pagination */}
@@ -378,7 +380,7 @@ export default function ArticlesSection() {
                 <div className="sticky top-8 space-y-10">
 
                     {/* 1️⃣ About Section */}
-                    <div className="bg-white rounded-xl shadow py-6 ps-6 pe-10 flex flex-col">
+                    <div className="aside-shadow rounded-xl shadow py-6 ps-6 pe-10 flex flex-col">
                         <h2 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase">About</h2>
                         {/* Profile Photo */}
                         <div className="flex gap-3">
@@ -431,18 +433,18 @@ export default function ArticlesSection() {
                     </div>
 
                     {/* 2️⃣ Featured Posts (Slider) */}
-                    <div className="bg-white rounded-xl shadow p-4">
-                        <h3 className="text-lg font-semibold mb-4">Featured Posts</h3>
-
-                        <div className="relative w-full h-48 overflow-hidden rounded-lg group">
+                    <h3 className="text-lg font-semibold mb-4">Featured Posts</h3>
+                    <div>
+                        <div className="relative w-full h-80 overflow-hidden group">
                             {posts.map((post, i) => (
                                 <div
                                     key={post.title}
                                     className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${i === index ? "opacity-100 z-10" : "opacity-0 z-0"}`}
                                 >
-                                    <Image src={post.img} alt={post.title} fill className="object-cover" />
-                                    {/* Overlay */}
-                                    <div className="absolute inset-0 flex flex-col justify-between p-3 text-white bg-black/30">
+                                    <Image src={post.img} alt={post.title} fill className="object-cover rounded-2xl" />
+
+                                    {/* Overlay (optional) */}
+                                    <div className="absolute inset-0 flex flex-col justify-between p-3 text-white">
                                         <span className="text-xs uppercase tracking-wide bg-white/20 px-2 py-1 rounded self-start">
                                             {post.tag}
                                         </span>
@@ -457,23 +459,23 @@ export default function ArticlesSection() {
                             {/* Navigation Arrows */}
                             <button
                                 onClick={prev}
-                                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 p-2 rounded-full opacity-0 group-hover:opacity-100 z-20 transition-opacity"
+                                className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 p-3 rounded-full z-20 opacity-0 group-hover:opacity-100 hover:translate-x-5 transition-all"
                                 aria-label="Previous slide"
                             >
-                                <ChevronLeft className="w-5 h-5 text-white" />
+                                <ChevronLeft className="w-6 h-6 text-white" />
                             </button>
                             <button
                                 onClick={next}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 p-2 rounded-full opacity-0 group-hover:opacity-100 z-20 transition-opacity"
+                                className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 p-3 rounded-full z-20 opacity-0 group-hover:opacity-100 hover:-translate-x-5 transition-all"
                                 aria-label="Next slide"
                             >
-                                <ChevronRight className="w-5 h-5 text-white" />
+                                <ChevronRight className="w-6 h-6 text-white" />
                             </button>
                         </div>
                     </div>
 
                     {/* 3️⃣ Work Experience */}
-                    <div className="bg-white rounded-xl shadow p-6">
+                    <div className="aside-shadow rounded-xl shadow p-6">
                         <h3 className="text-lg font-semibold mb-4 uppercase" style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem', lineHeight: '1.2' }}>Work Experience</h3>
                         <div className="space-y-4">
                             <div className="flex justify-between">
@@ -501,7 +503,7 @@ export default function ArticlesSection() {
                     </div>
 
                     {/* 4️⃣ Technologies */}
-                    <div className="bg-white rounded-xl shadow py-6 ps-6 pe-10">
+                    <div className="aside-shadow rounded-xl shadow py-6 ps-6 pe-10">
                         <h3
                             className="text-lg font-semibold mb-4 uppercase"
                             style={{ fontSize: ".75rem", fontWeight: 800, color: "#696981" }}
@@ -545,7 +547,7 @@ export default function ArticlesSection() {
                     </div>
 
                     {/* 5️⃣ Creating */}
-                    <div className="bg-white rounded-xl shadow p-6 space-y-4">
+                    <div className="aside-shadow rounded-xl shadow p-6 space-y-4">
                         <h3 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase text-lg font-semibold mb-4" >Creating</h3>
                         {[
                             { title: "Heartfelt Reflections", desc: "A deep dive into emotional experiences and personal growth, sharing valuable insights on life's most meaningful moments." },

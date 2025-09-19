@@ -1,7 +1,30 @@
+"use client";
+import { ChevronUp } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [scrollY, setScrollY] = useState(0);
+  const [showButton, setShowButton] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollTop / docHeight) * 100;
+      setScrollY(scrollPercent);
+      setShowButton(scrollTop > 200);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const circumference = 2 * Math.PI * 45;
+  const offset = ((100 - scrollY) / 100) * circumference;
 
   return (
     <>
@@ -120,6 +143,30 @@ export default function Footer() {
           </div>
         </div>
       </footer>
+
+      {showButton && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-50"
+          style={{cursor : 'pointer'}}
+        >
+          <svg className="w-13 h-13 absolute" viewBox="0 0 100 100">
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              stroke="#5559d1" 
+              strokeWidth="4"
+              fill="none"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              strokeLinecap="round"
+              transform="rotate(-90 50 50)"
+            />
+          </svg>
+          <ChevronUp size={26} className="text-black z-10" />
+        </button>
+      )}
     </>
   );
 }
