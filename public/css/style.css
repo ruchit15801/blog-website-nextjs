@@ -102,14 +102,27 @@
   display: inline-block;
   transition: transform 0.2s, opacity 0.2s;
 }
-
+.discover1{
+  background: #fff;
+  color: #514dcc;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.discover1:hover{
+  background: linear-gradient(180deg, #9895ff 0%, #514dcc 100%);
+  color: white;
+}
 .buy-btn:hover{
   transform: translateY(-2px);
   opacity: 0.9;
 }
 
 /* HERO SECTION  */
-.hero-section {
+.hero-section , .feature-posts , .feature-posts-item , .full-list{
     border-bottom: 1px solid #e1e1e8;
 }
 .trending-section h5 {
@@ -184,13 +197,13 @@
 .footer-section p {
     margin-top: 0.625rem;
     margin-bottom: 1.375rem;
-    color: #cbd5e1;
+    color: #696981;
 }
 .input-button{
     padding: .3rem;
     /* border: 1px solid #1f2937; */
     border-radius: 8px;
-    box-shadow: 0 5px 25px 0 rgba(0,0,0,.35);
+    box-shadow: 0 5px 25px 0 rgba(114, 114, 255, 0.12);
     /* background-color: #0f172a; */
     transition: .25s;
 }
@@ -212,7 +225,7 @@
 .input-button ::placeholder{
     color: #9ca3af;
 }
-.input-button button{
+.input-button button , .sign-up-btn{
     cursor: pointer;
     background: linear-gradient(180deg, #9895ff 0%, #514dcc 100%);
     color: #fff;
@@ -227,7 +240,8 @@
     border-radius: 8px;
     padding: .625rem , 1.125rem;
 }
-.footer-section-item{
+.footer-section-item p{
+    color: #29294b;
     font-size: .8rem;
     font-weight: bolder;
     letter-spacing: .03rem;
@@ -295,4 +309,17 @@
     margin-top: 1rem;
     font-size: .75em;
     color: #696981;
+}
+
+/* sign up  */
+.input-theme {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-theme:focus {
+  border-color: var(--brand-muted-blue);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-muted-blue), transparent 50%);
 }

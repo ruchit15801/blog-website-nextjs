@@ -4,13 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { ChevronDown, ChevronRight, ChevronUp, Moon, Search, Sun } from "lucide-react";
+import { Moon, Search, Sun } from "lucide-react";
 
 export default function Navbar() {
     const { theme, setTheme } = useTheme();
     const pathname = usePathname();
-    const [openMenu, setOpenMenu] = useState<string | null>(null);
 
     const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
 
@@ -22,77 +20,15 @@ export default function Navbar() {
                     <Image src="/images/logo.png" alt="Logo" width={130} height={130} priority />
                 </Link>
 
-                {/* === CENTER : Menu === */}
 
                 <ul className="navbar-menu">
-                    {/* HomePages dropdown */}
-                    <li
-                        className={`nav-item relative ${openMenu === "home" ? "open" : ""}`}
-                        onMouseEnter={() => setOpenMenu("home")}
-                        onMouseLeave={() => setOpenMenu(null)}
-                    >
-                        <button className="nav-link flex items-center gap-1 bg-gray-100 px-2 py-2 rounded-md">
-                            HomePages
-                            {openMenu === "home" ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </button>
-
-                        {openMenu === "home" && (
-                            <ul className="dropdown absolute top-full left-0 mt-1 w-48 bg-white border shadow-lg rounded-md z-50">
-                                <li><Link href="/classicList" className="block px-4 py-2 hover:bg-gray-100">Classic List</Link></li>
-                                <li><Link href="/" className="block px-4 py-2 hover:bg-gray-100">Classic Grid</Link></li>
-                                <li><Link href="/classicOverlay" className="block px-4 py-2 hover:bg-gray-100">Classic Overlay</Link></li>
-                                <li><Link href="/classic-grid" className="block px-4 py-2 hover:bg-gray-100">Hero Slider</Link></li>
-                                <li><Link href="/classic-grid" className="block px-4 py-2 hover:bg-gray-100">Classic Grid</Link></li>
-                                <li><Link href="/classic-grid" className="block px-4 py-2 hover:bg-gray-100">Classic Grid</Link></li>
-                                <li><Link href="/hero-slider" className="block px-4 py-2 hover:bg-gray-100">Hero Slider</Link></li>
-                                <li><Link href="/featured-posts" className="block px-4 py-2 hover:bg-gray-100">Featured Posts</Link></li>
-                            </ul>
-                        )}
-                    </li>
-
-                    {/* Features multi-level dropdown */}
-                    <li
-                        className={`nav-item relative ${openMenu === "features" ? "open" : ""}`}
-                        onMouseEnter={() => setOpenMenu("features")}
-                        onMouseLeave={() => setOpenMenu(null)}
-                    >
-                        <button className="nav-link flex items-center gap-1 hover:bg-gray-100 px-2 py-2">
-                            Features
-                            {openMenu === "features" ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </button>
-
-                        {openMenu === "features" && (
-                            <ul className="dropdown absolute top-full left-0 mt-1 w-56 bg-white border shadow-lg rounded-md z-50">
-                                <li className="has-sub relative group">
-                                    <span className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                        Post Headers
-                                        <ChevronRight size={14} className="ml-2 text-gray-500" />
-                                    </span>
-                                    <ul className="absolute top-0 left-full mt-0 w-48 bg-white shadow-lg rounded-md hidden group-hover:block">
-                                        <li><Link href="/widgets/basic" className="block px-4 py-2 hover:bg-gray-100">Standard</Link></li>
-                                        <li><Link href="/widgets/advanced" className="block px-4 py-2 hover:bg-gray-100">Split</Link></li>
-                                        <li><Link href="/widgets/pro" className="block px-4 py-2 hover:bg-gray-100">Overlay</Link></li>
-                                    </ul>
-                                </li>
-
-                                {/* ---- Layouts ---- */}
-                                <li className="has-sub relative group">
-                                    <span className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                                        Layouts
-                                        <ChevronRight size={14} className="ml-2 text-gray-500" />
-                                    </span>
-                                    <ul className="absolute top-0 left-full mt-0 w-48 bg-white shadow-lg rounded-md hidden group-hover:block">
-                                        <li><Link href="/layouts/grid" className="block px-4 py-2 hover:bg-gray-100">Right Sidebar</Link></li>
-                                        <li><Link href="/layouts/masonry" className="block px-4 py-2 hover:bg-gray-100">Left Sidebar</Link></li>
-                                        <li><Link href="/layouts/masonry" className="block px-4 py-2 hover:bg-gray-100">Without Sidebar</Link></li>
-                                    </ul>
-                                </li>
-
-                                <li><Link href="/features/auto-load" className="block px-4 py-2 hover:bg-gray-100">Auto Load Next Post</Link></li>
-                                <li><Link href="/features/analytics" className="block px-4 py-2 hover:bg-gray-100">Analytics</Link></li>
-                            </ul>
-                        )}
-                        
+                    <li className="pt-2">
+                        <Link
+                            href="/"
+                            className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
+                        >
+                            Home
+                        </Link>
                     </li>
 
                     <li className="pt-2">
@@ -108,7 +44,7 @@ export default function Navbar() {
                             href="/contact"
                             className={`nav-link ${pathname === "/contact" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
                         >
-                            Contact
+                            Contact Us
                         </Link>
                     </li>
                     <li className="pt-2">
@@ -123,19 +59,35 @@ export default function Navbar() {
 
 
                 {/* === RIGHT : Actions === */}
-                <div className="navbar-actions">
-                    <button aria-label="Search" className="icon-btn">
-                        <Search size={20} />
-                    </button>
+                <div className="navbar-actions flex items-center gap-2">
+                    {/* Search */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            className="pl-10 pr-4 py-1.5 rounded-full border transition-colors duration-300 text-gray-800 dark:text-gray-100 bg-white-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 placeholder-gray-500 dark:placeholder-gray-400"
+                        />
+                        <Search
+                            size={18}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300"
+                        />
+                    </div>
+
+                    {/* Theme toggle */}
                     <button
                         aria-label="Toggle theme"
-                        className="icon-btn"
+                        className="icon-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         onClick={toggleTheme}
                     >
                         {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
                     </button>
-                    <Link href="/buy" className="buy-btn">
-                        Buy Now
+
+                    {/* Sign Up */}
+                    <Link
+                        href="/signUp"
+                        className="buy-btn px-4 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition"
+                    >
+                        Sign Up
                     </Link>
                 </div>
             </nav>

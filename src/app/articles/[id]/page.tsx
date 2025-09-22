@@ -274,7 +274,7 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
     if (!article) return <p className="p-10 text-center">Article not found</p>;
 
     return (
-        <main className="mx-auto py-10" style={{ maxWidth: '76rem' }}>
+        <main className="mx-auto py-10" style={{ maxWidth: '73rem' }}>
             {/* Breadcrumb */}
             <nav className="text-sm text-gray-500 mb-6 flex justify-center items-center gap-1">
                 <Link href="/" className="text-gray-700">
@@ -327,7 +327,7 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
             </div>
 
             {/* Main Image */}
-            <div className="relative w-full mb-8 overflow-hidden rounded-xl">
+            <div className="relative w-full mb-8 overflow-hidden rounded-3xl">
                 <Image
                     src={article.image}
                     alt={article.title}
@@ -337,7 +337,6 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
                     priority
                 />
             </div>
-
 
             {/* Read-time & icons */}
             <section className="flex flex-row-reverse gap-8 mb-10">
