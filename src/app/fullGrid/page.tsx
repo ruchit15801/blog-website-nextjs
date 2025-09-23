@@ -1,6 +1,8 @@
 "use client"
+import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
-import { ChevronLeft, ChevronRight, Clock} from "lucide-react";
+import Navbar from "@/components/Navbar";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -196,32 +198,46 @@ export default function FullGrid() {
 
     return (
         <>
-        <Hero/>
-        <main className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* ===== Main Content ===== */}
-            <div className="lg:col-span-3 flex flex-col">
-                {/* Outer wrapper for articles */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {paginatedArticles.map((a) => (
-                        <Link key={a.id} href={`/articles/${a.id}`}>
-                            <article
-                                className="flex flex-col overflow-hidden group"
-                            >
-                                {/* Image */}
-                                <div className="relative w-full h-56">
-                                    <Image
-                                        src={a.image}
-                                        alt={a.title}
-                                        fill
-                                        className="object-cover rounded-2xl"
-                                    />
+            <Navbar/>
+            <Hero />
+            <main className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+                {/* ===== Main Content ===== */}
+                <div className="lg:col-span-3 flex flex-col">
+                    {/* Outer wrapper for articles */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {paginatedArticles.map((a) => (
+                            <Link key={a.id} href={`/articles/${a.id}`}>
+                                <article
+                                    className="flex flex-col overflow-hidden group"
+                                >
+                                    {/* Image */}
+                                    <div className="relative w-full h-56">
+                                        <Image
+                                            src={a.image}
+                                            alt={a.title}
+                                            fill
+                                            className="object-cover rounded-2xl"
+                                        />
 
-                                    {/* Top-Left Tag */}
-                                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                                        {Array.isArray(a.tag) ? (
-                                            a.tag.map((t: string, i: number) => (
+                                        {/* Top-Left Tag */}
+                                        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                                            {Array.isArray(a.tag) ? (
+                                                a.tag.map((t: string, i: number) => (
+                                                    <span
+                                                        key={i}
+                                                        className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase"
+                                                        style={{
+                                                            lineHeight: 1.2,
+                                                            color: "#222",
+                                                            letterSpacing: ".1em",
+                                                            transition: ".25s",
+                                                        }}
+                                                    >
+                                                        {t}
+                                                    </span>
+                                                ))
+                                            ) : (
                                                 <span
-                                                    key={i}
                                                     className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase"
                                                     style={{
                                                         lineHeight: 1.2,
@@ -230,106 +246,94 @@ export default function FullGrid() {
                                                         transition: ".25s",
                                                     }}
                                                 >
-                                                    {t}
+                                                    {a.tag}
                                                 </span>
-                                            ))
-                                        ) : (
-                                            <span
-                                                className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase"
-                                                style={{
-                                                    lineHeight: 1.2,
-                                                    color: "#222",
-                                                    letterSpacing: ".1em",
-                                                    transition: ".25s",
-                                                }}
-                                            >
-                                                {a.tag}
+                                            )}
+                                        </div>
+
+                                        {/* Right-Top “min read” – visible on hover */}
+                                        <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/10 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ fontWeight: 700 }}>
+                                            <Clock className="w-5 h-5" />
+                                            <span style={{ fontSize: '16px' }}>{a.readTime} min read</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="py-4 px-1 flex flex-col gap-2">
+                                        {/* Author & Date */}
+                                        <div className="flex items-center text-sm text-gray-500 gap-1">
+                                            <span className="font-medium text-gray-700">
+                                                <span style={{ color: '#5955d1', fontWeight: 600, fontSize: '.925rem', lineHeight: 1.2 }}>{a.author}</span>
                                             </span>
-                                        )}
+                                            <span style={{ color: '#696981', fontWeight: 600, lineHeight: 1.2, letterSpacing: '-.02em' }}> on {a.date}</span>
+                                        </div>
+
+                                        {/* Title */}
+                                        <h2 style={{ fontSize: '1.3125rem', fontWeight: 700, letterSpacing: '-.04em', lineHeight: 1.2 }}>
+                                            {a.title}
+                                        </h2>
+
+                                        {/* Excerpt */}
+                                        <p className="text-gray-600 text-sm" style={{ fontWeight: 400, fontSize: '1rem', lineHeight: 1.55, color: '#696981', maxWidth: '640px' }}>{a.excerpt}</p>
                                     </div>
-
-                                    {/* Right-Top “min read” – visible on hover */}
-                                    <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/10 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ fontWeight: 700 }}>
-                                        <Clock className="w-5 h-5" />
-                                        <span style={{ fontSize: '16px' }}>{a.readTime} min read</span>
-                                    </div>
-                                </div>
-
-                                {/* Content */}
-                                <div className="py-4 px-1 flex flex-col gap-2">
-                                    {/* Author & Date */}
-                                    <div className="flex items-center text-sm text-gray-500 gap-1">
-                                        <span className="font-medium text-gray-700">
-                                            <span style={{ color: '#5955d1', fontWeight: 600, fontSize: '.925rem', lineHeight: 1.2 }}>{a.author}</span>
-                                        </span>
-                                        <span style={{ color: '#696981', fontWeight: 600, lineHeight: 1.2, letterSpacing: '-.02em' }}> on {a.date}</span>
-                                    </div>
-
-                                    {/* Title */}
-                                    <h2 style={{ fontSize: '1.3125rem', fontWeight: 700, letterSpacing: '-.04em', lineHeight: 1.2 }}>
-                                        {a.title}
-                                    </h2>
-
-                                    {/* Excerpt */}
-                                    <p className="text-gray-600 text-sm" style={{ fontWeight: 400, fontSize: '1rem', lineHeight: 1.55, color: '#696981', maxWidth: '640px' }}>{a.excerpt}</p>
-                                </div>
-                            </article>
-                        </Link>
-                    ))}
-                </div>
-                {/* Pagination */}
-                <div className="flex justify-center mt-10">
-                    <nav
-                        className="flex items-center text-sm"
-                        aria-label="Pagination"
-                        style={{
-                            color: "var(--cs-color-primary)",
-                            backgroundColor: "var(--cs-layout-background)",
-                            boxShadow: "0px 5px 20px 0px rgba(var(--cs-color-box-shadow-rgb), .15)",
-                            borderRadius: "var(--cs-layout-elements-border-radius)",
-                            padding: ".5rem .75rem",
-                            margin: "0 .75rem",
-                        }}
-                    >
-                        {/* Prev button only when currentPage > 1 */}
-                        {currentPage > 1 && (
-                            <button
-                                onClick={() => goToPage(currentPage - 1)}
-                                className="flex items-center justify-center px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
-                                style={{ color: "#29294b" }}
-                            >
-                                <ChevronLeft className="w-4 h-4" />
-                            </button>
-                        )}
-
-                        {/* Page Numbers */}
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <button
-                                key={page}
-                                onClick={() => goToPage(page)}
-                                className={`mx-1 px-3 py-1 rounded-md transition-colors ${currentPage === page
-                                    ? "bg-[#29294b] text-white"
-                                    : "hover:bg-gray-100 text-[#29294b]"
-                                    }`}
-                            >
-                                {page}
-                            </button>
+                                </article>
+                            </Link>
                         ))}
+                    </div>
+                    {/* Pagination */}
+                    <div className="flex justify-center mt-10">
+                        <nav
+                            className="flex items-center text-sm"
+                            aria-label="Pagination"
+                            style={{
+                                color: "var(--cs-color-primary)",
+                                backgroundColor: "var(--cs-layout-background)",
+                                boxShadow: "0px 5px 20px 0px rgba(var(--cs-color-box-shadow-rgb), .15)",
+                                borderRadius: "var(--cs-layout-elements-border-radius)",
+                                padding: ".5rem .75rem",
+                                margin: "0 .75rem",
+                            }}
+                        >
+                            {/* Prev button only when currentPage > 1 */}
+                            {currentPage > 1 && (
+                                <button
+                                    onClick={() => goToPage(currentPage - 1)}
+                                    className="flex items-center justify-center px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
+                                    style={{ color: "#29294b" }}
+                                >
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                            )}
 
-                        {/* Next button only when currentPage < totalPages */}
-                        {currentPage < totalPages && (
-                            <button
-                                onClick={() => goToPage(currentPage + 1)}
-                                className="flex items-center justify-center px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
-                                style={{ color: "#29294b" }}
-                            >
-                                <ChevronRight className="w-4 h-4" />
-                            </button>
-                        )}
-                    </nav>
+                            {/* Page Numbers */}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => goToPage(page)}
+                                    className={`mx-1 px-3 py-1 rounded-md transition-colors ${currentPage === page
+                                        ? "bg-[#29294b] text-white"
+                                        : "hover:bg-gray-100 text-[#29294b]"
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+
+                            {/* Next button only when currentPage < totalPages */}
+                            {currentPage < totalPages && (
+                                <button
+                                    onClick={() => goToPage(currentPage + 1)}
+                                    className="flex items-center justify-center px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
+                                    style={{ color: "#29294b" }}
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            )}
+                        </nav>
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
+            <Footer/>
         </>
     );
 }

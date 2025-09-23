@@ -1,5 +1,7 @@
 "use client"
+import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
+import Navbar from "@/components/Navbar";
 import { ChevronLeft, ChevronRight, Clock, ExternalLink, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -246,8 +248,8 @@ export default function ClassicList() {
 
     return (
         <>
+            <Navbar/>
             <Hero />
-
             <main className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* ===== Main Content ===== */}
                 <div className="lg:col-span-2 flex flex-col">
@@ -577,6 +579,7 @@ export default function ClassicList() {
                     </div>
                 </aside>
             </main>
+            <Footer/>
         </>
     );
 }

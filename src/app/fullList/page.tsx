@@ -1,5 +1,7 @@
 "use client"
+import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
+import Navbar from "@/components/Navbar";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -195,6 +197,7 @@ export default function FullList() {
 
     return (
         <>
+            <Navbar/>
             <Hero />
             <main className="flex justify-center px-4 py-10">
                 {/* ===== Main Content ===== */}
@@ -329,6 +332,7 @@ export default function FullList() {
                     </div>
                 </div>
             </main>
+            <Footer/>
 
         </>
     );
