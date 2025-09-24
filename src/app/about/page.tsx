@@ -13,7 +13,7 @@ export default function AboutPage() {
                 </div>
                 {/* Main Section */}
                 <section className="mb-12 text-center">
-                    <h1 className="text-4xl sm:text-5xl font-bold mb-6">
+                    <h1 className="text-4xl sm:text-5xl font-bold mb-6" style={{color : '#29294b'}}>
                         Hey,{" "}
                         <span className="text-white px-3 py-1 rounded-md"
                             style={{
@@ -60,9 +60,10 @@ export default function AboutPage() {
                         style={{
                             color: "#29294b",
                             maxWidth: "640px",
-                            fontSize: "1.5rem",
+                            fontSize: "24px",
                             fontWeight: 700,
                             lineHeight: 1.5,
+                            letterSpacing : '-.04em',
                             wordWrap: "break-word",
                         }}
                     >
@@ -73,9 +74,10 @@ export default function AboutPage() {
                         style={{
                             color: "#29294b",
                             maxWidth: "640px",
-                            fontSize: "1.5rem",
+                            fontSize: "24px",
                             fontWeight: 700,
                             lineHeight: 1.5,
+                            letterSpacing : '-.04em',
                             wordWrap: "break-word",
                         }}
                     >

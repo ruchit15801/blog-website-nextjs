@@ -312,7 +312,7 @@ export default function ArticlesSection() {
                                     </div>
 
                                     {/* Title */}
-                                    <h2 style={{ fontSize: '1.3125rem', fontWeight: 700, letterSpacing: '-.04em', lineHeight: 1.2 }}>
+                                    <h2 style={{ fontSize: '1.3125rem', fontWeight: 700, letterSpacing: '-.04em', lineHeight: 1.2 , color : '#29294b' }}>
                                         {a.title}
                                     </h2>
 
