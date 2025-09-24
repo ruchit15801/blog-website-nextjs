@@ -92,7 +92,7 @@
   cursor: pointer;
 }
 
-.buy-btn , .submit-button ,.discover {
+.buy-btn , .submit-button ,.discover ,.submit_comment , .view_comment{
   background: linear-gradient(180deg, #9895ff 0%, #514dcc 100%);
   color: white;
   padding: 0.5rem 1rem;
@@ -322,4 +322,10 @@
 .input-theme:focus {
   border-color: var(--brand-muted-blue);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-muted-blue), transparent 50%);
+}
+.comment_form label{
+  color: #29294b;
+  font-weight: 400;
+  line-height: 1.55;
+  margin-bottom: 6px;
 }

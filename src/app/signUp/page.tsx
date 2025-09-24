@@ -71,7 +71,7 @@ export default function AuthPage() {
                     </h1>
 
                     {/* Toggle Switch */}
-                    <div className="relative w-full max-w-md mx-auto mb-6 bg-white dark:bg-gray-700 rounded-full p-1">
+                    <div className="relative w-full max-w-md mx-auto mb-6 border border-gray-300 bg-white dark:bg-gray-700 rounded-full p-1">
                         <div
                             className="absolute top-1 rounded-full transition-all duration-300"
                             style={{
@@ -136,19 +136,6 @@ export default function AuthPage() {
                                             className="input-theme mt-1 w-full"
                                         />
                                     </div>
-                                </div>
-
-                                <div className="flex flex-col">
-                                    <label className="text-gray-700 dark:text-gray-200 font-medium">
-                                        Mobile
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="mobile"
-                                        value={formData.mobile}
-                                        onChange={handleChange}
-                                        className="input-theme mt-1"
-                                    />
                                 </div>
                             </>
                         )}

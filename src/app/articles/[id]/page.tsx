@@ -6,6 +6,18 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
+interface CommentType {
+    id: number;
+    name: string;
+    avatar?: string;
+    date: string;
+    comment: string;
+    replies?: CommentType[];
+}
+
+
+
+
 export default function ArticleDetail({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = React.use(params);
 
@@ -272,12 +284,51 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
     const [index, setIndex] = useState(0);
     const prev = () => setIndex((i) => (i - 1 + posts.length) % posts.length);
     const next = () => setIndex((i) => (i + 1) % posts.length);
+    const [showForm, setShowForm] = useState(false);
+    const [formData, setFormData] = useState({ name: "", email: "", comment: "", remember: false, replyingTo: "" });
+    const [comments, setComments] = useState<CommentType[]>([
+        {
+            id: 1,
+            name: "Joanna Wellick",
+            avatar: "/images/c1.jpeg",
+            date: "October 9, 2024",
+            comment: "This is a sample comment.",
+            replies: [
+                {
+                    id: 11,
+                    name: "Elliot Alderson",
+                    avatar: "/images/c2.jpeg",
+                    date: "October 10, 2024",
+                    comment: "This is a reply to Joanna."
+                }
+            ]
+        }
+    ]);
 
     if (!article) return <p className="p-10 text-center">Article not found</p>;
 
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value, type } = e.target;
+        const checked = type === "checkbox" && (e.target as HTMLInputElement).checked;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
+    };
+
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log(formData);
+        setShowForm(false);
+    };
+
     return (
         <>
-            <Navbar/>
+            <Navbar />
             <main className="mx-auto py-10" style={{ maxWidth: '73rem' }}>
                 {/* Breadcrumb */}
                 <nav className="text-sm text-gray-500 mb-6 flex justify-center items-center gap-1">
@@ -590,6 +641,182 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
                                 height={400}
                                 className="rounded-lg object-cover"
                             />
+
+                            {/* View Comment button */}
+                            <button className="view_comment ms-0"
+                                onClick={() => setShowForm((prev) => !prev)}>
+                                {showForm ? "Hide Comment Form" : "View Comment"}
+                            </button>
+
+                            {/* Comments Section */}
+                            {showForm && (
+                                <div className="comments-section mt-4 space-y-4">
+                                    {comments.map((c, idx) => (
+                                        <div key={idx} className="comment flex flex-col gap-2 bg-gray-50 p-4 rounded-2xl shadow-sm">
+                                            <div className="flex items-center gap-3">
+                                                <Image
+                                                    src={c.avatar || "/default-avatar.png"}
+                                                    alt={c.name}
+                                                    width={40}
+                                                    height={40}
+                                                    className="rounded-full object-cover"
+                                                />
+                                                <div className="flex flex-col">
+                                                    <span className="font-semibold text-gray-800">{c.name}</span>
+                                                    <span className="text-gray-500 text-sm">{c.date}</span>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-gray-700 mt-2">{c.comment}</p>
+
+                                            {/* Reply button */}
+                                            <button
+                                                className="text-blue-600 text-sm mt-2 hover:underline"
+                                                onClick={() => {
+                                                    setFormData((prev) => ({ ...prev, replyingTo: c.name }));
+                                                    setShowForm(true);
+                                                    document.getElementById("commentForm")?.scrollIntoView({ behavior: "smooth" });
+                                                }}>
+                                                     Reply
+                                            </button>
+
+                                            {/* Nested replies */}
+                                            {c.replies && c.replies.length > 0 && (
+                                                <div className="replies mt-4 space-y-4 pl-12 border-l border-gray-200">
+                                                    {c.replies.map((r: CommentType, ridx: number) => (
+                                                        <div key={ridx} className="reply flex flex-col gap-2">
+                                                            <div className="flex items-center gap-3">
+                                                                <Image
+                                                                    src={r.avatar || "/default-avatar.png"}
+                                                                    alt={r.name}
+                                                                    width={40}
+                                                                    height={40}
+                                                                    className="rounded-full object-cover"
+                                                                />
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-semibold text-gray-800">{r.name}</span>
+                                                                    <span className="text-gray-500 text-sm">{r.date}</span>
+                                                                </div>
+                                                            </div>
+                                                            <p className="text-gray-700 mt-1">{r.comment}</p>
+                                                            <button
+                                                                className="text-blue-600 text-sm mt-1 hover:underline"
+                                                                onClick={() => {
+                                                                    setFormData((prev) => ({ ...prev, replyingTo: r.name }));
+                                                                    setShowForm(true);
+                                                                    document.getElementById("commentForm")?.scrollIntoView({ behavior: "smooth" });
+                                                                }}
+                                                            >
+                                                                Reply
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+
+                                    {/* Comment Form */}
+                                    <form
+                                        id="commentForm"
+                                        onSubmit={handleSubmit}
+                                        className="comment_form mt-4 flex flex-col shadow gap-4 p-4 rounded-2xl bg-white"
+                                    >
+                                        {/* Replying To */}
+                                        {formData.replyingTo && (
+                                            <div className="text-sm font-medium text-gray-600 mb-2">
+                                                Replying to <span className="font-semibold">{formData.replyingTo}</span>
+                                            </div>
+                                        )}
+
+                                        {/* Heading */}
+                                        <h4 className="text-xl font-semibold" style={{ color: "#29294b", fontWeight: 700 }}>
+                                            Leave a Comment
+                                        </h4>
+                                        <p className="text-sm text-gray-600" style={{ fontSize: ".875rem", color: "#696981" }}>
+                                            Your email address will not be published. Required fields are marked{" "}
+                                            <span className="text-gray-500">*</span>
+                                        </p>
+
+                                        {/* Name + Email */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <label className="flex flex-col gap-1 text-sm font-medium">
+                                                <span className="flex items-center gap-1">Name <span className="text-gray-500">*</span></span>
+                                                <input
+                                                    type="text"
+                                                    name="name"
+                                                    placeholder="Name*"
+                                                    value={formData.name}
+                                                    onChange={handleChange}
+                                                    className="border border-gray-200 focus:border-gray-400 focus:ring-0 p-2 rounded w-full placeholder:text-gray-400"
+                                                    required
+                                                />
+                                            </label>
+
+                                            <label className="flex flex-col gap-1 text-sm font-medium">
+                                                <span className="flex items-center gap-1">Email <span className="text-gray-500">*</span></span>
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    placeholder="Email*"
+                                                    value={formData.email}
+                                                    onChange={handleChange}
+                                                    className="border border-gray-200 focus:border-gray-400 focus:ring-0 p-2 rounded w-full placeholder:text-gray-400"
+                                                    required
+                                                />
+                                            </label>
+                                        </div>
+
+                                        {/* Comment */}
+                                        <label className="flex flex-col gap-1 text-sm font-medium">
+                                            <span className="flex items-center gap-1">Your Comment <span className="text-gray-500">*</span></span>
+                                            <textarea
+                                                name="comment"
+                                                placeholder="Your Comment*"
+                                                value={formData.comment}
+                                                onChange={handleChange}
+                                                className="border border-gray-200 focus:border-gray-400 focus:ring-0 p-2 rounded w-full placeholder:text-gray-400"
+                                                rows={4}
+                                                required
+                                            />
+                                        </label>
+
+                                        {/* Remember Checkbox */}
+                                        <label className="flex items-center justify-center gap-2 text-sm" style={{ maxWidth: "64%" }}>
+                                            <input
+                                                type="checkbox"
+                                                name="remember"
+                                                checked={formData.remember}
+                                                onChange={handleChange}
+                                                className="w-4 h-4"
+                                            />
+                                            Save my name and email in this browser for the next time I comment.
+                                        </label>
+
+                                        {/* Buttons */}
+                                        <div className="flex gap-4">
+                                            <button
+                                                type="submit"
+                                                className="submit_comment px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
+                                            >
+                                                Submit Comment
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setShowForm(false);
+                                                    setFormData((prev) => ({ ...prev, replyingTo: "" }));
+                                                }}
+                                                className="px-4 py-2 rounded bg-gray-400 text-white hover:bg-gray-500"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+
+
                         </div>
                     </div>
                 </section>
@@ -663,7 +890,7 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
                 </section>
 
             </main>
-            <Footer/>
+            <Footer />
         </>
     );
 }

@@ -16,7 +16,7 @@ export default function Hero() {
         <main>
             <section className="hero-section py-20 px-4 text-center">
                 {/* Headline */}
-                <h1 className="text-5xl sm:text-6xl font-bold leading-tight mb-6">
+                <h1 className="text-5xl sm:text-6xl font-bold leading-tight mb-6" style={{fontSize : '3.25rem' ,fontWeight : 700 , letterSpacing : '-.05em', margin : '6px 15%'}}>
                     Heartfelt{" "}
                     <span
                         className="text-gradient"
@@ -33,7 +33,7 @@ export default function Hero() {
                 </h1>
 
                 {/* Description */}
-                <p className="text-lg sm:text-xl text-gray-800 max-w-2xl mx-auto" style={{ color: "#696981)" }}>
+                <p className="text-lg sm:text-xl max-w-2xl mx-auto" style={{ color: "#696981)"}}>
                     Revision Welcomes to ultimate source for fresh perspectives! Explore curated content to
                     enlighten, entertain and engage global readers.
                 </p>

@@ -1,26 +1,34 @@
+/* globals.css */
+
+/* 1️⃣ Google Fonts import (must be at the very top for Next.js/Turbopack) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
 @import "tailwindcss";
 
+/* 2️⃣ CSS Variables */
 :root {
-  /* --background: #0a0a0a; 
-  --foreground: #e5e7eb; */
-   --cs-site-background: linear-gradient(
+  --cs-font-headings-family: 'DM Sans', sans-serif;
+  --cs-font-body-family: 'DM Sans', sans-serif;
+
+  --cs-site-background: linear-gradient(
     180deg,
     var(--cs-light-site-background-start, #fdfdff) 0%,
     var(--cs-light-site-background-end, #f8f7ff) 100%
   );
+
   /* Brand palette */
   --brand-muted-blue: #4A90E2;
   --brand-teal: #1ABC9C;
   --brand-amber: #F5A623;
   --surface: #0a0a0a0d; /* light translucent for cards */
   --ring: color-mix(in oklab, var(--brand-muted-blue), white 25%);
-  --muted-foreground: #475569; /* slate-600 */
+  --muted-foreground: #475569;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--cs-font-body-family);
   --font-mono: var(--font-geist-mono);
   --color-accent: var(--brand-muted-blue);
   --color-accent-2: var(--brand-teal);
@@ -31,19 +39,27 @@
   :root {
     --background: #0a0a0a;
     --foreground: #e5e7eb;
-    --surface: #ffffff14; /* slightly brighter for card contrast */
+    --surface: #ffffff14;
     --ring: color-mix(in oklab, var(--brand-teal), white 20%);
     --muted-foreground: #cbd5e1;
   }
 }
 
+/* 3️⃣ Global body styles */
 body {
   background: var(--cs-site-background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--cs-font-body-family), Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-/* Subtle gradient background accent */
+/* 4️⃣ Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--cs-font-headings-family), sans-serif;
+}
+
+/* 5️⃣ Subtle gradient background accents */
 .bg-grid {
   background-image: radial-gradient(
     color-mix(in oklab, var(--brand-muted-blue), transparent 85%) 1px,
@@ -58,7 +74,7 @@ body {
     radial-gradient(600px 300px at 90% 0%, color-mix(in oklab, var(--brand-teal), transparent 82%), transparent);
 }
 
-/* Animations */
+/* 6️⃣ Animations */
 @keyframes float {
   0% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
@@ -74,6 +90,7 @@ body {
   animation: float 6s ease-in-out infinite;
 }
 
+/* 7️⃣ Cards */
 .card-hover {
   transition: transform 300ms ease, box-shadow 300ms ease, background-color 300ms ease, outline-color 300ms ease;
 }
@@ -83,6 +100,7 @@ body {
   box-shadow: 0 12px 30px -10px color-mix(in oklab, var(--brand-muted-blue), black 65%);
 }
 
+/* 8️⃣ Shine effect */
 .shine {
   position: relative;
   overflow: hidden;
@@ -100,14 +118,17 @@ body {
   transition: opacity 0.3s ease;
 }
 
-.shine:hover::after { opacity: 1; animation: shimmer 1s linear; }
+.shine:hover::after { 
+  opacity: 1; 
+  animation: shimmer 1s linear; 
+}
 
 @keyframes shimmer {
   0% { transform: translateX(-120%) rotate(25deg); }
   100% { transform: translateX(220%) rotate(25deg); }
 }
 
-/* Buttons */
+/* 9️⃣ Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -116,19 +137,33 @@ body {
   padding: 0 18px;
   border-radius: 9999px;
   font-weight: 600;
+  font-family: var(--cs-font-body-family), sans-serif;
   transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
 }
 
 .btn:hover { transform: translateY(-1px); }
 
 .btn-primary {
-  color: #111827; /* slate-900 for better contrast on amber */
+  color: #111827;
   background: var(--brand-amber);
   box-shadow: 0 8px 16px -8px color-mix(in oklab, var(--brand-amber), black 50%);
 }
 
-.btn-primary:hover { box-shadow: 0 12px 22px -10px color-mix(in oklab, var(--brand-amber), black 60%); }
+.btn-primary:hover { 
+  box-shadow: 0 12px 22px -10px color-mix(in oklab, var(--brand-amber), black 60%); 
+}
 
+.btn-secondary {
+  color: var(--brand-muted-blue);
+  border: 1px solid color-mix(in oklab, var(--brand-muted-blue), transparent 30%);
+  background: color-mix(in oklab, var(--brand-muted-blue), transparent 96%);
+}
+
+.btn-secondary:hover {
+  background: color-mix(in oklab, var(--brand-muted-blue), transparent 92%);
+}
+
+/* 10️⃣ Badges */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -136,41 +171,34 @@ body {
   padding: 4px 10px;
   border-radius: 999px;
   background: color-mix(in oklab, var(--brand-teal), transparent 78%);
-  color: #064e3b; /* teal-900 for high contrast on light; in dark it remains readable */
+  color: #064e3b;
   border: 1px solid color-mix(in oklab, var(--brand-teal), transparent 60%);
   font-weight: 600;
+  font-family: var(--cs-font-body-family), sans-serif;
 }
 
-/* Accessible link styles */
+/* 11️⃣ Links & muted text */
 a { color: inherit; }
 a[style] { text-underline-offset: 3px; }
-
-/* Muted text utility */
 .text-muted { color: var(--muted-foreground); }
 
-/* Secondary button variant for better contrast */
-.btn-secondary {
-  color: var(--brand-muted-blue);
-  border: 1px solid color-mix(in oklab, var(--brand-muted-blue), transparent 30%);
-  background: color-mix(in oklab, var(--brand-muted-blue), transparent 96%);
-}
-.btn-secondary:hover {
-  background: color-mix(in oklab, var(--brand-muted-blue), transparent 92%);
-}
-
-/* Focus ring for accessibility */
+/* 12️⃣ Focus ring for accessibility */
 :where(a, button, input, textarea).btn:focus-visible,
 :where(a, button, input, textarea):focus-visible {
   outline: 3px solid var(--ring);
   outline-offset: 2px;
 }
 
-/* ContentEditable editor default styles */
-.editor-area h1, .editor-area h2, .editor-area h3 { font-weight: 700; margin: 1rem 0 .5rem; }
+/* 13️⃣ Editor styles */
+.editor-area h1, .editor-area h2, .editor-area h3 { 
+  font-weight: 700; 
+  margin: 1rem 0 .5rem; 
+  font-family: var(--cs-font-headings-family), sans-serif;
+}
+
 .editor-area h1 { font-size: 1.875rem; }
 .editor-area h2 { font-size: 1.5rem; }
 .editor-area h3 { font-size: 1.25rem; }
-.editor-area p { margin: .5rem 0; line-height: 1.7; }
-.editor-area ul { list-style: disc; padding-left: 1.25rem; margin: .5rem 0; }
-.editor-area ol { list-style: decimal; padding-left: 1.25rem; margin: .5rem 0; }
-.editor-area blockquote { border-left: 3px solid var(--brand-teal); padding-left: .75rem; margin: .75rem 0; opacity: .9; }
+.editor-area p { margin: .5rem 0; line-height: 1.7; font-family: var(--cs-font-body-family), sans-serif; }
+.editor-area ul, .editor-area ol { padding-left: 1.25rem; margin: .5rem 0; font-family: var(--cs-font-body-family), sans-serif; }
+.editor-area blockquote { border-left: 3px solid var(--brand-teal); padding-left: .75rem; margin: .75rem 0; opacity: .9; font-family: var(--cs-font-body-family), sans-serif; }
