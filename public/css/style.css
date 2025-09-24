@@ -169,9 +169,16 @@
   transition: all 0.25s;
 }
 
-.trending-btn:hover {
-  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+.trending-btn:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.6); }
+
+/* Apply new hover utilities */
+.feature-posts .group, .full-list article, .home-page-sub-menu a, .footer-item-inner-items p,
+.navbar-container a, .aside-shadow, .comment_form label {
+  transition: transform .25s ease, box-shadow .25s ease, color .25s ease;
 }
+.feature-posts .group:hover, .full-list article:hover, .aside-shadow:hover { transform: translateY(-4px); }
+.feature-posts .relative img, .full-list .relative img, .grid .relative img { transition: transform .3s ease; }
+.feature-posts .relative:hover img, .full-list .relative:hover img, .grid .relative:hover img { transform: scale(1.03); }
 
 .second-row {
   width: 100%;           

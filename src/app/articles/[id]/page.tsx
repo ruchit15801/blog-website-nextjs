@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import { ChevronLeft, ChevronRight, ExternalLink, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface CommentType {
     id: number;
@@ -326,6 +326,28 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
         setShowForm(false);
     };
 
+    // Scroll progress for "min read" ring
+    const [scrollProgress, setScrollProgress] = useState(0);
+    useEffect(() => {
+        const handle = () => {
+            const doc = document.documentElement;
+            const scrollTop = doc.scrollTop || window.pageYOffset;
+            const max = (doc.scrollHeight - doc.clientHeight) || 1;
+            const p = Math.min(1, Math.max(0, scrollTop / max));
+            setScrollProgress(p);
+        };
+        handle();
+        window.addEventListener("scroll", handle, { passive: true });
+        window.addEventListener("resize", handle);
+        return () => {
+            window.removeEventListener("scroll", handle);
+            window.removeEventListener("resize", handle);
+        };
+    }, []);
+    const ringRadius = 38;
+    const ringCircumference = 2 * Math.PI * ringRadius;
+    const ringOffset = ringCircumference * (1 - scrollProgress);
+
     return (
         <>
             <Navbar />
@@ -593,15 +615,33 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
                         {/* 10% column */}
                         <div style={{ position: 'sticky', top: '80px', alignSelf: 'start' }}>
                             <div className="flex flex-col items-center gap-6">
-                                <div className="flex items-center justify-center text-center font-bold rounded-full" style={{
-                                    width: '80px',
-                                    height: '80px',
-                                    boxShadow: '0px 5px 20px 0px rgba(114, 114, 255, 0.15)',
-                                    transition: '.25s',
-                                    animation: 'fade .5s',
-                                    color: '#29294b',
-                                }}>
-                                    <span style={{ fontSize: '1rem', fontWeight: 600, transition: '.25s' }}>{article.readTime} min read</span>
+                                <div className="relative flex items-center justify-center text-center font-bold rounded-full" style={{ width: '96px', height: '96px' }}>
+                                    <svg viewBox="0 0 100 100" className="absolute inset-0" style={{ filter: 'drop-shadow(0 4px 10px rgba(114,114,255,0.25))' }}>
+                                        <circle cx="50" cy="50" r={ringRadius} stroke="#eef2ff" strokeWidth="8" fill="none" />
+                                        <circle
+                                            cx="50"
+                                            cy="50"
+                                            r={ringRadius}
+                                            stroke="#5955d1"
+                                            strokeWidth="8"
+                                            fill="none"
+                                            strokeDasharray={ringCircumference}
+                                            strokeDashoffset={ringOffset}
+                                            strokeLinecap="round"
+                                            transform="rotate(-90 50 50)"
+                                        />
+                                    </svg>
+                                    <div className="flex items-center justify-center" style={{
+                                        width: '76px',
+                                        height: '76px',
+                                        boxShadow: '0px 5px 20px 0px rgba(114, 114, 255, 0.15)',
+                                        transition: '.25s',
+                                        color: '#29294b',
+                                        background: '#fff',
+                                        borderRadius: '9999px'
+                                    }}>
+                                        <span style={{ fontSize: '0.9rem', fontWeight: 700 }}>{article.readTime} min read</span>
+                                    </div>
                                 </div>
                                 <div className="flex items-center justify-start gap-4 text-gray-800" style={{ color: '#29294b', flexDirection: 'column' }}>
                                     <a href="#" aria-label="Twitter" className="hover:text-blue-600">

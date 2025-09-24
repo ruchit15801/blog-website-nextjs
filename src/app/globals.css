@@ -105,6 +105,28 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 12px 30px -10px color-mix(in oklab, var(--brand-muted-blue), black 65%);
 }
 
+/* 14️⃣ Subtle hover and focus animations */
+.hover-float { transition: transform 250ms ease, box-shadow 250ms ease; }
+.hover-float:hover { transform: translateY(-4px); box-shadow: 0 10px 24px -12px color-mix(in oklab, var(--brand-muted-blue), black 55%); }
+.hover-zoom { transition: transform 250ms ease; }
+.hover-zoom:hover { transform: scale(1.03); }
+.hover-glow { transition: box-shadow 250ms ease; }
+.hover-glow:hover { box-shadow: 0 0 0 6px color-mix(in oklab, var(--ring), transparent 85%); }
+
+/* 15️⃣ Reveal on scroll */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal { opacity: 0; transform: translateY(14px); }
+.reveal.revealed { opacity: 1; transform: none; animation: revealUp 600ms cubic-bezier(.21,.61,.35,1) both; }
+
+/* 16️⃣ Link underline animation */
+.link-underline { position: relative; text-decoration: none; }
+.link-underline::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px; background: currentColor; transition: right 250ms ease; }
+.link-underline:hover::after { right: 0; }
+
 /* 8️⃣ Shine effect */
 .shine {
   position: relative;
