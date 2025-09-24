@@ -28,31 +28,7 @@ export default function Footer() {
 
   return (
     <>
-      <section className="footer-section pt-16 px-4 text-center">
-        <h2 className="text-3xl font-bold mb-4" style={{color : '#29294b' , fontWeight : 700 , fontSize : '2.0625rem' , letterSpacing : '-.04em'}}>Subscribe to our Newsletter</h2>
-        <p className="max-w-xl mx-auto text-gray-600 mb-8">
-          Subscribe to our email newsletter to get the latest posts delivered
-          right to your email.
-        </p>
-
-        {/* Input + Button in one flex container */}
-        <div className="input-button max-w-md mx-auto flex rounded-full overflow-hidden shadow-md border border-gray-300">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="flex-1 px-4 py-3 outline-none text-gray-700"
-          />
-          <button className="bg-black text-white px-6 py-3 font-medium hover:bg-gray-800 transition-colors">
-            Subscribe
-          </button>
-        </div>
-
-        <div className="footer-section-item">
-          <p className="text-gray-500 mt-4">
-            Pure inspiration, zero spam ✨
-          </p>
-        </div>
-      </section>
+      {/* Newsletter section removed as requested */}
 
       <footer className="footer text-black">
         {/* ========= TOP / INNER ========= */}
@@ -148,14 +124,14 @@ export default function Footer() {
         <button
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-50"
-          style={{cursor : 'pointer'}}
+          style={{ cursor: 'pointer' }}
         >
           <svg className="w-13 h-13 absolute" viewBox="0 0 100 100">
             <circle
               cx="50"
               cy="50"
               r="45"
-              stroke="#5559d1" 
+              stroke="#5559d1"
               strokeWidth="4"
               fill="none"
               strokeDasharray={circumference}

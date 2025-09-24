@@ -20,11 +20,11 @@
   --brand-amber: #F5A623;
   --surface: #0a0a0a0d; /* light translucent for cards */
   --ring: color-mix(in oklab, var(--brand-muted-blue), white 25%);
-  --muted-foreground: #475569;
+  --muted-foreground: #111827;
 
   /* Light mode defaults */
   --background: #ffffff;
-  --foreground: #111827;
+  --foreground: #000000;
 }
 
 @theme inline {
@@ -37,15 +37,7 @@
   --color-cta: var(--brand-amber);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #e5e7eb;
-    --surface: #ffffff14;
-    --ring: color-mix(in oklab, var(--brand-teal), white 20%);
-    --muted-foreground: #cbd5e1;
-  }
-}
+/* Dark mode disabled: force light mode across site */
 
 /* 3️⃣ Global body styles */
 body {
@@ -54,6 +46,17 @@ body {
   font-family: var(--cs-font-body-family), Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
+}
+
+/* 14️⃣ Force light text over legacy inline hex colors (production-safe) */
+[style*="#696981"],
+[style*="#29294b"],
+[style*="#29294B"],
+[style*="#9ca3af"],
+[style*="#9CA3AF"],
+[style*="#cbd5e1"],
+[style*="#111827"] {
+  color: var(--foreground) !important;
 }
 
 /* 4️⃣ Headings */

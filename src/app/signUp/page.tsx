@@ -63,15 +63,15 @@ export default function AuthPage() {
 
     return (
         <>
-            <Navbar/>
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-cs-light-site-background-start to-cs-light-site-background-end dark:from-cs-site-background dark:to-cs-site-background p-4">
-                <div className="w-full max-w-md bg-white dark:bg-[#111827] rounded-2xl shadow-lg p-8">
-                    <h1 className="text-3xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">
+            <Navbar />
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-cs-light-site-background-start to-cs-light-site-background-end p-4">
+                <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+                    <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">
                         {isSignUp ? "Sign Up" : "Sign In"}
                     </h1>
 
                     {/* Toggle Switch */}
-                    <div className="relative w-full max-w-md mx-auto mb-6 border border-gray-300 bg-white dark:bg-gray-700 rounded-full p-1">
+                    <div className="relative w-full max-w-md mx-auto mb-6 border border-gray-300 bg-white rounded-full p-1">
                         <div
                             className="absolute top-1 rounded-full transition-all duration-300"
                             style={{
@@ -111,7 +111,7 @@ export default function AuthPage() {
                             <>
                                 <div className="flex gap-4 w-full">
                                     <div className="flex-1 flex flex-col">
-                                        <label className="text-gray-700 dark:text-gray-200 font-medium">
+                                        <label className="text-gray-700 font-medium">
                                             First Name <span className="text-red-500">*</span>
                                         </label>
                                         <input
@@ -124,7 +124,7 @@ export default function AuthPage() {
                                         />
                                     </div>
                                     <div className="flex-1 flex flex-col">
-                                        <label className="text-gray-700 dark:text-gray-200 font-medium">
+                                        <label className="text-gray-700 font-medium">
                                             Last Name <span className="text-red-500">*</span>
                                         </label>
                                         <input
@@ -141,7 +141,7 @@ export default function AuthPage() {
                         )}
 
                         <div className="flex flex-col">
-                            <label className="text-gray-700 dark:text-gray-200 font-medium">
+                            <label className="text-gray-700 font-medium">
                                 Email <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -156,7 +156,7 @@ export default function AuthPage() {
 
                         {/* Password with show/hide */}
                         <div className="flex flex-col relative">
-                            <label className="text-gray-700 dark:text-gray-200 font-medium">
+                            <label className="text-gray-700 font-medium">
                                 Password <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -195,7 +195,7 @@ export default function AuthPage() {
                         {/* Google Sign In */}
                         <button
                             type="button"
-                            className="w-full mt-2 border border-gray-300 rounded-lg py-2 flex items-center justify-center gap-2 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700 transition"
+                            className="w-full mt-2 border border-gray-300 rounded-lg py-2 flex items-center justify-center gap-2 hover:bg-gray-100 transition"
                             onClick={() => alert("Google Sign In clicked")}
                         >
                             {/* Google SVG */}
@@ -210,7 +210,7 @@ export default function AuthPage() {
                     </form>
 
                     {message && (
-                        <p className="mt-4 text-center text-green-500 dark:text-green-400">{message}</p>
+                        <p className="mt-4 text-center text-green-600">{message}</p>
                     )}
                 </div>
             </div>

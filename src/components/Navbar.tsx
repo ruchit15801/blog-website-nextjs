@@ -2,15 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { Moon, Search, Sun } from "lucide-react";
 
 export default function Navbar() {
-    const { theme, setTheme } = useTheme();
     const pathname = usePathname();
-
-    const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
 
     return (
         <header className="navbar-header">
@@ -65,22 +61,15 @@ export default function Navbar() {
                         <input
                             type="text"
                             placeholder="Search..."
-                            className="pl-10 pr-4 py-1.5 rounded-full border transition-colors duration-300 text-gray-800 dark:text-gray-100 bg-white-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 placeholder-gray-500 dark:placeholder-gray-400"
+                            className="pl-10 pr-4 py-1.5 rounded-full border transition-colors duration-300 text-gray-800 bg-white-100 border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
                         />
                         <Search
                             size={18}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                         />
                     </div>
 
-                    {/* Theme toggle */}
-                    <button
-                        aria-label="Toggle theme"
-                        className="icon-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        onClick={toggleTheme}
-                    >
-                        {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
-                    </button>
+                    {/* Theme toggle removed (light-only) */}
 
                     {/* Sign Up */}
                     <Link
