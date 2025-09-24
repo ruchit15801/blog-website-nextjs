@@ -21,6 +21,10 @@
   --surface: #0a0a0a0d; /* light translucent for cards */
   --ring: color-mix(in oklab, var(--brand-muted-blue), white 25%);
   --muted-foreground: #475569;
+
+  /* Light mode defaults */
+  --background: #ffffff;
+  --foreground: #111827;
 }
 
 @theme inline {
