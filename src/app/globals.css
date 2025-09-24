@@ -1,6 +1,4 @@
-/* globals.css */
 
-/* 1️⃣ Google Fonts import (must be at the very top for Next.js/Turbopack) */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 
 @import "tailwindcss";
@@ -18,7 +16,7 @@
 
   /* Brand palette */
   --brand-muted-blue: #4A90E2;
-  --brand-teal: #1ABC9C;
+  --brand-teal: #5559d1;
   --brand-amber: #F5A623;
   --surface: #0a0a0a0d; /* light translucent for cards */
   --ring: color-mix(in oklab, var(--brand-muted-blue), white 25%);

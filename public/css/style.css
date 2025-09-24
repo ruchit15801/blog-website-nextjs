@@ -40,9 +40,8 @@
   position: relative;
 }
 
-.nav-link.active,
-.nav-link:hover {
-  color: var(--brand-teal, teal);
+.nav-link.active, .nav-link:hover {
+  color: var(--brand-teal,"#5559d1");
 }
 
 .dropdown {
