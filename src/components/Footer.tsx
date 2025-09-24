@@ -29,7 +29,7 @@ export default function Footer() {
   return (
     <>
       <section className="footer-section pt-16 px-4 text-center">
-        <h2 className="text-3xl font-bold mb-4">Subscribe to our Newsletter</h2>
+        <h2 className="text-3xl font-bold mb-4" style={{color : '#292981' , fontWeight : 700 , fontSize : '2.0625rem' , letterSpacing : '-.04em'}}>Subscribe to our Newsletter</h2>
         <p className="max-w-xl mx-auto text-gray-600 mb-8">
           Subscribe to our email newsletter to get the latest posts delivered
           right to your email.
