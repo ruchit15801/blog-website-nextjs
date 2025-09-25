@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useCallback } from "react";
 import { Airplay, BarChart2, BookOpen, Briefcase, Globe, Heart, Rocket, TrendingUp } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 export default function HeroSlider() {
     const articles = [
@@ -165,7 +163,6 @@ export default function HeroSlider() {
 
     return (
         <>
-            <Navbar/>
             <main>
                 <section className="pb-6 pt-4 px-10 text-center">
                     {/* Slider wrapper */}
@@ -599,7 +596,6 @@ export default function HeroSlider() {
                     </aside>
                 </div>
             </main>
-            <Footer/>
         </>
     );
 }

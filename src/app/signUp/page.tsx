@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 interface User {
     firstName?: string;
@@ -63,8 +61,7 @@ export default function AuthPage() {
 
     return (
         <>
-            <Navbar />
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-cs-light-site-background-start to-cs-light-site-background-end p-4">
+            <div className="flex items-center justify-center bg-gradient-to-b from-cs-light-site-background-start to-cs-light-site-background-end py-10">
                 <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
                     <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">
                         {isSignUp ? "Sign Up" : "Sign In"}
@@ -214,7 +211,6 @@ export default function AuthPage() {
                     )}
                 </div>
             </div>
-            <Footer />
         </>
     );
 }

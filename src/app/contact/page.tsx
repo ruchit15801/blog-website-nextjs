@@ -1,11 +1,8 @@
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
 export default function ContactPage() {
     return (
         <>
-            <Navbar/>
             <div className="mx-auto max-w-7xl px-4 py-12">
                 {/* Breadcrumb */}
                 <div className="mb-6 text-sm text-gray-500">
@@ -98,7 +95,6 @@ export default function ContactPage() {
                     </form>
                 </section>
             </div>
-            <Footer/>
         </>
     );
 }

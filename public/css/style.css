@@ -91,7 +91,7 @@
   cursor: pointer;
 }
 
-.buy-btn , .submit-button ,.discover ,.submit_comment , .view_comment{
+.buy-btn , .submit-button ,.discover ,.submit_comment , .view_comment ,.Create_Schedule ,.Add_Categories{
   background: linear-gradient(180deg, #9895ff 0%, #514dcc 100%);
   color: white;
   padding: 0.5rem 1rem;

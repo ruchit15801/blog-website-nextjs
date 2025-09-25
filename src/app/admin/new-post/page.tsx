@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createRemotePost, fetchCategories, getAdminToken, saveAdminToken, type RemoteCategory } from "@/lib/adminClient";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Image from "next/image";
 
 export default function NewPostPage() {
     const [token, setToken] = useState<string>("");
@@ -115,7 +114,6 @@ export default function NewPostPage() {
 
     return (
         <>
-            <Navbar/>
             <div className="mx-auto max-w-5xl px-4 py-10">
                 <div className="mb-6 flex items-center justify-between">
                     <h1 className="text-3xl font-bold">Create New Post</h1>
@@ -201,7 +199,7 @@ export default function NewPostPage() {
                                 <div className="flex flex-wrap gap-3 pt-2">
                                     {imageFiles.map((f, idx) => (
                                         <div key={idx} className="rounded-lg overflow-hidden border border-white/10" style={{ width: 96, height: 96 }}>
-                                            <img src={URL.createObjectURL(f)} alt="preview" className="w-full h-full object-cover" />
+                                            <Image src={URL.createObjectURL(f)} alt="preview" className="w-full h-full object-cover" />
                                         </div>
                                     ))}
                                 </div>
@@ -223,7 +221,7 @@ export default function NewPostPage() {
                             <input type="file" accept="image/*" onChange={(e) => setBannerFile(e.target.files?.[0] ?? null)} />
                             {bannerFile && (
                                 <div className="relative mt-2 w-full max-w-sm rounded-xl overflow-hidden border border-white/10">
-                                    <img src={URL.createObjectURL(bannerFile)} alt="banner" className="w-full aspect-[16/9] object-cover" />
+                                    <Image src={URL.createObjectURL(bannerFile)} alt="banner" className="w-full aspect-[16/9] object-cover" />
                                     <button type="button" className="btn btn-secondary" style={{ position: "absolute", top: 8, right: 8 }} onClick={() => setBannerFile(null)}>Remove</button>
                                 </div>
                             )}
@@ -270,7 +268,6 @@ export default function NewPostPage() {
                     </div>
                 </form>
             </div>
-            <Footer/>
         </>
     );
 }

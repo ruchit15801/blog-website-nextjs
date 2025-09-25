@@ -1,6 +1,4 @@
 "use client"
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import { ChevronLeft, ChevronRight, ExternalLink, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,9 +12,6 @@ interface CommentType {
     comment: string;
     replies?: CommentType[];
 }
-
-
-
 
 export default function ArticleDetail({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = React.use(params);
@@ -350,7 +345,6 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
 
     return (
         <>
-            <Navbar />
             {!article ? (
                 <p className="p-10 text-center">Article not found</p>
             ) : (
@@ -626,7 +620,7 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
                                                 cy="50"
                                                 r={ringRadius}
                                                 stroke="#5955d1"
-                                                strokeWidth="8"
+                                                strokeWidth="2"
                                                 fill="none"
                                                 strokeDasharray={ringCircumference}
                                                 strokeDashoffset={ringOffset}
@@ -934,7 +928,6 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
 
                 </main>
             )}
-            <Footer />
         </>
     );
 }

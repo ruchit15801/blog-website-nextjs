@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Airplay, BarChart2, BookOpen, Briefcase, Globe, Heart, Rocket, TrendingUp } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 export default function FeaturesPosts() {
     const articles = [
@@ -154,7 +152,6 @@ export default function FeaturesPosts() {
 
     return (
         <>
-            <Navbar/>
             <main>
 
                 <section className="feature-posts py-10 px-10 text-center">
@@ -605,7 +602,6 @@ export default function FeaturesPosts() {
                     </aside>
                 </div>
             </main>
-            <Footer/>
         </>
     );
 }

@@ -1,13 +1,10 @@
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function AboutPage() {
     return (
         <>
-            <Navbar/>
-            <div className="mx-auto max-w-7xl px-4 py-12">
+            <div className="mx-auto max-w-7xl px-4">
                 <div className="mb-6 text-sm text-gray-500">
                     <Link href="/">Home</Link> &gt; <span> About</span>
                 </div>
@@ -122,7 +119,6 @@ export default function AboutPage() {
                     </div>
                 </section>
             </div>
-            <Footer/>
         </>
     );
 }

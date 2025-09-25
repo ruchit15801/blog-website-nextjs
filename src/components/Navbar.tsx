@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Moon, Search, Sun } from "lucide-react";
+import {Search} from "lucide-react";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -21,7 +21,7 @@ export default function Navbar() {
                     <li className="pt-2">
                         <Link
                             href="/"
-                            className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
+                            className={`nav-link ${pathname === "/" ? "active" : ""} hover:bg-gray-100 rounded-lg px-2 py-2`}
                         >
                             Home
                         </Link>
@@ -30,7 +30,7 @@ export default function Navbar() {
                     <li className="pt-2">
                         <Link
                             href="/about"
-                            className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
+                            className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 rounded-l px-2 py-2`}
                         >
                             About
                         </Link>
@@ -38,7 +38,7 @@ export default function Navbar() {
                     <li className="pt-2">
                         <Link
                             href="/contact"
-                            className={`nav-link ${pathname === "/contact" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
+                            className={`nav-link ${pathname === "/contact" ? "active" : ""} hover:bg-gray-100 rounded-l px-2 py-2`}
                         >
                             Contact Us
                         </Link>
@@ -46,7 +46,7 @@ export default function Navbar() {
                     <li className="pt-2">
                         <Link
                             href="/admin/new-post"
-                            className={`nav-link ${pathname === "/admin/new-post" ? "active" : ""} hover:bg-gray-100 px-2 py-2`}
+                            className={`nav-link ${pathname === "/admin/new-post" ? "active" : ""} hover:bg-gray-100 rounded-l px-2 py-2`}
                         >
                             New Post
                         </Link>
