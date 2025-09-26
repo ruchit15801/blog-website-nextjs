@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import "./globals.css";
 import "../../public/css/style.css";
 import Navbar from "@/components/Navbar";
@@ -11,12 +12,42 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    let timeout: number | undefined;
+    const start = () => { setLoading(true); };
+    const done = () => { timeout = window.setTimeout(() => setLoading(false), 250); };
+
+    // Next App Router doesn't expose router events, so approximate with history changes
+    let last = pathname;
+    const observer = new MutationObserver(() => {
+      if (last !== pathname) { last = pathname; }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Start immediately, end after paint
+    start();
+    requestAnimationFrame(() => done());
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      observer.disconnect();
+    };
+  }, [pathname]);
 
   return (
     <html lang="en">
       <head></head>
       <body>
         <div className="min-h-screen flex flex-col">
+          {loading && (
+            <div className="loader-overlay">
+              <div className="loader-ring">
+                <span className="loader-dot"></span>
+              </div>
+            </div>
+          )}
           {!pathname.startsWith("/DashBoard") && <Navbar />}
           <main className="flex-1">{children}</main>
           {!pathname.startsWith("/DashBoard") && <Footer />}

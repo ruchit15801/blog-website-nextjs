@@ -108,8 +108,8 @@ h1, h2, h3, h4, h5, h6 {
 /* 14️⃣ Subtle hover and focus animations */
 .hover-float { transition: transform 250ms ease, box-shadow 250ms ease; }
 .hover-float:hover { transform: translateY(-4px); box-shadow: 0 10px 24px -12px color-mix(in oklab, var(--brand-muted-blue), black 55%); }
-.hover-zoom { transition: transform 250ms ease; }
-.hover-zoom:hover { transform: scale(1.03); }
+.hover-zoom { transition: transform 360ms cubic-bezier(.21,.61,.35,1), filter 360ms ease; will-change: transform; }
+.hover-zoom:hover { transform: translateZ(0) scale(1.035); filter: saturate(1.02); }
 .hover-glow { transition: box-shadow 250ms ease; }
 .hover-glow:hover { box-shadow: 0 0 0 6px color-mix(in oklab, var(--ring), transparent 85%); }
 
@@ -229,3 +229,30 @@ a[style] { text-underline-offset: 3px; }
 .editor-area p { margin: .5rem 0; line-height: 1.7; font-family: var(--cs-font-body-family), sans-serif; }
 .editor-area ul, .editor-area ol { padding-left: 1.25rem; margin: .5rem 0; font-family: var(--cs-font-body-family), sans-serif; }
 .editor-area blockquote { border-left: 3px solid var(--brand-teal); padding-left: .75rem; margin: .75rem 0; opacity: .9; font-family: var(--cs-font-body-family), sans-serif; }
+
+/* THEME LOADER */
+@keyframes loaderSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-overlay {
+  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(1200px 600px at 50% -10%, color-mix(in oklab, var(--brand-muted-blue), transparent 85%), transparent),
+              radial-gradient(1200px 600px at 50% 110%, color-mix(in oklab, var(--brand-teal), transparent 86%), transparent),
+              linear-gradient(180deg, var(--cs-light-site-background-start, #fdfdff) 0%, var(--cs-light-site-background-end, #f8f7ff) 100%);
+}
+
+.loader-ring {
+  position: relative; width: 72px; height: 72px; border-radius: 50%;
+  border: 3px solid color-mix(in oklab, var(--brand-muted-blue), transparent 80%);
+  border-top-color: var(--brand-teal);
+  animation: loaderSpin 1s linear infinite;
+  box-shadow: 0 10px 30px -10px color-mix(in oklab, var(--brand-teal), black 70%);
+}
+
+.loader-dot {
+  position: absolute; inset: 0; margin: auto; width: 10px; height: 10px; border-radius: 9999px;
+  background: var(--brand-amber);
+  transform: translateY(-38px);
+}
