@@ -1,8 +1,10 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createRemotePost, fetchCategories, getAdminToken, saveAdminToken, type RemoteCategory } from "@/lib/adminClient";
+import { createRemotePost, fetchCategories, getAdminToken, saveAdminToken, } from "@/lib/adminClient";
 import DashboardLayout from "../DashBoardLayout";
+
+type CategoryType = { _id: string; name: string };
 
 export default function AdminLayout() {
     const [token, setToken] = useState<string>("");
@@ -13,14 +15,35 @@ export default function AdminLayout() {
     const [categoryId, setCategoryId] = useState("");
     console.log("Categories :-", setCategoryId);
     const [categoryName, setCategoryName] = useState("");
-    const [categories, setCategories] = useState<RemoteCategory[]>([]);
+    // const [categories, setCategories] = useState<RemoteCategory[]>([]);
+    const [categories, setCategories] = useState<CategoryType[]>(() => {
+        if (typeof window !== "undefined") {
+            const stored = localStorage.getItem("categories");
+            return stored ? JSON.parse(stored) : [];
+        }
+        return [];
+    });
     const [catsLoading, setCatsLoading] = useState(false);
+    console.log(catsLoading);
     const [catError, setCatError] = useState<string | null>(null);
+    console.log(catError);
     const [tags, setTags] = useState("");
     const [tagsList, setTagsList] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
 
-    const [status, setStatus] = useState<"draft" | "published">("published");
+    const [isScheduleMode, setIsScheduleMode] = useState(false);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        setIsScheduleMode(params.get("mode") === "schedule");
+    }, []);
+
+    const [status, setStatus] = useState<"draft" | "published" | "schedule">("published");
+
+    useEffect(() => {
+        setStatus(isScheduleMode ? "schedule" : "published");
+    }, [isScheduleMode]);
+
     const editorRef = useRef<HTMLDivElement | null>(null);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [images, setImageUrls] = useState("");
@@ -28,6 +51,7 @@ export default function AdminLayout() {
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
     const [showPreview, setShowPreview] = useState(false);
+    const [scheduleDate, setScheduleDate] = useState<string>("");
 
     useEffect(() => {
         const existing = getAdminToken();
@@ -96,7 +120,7 @@ export default function AdminLayout() {
                 imageFiles,
                 categoryId: resolvedCategoryId,
                 tags,
-                status,
+                status: isScheduleMode ? "draft" : "draft",
             });
             setMessage("Post created successfully.");
             // Reset form fields (keep token locked)
@@ -104,7 +128,7 @@ export default function AdminLayout() {
             setSubtitle("");
             setCategoryName("");
             setTags("");
-            setStatus("published");
+            setStatus('published');
             setBannerFile(null);
             setImageFiles([]);
             setImageUrls("");
@@ -145,7 +169,10 @@ export default function AdminLayout() {
             <DashboardLayout>
                 <div className="mx-auto max-w-6xl px-4 pb-10">
                     <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <h1 className="text-3xl font-bold text-gray-800">Create Post</h1>
+                        <h1 className="text-3xl font-bold text-gray-800">
+                            {isScheduleMode ? "Create Schedule Post" : "Create Post"}
+                        </h1>
+
                         <div className="flex gap-2">
                             <button
                                 type="button"
@@ -156,12 +183,23 @@ export default function AdminLayout() {
                                 {showPreview ? "Hide Preview" : "Show Preview"}
                             </button>
 
+                            {/* Schedule Date & Time */}
+                            <div className="flex flex-col">
+                                <input
+                                    type="datetime-local"
+                                    value={scheduleDate}
+                                    onChange={(e) => setScheduleDate(e.target.value)}
+                                    className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                                />
+
+                            </div>
                             <button
                                 type="submit"
                                 form="new-post-form"
                                 disabled={submitting}
                                 className="px-4 py-2 rounded-lg text-white transition font-medium"
                                 style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
+
                             >
                                 {submitting ? "Publishing..." : "Publish Post"}
                             </button>
@@ -178,7 +216,7 @@ export default function AdminLayout() {
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     placeholder="Post title"
-                                    className="w-full px-3 h-11 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    className="w-full mt-1 px-3 h-11 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                             </div>
 
@@ -189,38 +227,36 @@ export default function AdminLayout() {
                                     value={subtitle}
                                     onChange={(e) => setSubtitle(e.target.value)}
                                     placeholder="Optional subtitle"
-                                    className="w-full px-3 h-11 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    className="w-full mt-1 px-3 h-11 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                             </div>
 
                             {/* Category */}
                             <div className="space-y-1 relative">
-                                <label className="text-sm font-semibold flex items-center gap-2">
-                                    Category
-                                    <button
-                                        type="button"
-                                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 text-xs"
-                                        onClick={loadCategories}>
-                                        {catsLoading ? "Loading..." : "Refresh"}
-                                    </button>
-                                </label>
+                                <label className="text-sm font-semibold">Category</label>
                                 <select
                                     value={categoryName}
                                     onChange={(e) => setCategoryName(e.target.value)}
-                                    className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none pr-8">
+                                    className="w-full mt-1 h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none pr-8"
+                                >
                                     <option value="">Select a category</option>
                                     {categories.map((c) => (
-                                        <option key={c._id} value={c.name}>
+                                        <option key={c.name} value={c.name}>
                                             {c.name}
                                         </option>
                                     ))}
                                 </select>
                                 <div className="absolute inset-y-0 top-5 right-3 flex items-center pointer-events-none">
-                                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                    <svg
+                                        className="w-4 h-4 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                        viewBox="0 0 24 24"
+                                    >
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </div>
-                                {catError && <p className="text-xs text-red-500">{catError}</p>}
                             </div>
 
                             {/* Tags */}
@@ -320,8 +356,10 @@ export default function AdminLayout() {
                                 <select
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-                                    className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none pr-8">
+                                    disabled={isScheduleMode}
+                                    className="w-full mt-1 h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none pr-8">
                                     <option value="draft">Draft</option>
+                                    <option value="schedule">Schedule Post</option>
                                     <option value="published">Published</option>
                                 </select>
                                 <div className="absolute inset-y-0 top-5 right-3 flex items-center pointer-events-none">
@@ -386,7 +424,7 @@ export default function AdminLayout() {
                             <label className="text-sm font-semibold text-gray-700">Content (HTML) *</label>
 
                             {/* Toolbar */}
-                            <div className="top-0 z-20 flex flex-wrap gap-2 bg-gradient-to-r from-purple-100 to-blue-50 p-2 rounded-xl border border-gray-200 mb-2 shadow-md">
+                            <div className="top-0 z-20 mt-1 flex flex-wrap gap-2 bg-gradient-to-r from-purple-100 to-blue-50 p-2 rounded-xl border border-gray-200 mb-2 shadow-md">
                                 <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("bold")}>Bold</button>
                                 <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("italic")}>Italic</button>
                                 <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("underline")}>Underline</button>
@@ -404,7 +442,7 @@ export default function AdminLayout() {
                             {/* Editable area */}
                             <div
                                 ref={editorRef}
-                                className="min-h-[400px] rounded-2xl p-6 border-2 border-gray-300 bg-gradient-to-br from-white via-blue-50 to-purple-50 shadow-inner focus-within:ring-4 focus-within:ring-purple-300 focus:outline-none overflow-auto scrollbar-thin scrollbar-thumb-purple-300 scrollbar-track-gray-100 transition-all duration-300 hover:shadow-lg"
+                                className="min-h-[400px] mt-3 rounded-2xl p-6 border-2 border-gray-300 bg-gradient-to-br from-white via-blue-50 to-purple-50 shadow-inner focus-within:ring-4 focus-within:ring-purple-300 focus:outline-none overflow-auto scrollbar-thin scrollbar-thumb-purple-300 scrollbar-track-gray-100 transition-all duration-300 hover:shadow-lg"
                                 contentEditable
                                 suppressContentEditableWarning
                                 onInput={(e) => setContentHtml((e.target as HTMLDivElement).innerHTML)}

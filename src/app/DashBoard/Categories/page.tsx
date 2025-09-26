@@ -42,7 +42,7 @@ const CategoryForm = ({
                 <input
                     type="text"
                     name="shortName"
-                    value={form.shortName}
+                    value={form.shortName || ""}
                     onChange={(e) => setForm(prev => ({ ...prev, shortName: e.target.value }))}
                     className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
                 />

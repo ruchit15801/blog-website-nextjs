@@ -240,9 +240,16 @@ export default function SchedulePosts() {
                         <option value="oldest">Oldest</option>
                     </select>
 
-                    <Link href="/DashBoard/Create_post" className="Create_Schedule px-4 py-2 rounded-lg transition">
+                    <Link
+                        href={{
+                            pathname: "/DashBoard/Create_post",
+                            query: { mode: "schedule" },   
+                        }}
+                        className="Create_Schedule px-4 py-2 rounded-lg transition"
+                    >
                         Create Schedule Post
                     </Link>
+
                 </div>
             </div>
 
@@ -275,7 +282,7 @@ export default function SchedulePosts() {
                             <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
                                 <summary
                                     className="list-none cursor-pointer p-2 bg-black/20 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
-                                    <MoreHorizontal className="w-3 h-3"/>
+                                    <MoreHorizontal className="w-3 h-3" />
                                 </summary>
 
                                 <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-md z-10">

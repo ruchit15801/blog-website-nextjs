@@ -1,4 +1,5 @@
 "use client";
+
 import { PencilIcon, Trash2 } from "lucide-react";
 import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
@@ -28,16 +29,16 @@ export default function UserProfileWithCategories() {
             return stored
                 ? JSON.parse(stored)
                 : {
-                    firstName: "",
-                    lastName: "",
-                    email: "",
-                    city: "",
-                    pincode: "",
-                    phone: "",
-                    avatar: "",
-                    skills: "",
-                    bio: "",
-                };
+                      firstName: "",
+                      lastName: "",
+                      email: "",
+                      city: "",
+                      pincode: "",
+                      phone: "",
+                      avatar: "",
+                      skills: "",
+                      bio: "",
+                  };
         }
         return {
             firstName: "",
@@ -63,10 +64,14 @@ export default function UserProfileWithCategories() {
     });
     const [newCategory, setNewCategory] = useState("");
 
+    // Update localStorage whenever profile changes
     useEffect(() => {
         localStorage.setItem("userProfile", JSON.stringify(profile));
+        // Trigger storage event manually for live header update
+        window.dispatchEvent(new Event("storage"));
     }, [profile]);
 
+    // Update localStorage whenever categories change
     useEffect(() => {
         localStorage.setItem("categories", JSON.stringify(categories));
     }, [categories]);
@@ -104,8 +109,8 @@ export default function UserProfileWithCategories() {
 
     const handleLogout = () => {
         localStorage.removeItem("role");
-        localStorage.removeItem("user");
-        window.location.href = "/signUp";
+        localStorage.removeItem("userProfile");
+        window.location.href = "/auth";
     };
 
     return (
@@ -150,7 +155,6 @@ export default function UserProfileWithCategories() {
                                 />
                             </label>
                         </div>
-
 
                         {/* Basic Info */}
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,7 +261,7 @@ export default function UserProfileWithCategories() {
                         />
                         <button
                             onClick={handleAddCategory}
-                            className="Add_Categories text-white px-4 py-2 rounded-lg"
+                            className="Add_Categories text-white px-4 py-2 rounded-lg bg-[#5559d1]"
                         >
                             Add
                         </button>
@@ -274,7 +278,7 @@ export default function UserProfileWithCategories() {
                                     onClick={() => handleDeleteCategory(cat.id)}
                                     className="text-white text-sm bg-[#FF0000] px-2 py-1 rounded-md"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                    <Trash2 className="w-4 h-4" />
                                 </button>
                             </li>
                         ))}

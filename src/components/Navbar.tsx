@@ -73,7 +73,7 @@ export default function Navbar() {
 
                     {/* Sign Up */}
                     <Link
-                        href="/signUp"
+                        href="/auth"
                         className="buy-btn px-4 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition"
                     >
                         Sign Up

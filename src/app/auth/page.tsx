@@ -2,20 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signupUser, loginUser } from "@/lib/api";
 
-interface User {
-    firstName?: string;
-    lastName?: string;
-    email: string;
-    mobile?: string;
-    password: string;
-    role: "admin" | "user";
-}
 
-const tempUsers: User[] = [
-    { email: "admin@example.com", password: "admin123", role: "admin" },
-    { email: "user@example.com", password: "user123", role: "user" },
-];
 
 export default function AuthPage() {
     const router = useRouter();
@@ -29,35 +18,59 @@ export default function AuthPage() {
     });
     const [message, setMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setMessage("");
+        setLoading(true);
 
-        if (isSignUp) {
-            const userExists = tempUsers.find(u => u.email === formData.email);
-            if (userExists) {
-                setMessage("User already exists!");
-            } else {
-                tempUsers.push({ ...formData, role: "user" });
+        try {
+            if (isSignUp) {
+                // ✅ Backend signup call
+                const res = await signupUser({
+                    fullName: `${formData.firstName} ${formData.lastName}`.trim(),
+                    email: formData.email,
+                    password: formData.password,
+                });
+
+                localStorage.setItem("token", res.token);
+                localStorage.setItem("refreshToken", res.refreshToken);
+                localStorage.setItem("userProfile", JSON.stringify(res.user));
+                localStorage.setItem("role", res.user.role); 
+
                 setMessage("Sign Up successful!");
                 router.push("/DashBoard");
-            }
-        } else {
-            const user = tempUsers.find(
-                u => u.email === formData.email && u.password === formData.password
-            );
-            if (user) {
-                setMessage(`Signed in as ${user.role}`);
-                router.push("/DashBoard");
+                return;
             } else {
-                setMessage("Invalid credentials");
+                // ✅ Backend login call
+                const res = await loginUser({
+                    email: formData.email,
+                    password: formData.password,
+                });
+
+                localStorage.setItem("token", res.token);
+                localStorage.setItem("refreshToken", res.refreshToken);
+                localStorage.setItem("userProfile", JSON.stringify(res.user));
+                localStorage.setItem("role", res.user.role); 
+
+                setMessage(`Signed in as ${res.user.role}`);
+                router.push("/DashBoard");
+                return;
             }
+        } catch (err: unknown) {
+            if (err instanceof Error) setMessage(err.message);
+            else setMessage("Something went wrong");
+        } finally {
+            setLoading(false);
         }
     };
+
+    if (loading) return <div>Loading...</div>;
 
     return (
         <>
@@ -214,3 +227,9 @@ export default function AuthPage() {
         </>
     );
 }
+
+
+
+
+
+

@@ -3,27 +3,64 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Home, BarChart3, Users, Calendar, FileText, Tag, Clipboard, Settings } from "lucide-react";
+import { getMe } from "@/lib/api";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 interface UserType {
-  name: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  name?: string;
   email: string;
   avatar?: string;
+  role?: "admin" | "user";
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [role, setRole] = useState<"admin" | "user">("admin");
+  const [role, setRole] = useState<"admin" | "user" | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
-    const storedRole = localStorage.getItem("role") as "admin" | "user" | null;
-    if (storedRole) setRole(storedRole);
-  }, []);
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.replace("/auth");
+        return;
+      }
+
+      try {
+        const res = await getMe(token);
+        const u: UserType = res.user;
+
+        setUser({
+          name: u.fullName || `${u.firstName || ""} ${u.lastName || ""}`.trim(),
+          email: u.email,
+          avatar: u.avatar || "/images/default-avatar.png",
+          role: u.role,
+        });
+
+        setRole(u.role || null);
+      } catch (error) {
+        console.error(error);
+        router.replace("/auth"); // agar token invalid ho
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [router]);
+
+  if (loading) return <div>Loading...</div>;
 
   const adminMenu = [
     { icon: <Home />, label: "Dashboard", path: "/DashBoard" },
@@ -46,22 +83,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const menus = role === "admin" ? adminMenu : userMenu;
 
-
-
-  const [user, setUser] = useState<UserType>({
-    name: "John Doe",
-    email: "john@example.com",
-    avatar: "/images/default-avatar.png", // default image
-  });
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, []);
-
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md flex flex-col p-4 fixed top-0 left-0 h-screen overflow-auto">
         <Link href="/" className="mb-4">
           <Image src="/images/logo.png" alt="Logo" width={130} height={130} priority />
@@ -72,8 +95,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <Link
               key={item.label}
               href={item.path}
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium text-gray-700 ${pathname === item.path ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
-                }`}
+              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium text-gray-700 ${
+                pathname === item.path ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
+              }`}
             >
               {item.icon}
               <span>{item.label}</span>
@@ -82,33 +106,31 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </nav>
       </aside>
 
-      {/* Main content area */}
       <div className="flex-1 ml-64 flex flex-col">
-        {/* Header */}
         <header className="bg-white shadow flex justify-end items-center px-6 h-16 sticky top-0 z-20">
           <div className="flex items-center gap-4">
-            {/* User Info */}
-            <div className="flex flex-col text-right">
-              <span className="font-medium text-gray-700">{user.name}</span>
-              <span className="text-sm text-gray-500">{user.email}</span>
-            </div>
+            {user && (
+              <>
+                <div className="flex flex-col text-right">
+                  <span className="font-medium text-gray-700">{user.name}</span>
+                  <span className="text-sm text-gray-500">{user.email}</span>
+                </div>
 
-            {/* Profile Photo */}
-            <div className="w-10 h-10 relative rounded-full overflow-hidden">
-              <Image
-                src={"/images/aside_about.webp"}
-                alt={user.name}
-                fill
-                className="object-cover"
-              />
-            </div>
+                <div className="w-10 h-10 relative rounded-full overflow-hidden">
+                  <Image
+                    src={user.avatar || "/images/default-avatar.png"}
+                    alt={user.name || "User"}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </>
+            )}
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 p-8">{children}</main>
       </div>
     </div>
   );
 }
-

@@ -33,7 +33,7 @@ export default function Hero() {
                 </h1>
 
                 {/* Description */}
-                <p className="text-lg sm:text-xl max-w-2xl mx-auto" style={{ color: "#696981)"}}>
+                <p className="sm:text-xl max-w-2xl mx-auto">
                     Revision Welcomes to ultimate source for fresh perspectives! Explore curated content to
                     enlighten, entertain and engage global readers.
                 </p>
@@ -41,7 +41,7 @@ export default function Hero() {
 
             <section className="trending-section py-12 px-4 text-center">
                 {/* Section Title */}
-                <h5 className="uppercase text-xl font-semibold mb-6">Explore Trending Topics</h5>
+                <h5 className="uppercase text-xl font-semibold mb-6" style={{color : '#696981' , fontSize : '12px' , lineHeight : '1.2' , fontWeight : 800 , letterSpacing : ".1em"}}>Explore Trending Topics</h5>
 
                 {/* Buttons Grid */}
                 <div className="trending-buttons-container mx-auto">
