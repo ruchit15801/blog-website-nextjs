@@ -3,82 +3,17 @@ import DashboardLayout from "../DashBoardLayout";
 import { MoreHorizontal, Search } from "lucide-react";
 import Image from "next/image";
 import { useState, useMemo, useEffect } from "react";
+import { listCategories, createCategory, type Category } from "@/lib/api";
 
 type CategoryType = {
-    id: number;
+    id: string | number;
     name: string;
     shortName: string;
     description: string;
     avatar?: string;
 };
 
-const CategoryForm = ({
-    form,
-    setForm,
-    handleSubmit,
-    editId,
-    handleAvatarChange,
-}: {
-    form: CategoryType;
-    setForm: React.Dispatch<React.SetStateAction<CategoryType>>;
-    handleSubmit: (e: React.FormEvent) => void;
-    editId: number | null;
-    handleAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) => (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-md mb-8 flex flex-col gap-4">
-        <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex flex-col gap-2 flex-1">
-                <label className="font-medium">Category Name</label>
-                <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                />
-            </div>
-            <div className="flex flex-col gap-2 flex-1">
-                <label className="font-medium">Short Name</label>
-                <input
-                    type="text"
-                    name="shortName"
-                    value={form.shortName || ""}
-                    onChange={(e) => setForm(prev => ({ ...prev, shortName: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                />
-            </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-            <label className="font-medium">Description</label>
-            <textarea
-                name="description"
-                value={form.description}
-                onChange={(e) => setForm(prev => ({ ...prev, description: e.target.value }))}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-            />
-        </div>
-
-        <div className="flex flex-col gap-2">
-            <label className="font-medium">Avatar</label>
-            <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1] w-60"
-            />
-            {form.avatar && (
-                <div className="mt-2 w-24 h-24 relative rounded-2xl overflow-hidden">
-                    <Image src={form.avatar} alt="Avatar" fill className="object-cover" />
-                </div>
-            )}
-        </div>
-
-        <button type="submit" className="Add_Categories text-white px-6 py-2 rounded-lg w-50">
-            {editId !== null ? "Update Category" : "Add Category"}
-        </button>
-    </form>
-);
+// (Legacy local form removed)
 
 // --- Category Card Component ---
 const CategoryCard = ({
@@ -88,11 +23,19 @@ const CategoryCard = ({
 }: {
     cat: CategoryType;
     handleEdit: (cat: CategoryType) => void;
-    handleDelete: (id: number) => void;
+    handleDelete: (id: string | number) => void;
 }) => (
     <div className="relative group flex flex-col overflow-hidden rounded-2xl shadow hover:shadow-lg transition">
         <div className="relative w-full h-40 bg-gray-100 rounded-t-2xl">
-            {cat.avatar && <Image src={cat.avatar} alt={cat.name} fill className="object-cover rounded-t-2xl" />}
+            {cat.avatar && (
+                <Image
+                    src={cat.avatar}
+                    alt={cat.name}
+                    fill
+                    className="object-cover rounded-t-2xl"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+            )}
         </div>
         <div className="p-4 flex flex-col gap-2">
             <h2 className="text-lg font-bold text-gray-800">{cat.name}</h2>
@@ -116,48 +59,71 @@ const CategoryCard = ({
 );
 
 export default function Categories() {
-    // --- Hydration-safe initial state from localStorage ---
-    const [categories, setCategories] = useState<CategoryType[]>(() => {
-        if (typeof window !== "undefined") {
-            const stored = localStorage.getItem("categories");
-            return stored ? JSON.parse(stored) : [];
-        }
-        return [];
-    });
+    const [categories, setCategories] = useState<CategoryType[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [showCreate, setShowCreate] = useState(false);
 
     const [form, setForm] = useState<CategoryType>({ id: 0, name: "", shortName: "", description: "", avatar: "" });
-    const [editId, setEditId] = useState<number | null>(null);
+    const [editId, setEditId] = useState<string | number | null>(null);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const perPage = 6;
+    const [creating, setCreating] = useState(false);
 
-    // --- Save to localStorage whenever categories change ---
+    // Load from API
     useEffect(() => {
-        localStorage.setItem("categories", JSON.stringify(categories));
-    }, [categories]);
+        (async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const token = localStorage.getItem("token");
+                if (!token) return;
+                const res = await listCategories(token);
+                const list: Category[] = (res.categories || res.data || []) as Category[];
+                setCategories(list.map(c => ({ id: c._id, name: c.name, shortName: c.slug, description: c.description || "", avatar: c.imageUrl })));
+            } catch (e: unknown) {
+                setError(e instanceof Error ? e.message : String(e));
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
 
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onloadend = () => setForm(prev => ({ ...prev, avatar: reader.result as string }));
-        reader.readAsDataURL(file);
-    };
+    // removed; file is read directly from input on submit
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!form.name || !form.shortName) {
             alert("Name and Short Name are required");
             return;
         }
-
-        if (editId !== null) {
-            setCategories(prev => prev.map(cat => (cat.id === editId ? { ...cat, ...form } : cat)));
-            setEditId(null);
-        } else {
-            setCategories(prev => [...prev, { ...form, id: Date.now() }]);
+        try {
+            setCreating(true);
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Please login to create category");
+                return;
+            }
+            if (editId !== null) {
+                // Optional: update support if API allows (not provided in brief)
+                setCategories(prev => prev.map(cat => (cat.id === editId ? { ...cat, ...form } : cat)));
+                setEditId(null);
+            } else {
+                const imageFile = (document.querySelector('#cat-image-input') as HTMLInputElement)?.files?.[0] || null;
+                await createCategory({ name: form.name, slug: form.shortName, description: form.description, image: imageFile || null }, token);
+                // Refresh list
+                const res = await listCategories(token);
+                const list: Category[] = (res.categories || res.data || []) as Category[];
+                setCategories(list.map(c => ({ id: c._id, name: c.name, shortName: c.slug, description: c.description || "", avatar: c.imageUrl })));
+                setShowCreate(false);
+            }
+            setForm({ id: 0, name: "", shortName: "", description: "", avatar: "" });
+        } catch (err: unknown) {
+            alert(err instanceof Error ? err.message : String(err));
+        } finally {
+            setCreating(false);
         }
-        setForm({ id: 0, name: "", shortName: "", description: "", avatar: "" });
     };
 
     const handleEdit = (cat: CategoryType) => {
@@ -165,7 +131,7 @@ export default function Categories() {
         setEditId(cat.id);
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = (id: string | number) => {
         if (confirm("Are you sure you want to delete this category?")) {
             setCategories(prev => prev.filter(cat => cat.id !== id));
         }
@@ -186,37 +152,76 @@ export default function Categories() {
 
     return (
         <DashboardLayout>
-            {/* Header + Search */}
+            {/* Header + Search + Create Button */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 className="text-3xl font-bold text-gray-800">Categories</h1>
-                <div className="relative w-full md:w-64">
-                    <input
-                        type="text"
-                        placeholder="Search categories..."
-                        value={search}
-                        onChange={e => { setSearch(e.target.value); setPage(1); }}
-                        className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                    />
-                    <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="relative w-full md:w-64">
+                        <input
+                            type="text"
+                            placeholder="Search categories..."
+                            value={search}
+                            onChange={e => { setSearch(e.target.value); setPage(1); }}
+                            className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+                        />
+                        <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                    </div>
+                    <button
+                        onClick={() => setShowCreate(true)}
+                        className="px-4 py-2 rounded-lg text-white transition font-medium"
+                        style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
+                    >
+                        Create Category
+                    </button>
                 </div>
             </div>
 
-            {/* Category Form */}
-            <CategoryForm
-                form={form}
-                setForm={setForm}
-                handleSubmit={handleSubmit}
-                editId={editId}
-                handleAvatarChange={handleAvatarChange}
-            />
-
             {/* Categories Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {paginated.map(cat => (
+                {loading && <div className="col-span-full text-center text-gray-500 py-10">Loading categories…</div>}
+                {error && <div className="col-span-full text-center text-red-500 py-4">{error}</div>}
+                {!loading && paginated.map(cat => (
                     <CategoryCard key={cat.id} cat={cat} handleEdit={handleEdit} handleDelete={handleDelete} />
                 ))}
                 {paginated.length === 0 && <div className="col-span-full text-center text-gray-500 py-10">No categories found.</div>}
             </div>
+
+            {/* Create Modal */}
+            {showCreate && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/40" onClick={() => setShowCreate(false)} />
+                    <div className="relative z-10 w-full max-w-xl bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 card-hover">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-semibold" style={{ color: '#29294b' }}>Create New Category</h2>
+                            <button onClick={() => setShowCreate(false)} className="px-3 py-1 rounded-md text-gray-600 hover:bg-gray-100">Close</button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="flex flex-col gap-2 flex-1">
+                                    <label className="font-medium">Category Name</label>
+                                    <input type="text" value={form.name} onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" />
+                                </div>
+                                <div className="flex flex-col gap-2 flex-1">
+                                    <label className="font-medium">Slug</label>
+                                    <input type="text" value={form.shortName} onChange={(e) => setForm(p => ({ ...p, shortName: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="font-medium">Description</label>
+                                <textarea value={form.description} onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="font-medium">Image</label>
+                                <input id="cat-image-input" type="file" accept="image/*" className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1] w-60" />
+                            </div>
+                            <div className="flex justify-end gap-2">
+                                <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg border border-gray-300">Cancel</button>
+                                <button type="submit" disabled={creating} className="px-4 py-2 rounded-lg text-white disabled:opacity-60" style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>{creating ? "Creating..." : "Create"}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Pagination */}
             {totalPages > 1 && (
