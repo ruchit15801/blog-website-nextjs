@@ -145,6 +145,65 @@ h1, h2, h3, h4, h5, h6 {
   transition: opacity 0.3s ease;
 }
 
+/* DASHBOARD THEME SKIN (applies to all pages inside dashboard layout) */
+.dashboard-skin {
+  --dash-radius: 14px;
+  --dash-border: 1px solid #e5e7eb;
+}
+
+/* Cards */
+.dashboard-skin .card,
+.dashboard-skin .card-hover {
+  background: #fff;
+  border-radius: var(--dash-radius);
+  border: var(--dash-border);
+}
+
+/* Inputs */
+.dashboard-skin :where(input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"], textarea) {
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: .625rem .75rem;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.dashboard-skin :where(input, textarea):focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px color-mix(in oklab, #6366f1, transparent 80%);
+  background: #fff;
+}
+
+/* Selects */
+.dashboard-skin select {
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: .55rem .75rem;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.dashboard-skin select:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px color-mix(in oklab, #6366f1, transparent 80%); background: #fff; }
+
+/* Buttons */
+.dashboard-skin .btn { border-radius: 10px; padding: .6rem .9rem; font-weight: 600; }
+.dashboard-skin .btn-primary { background: linear-gradient(180deg, #9895ff 0%, #514dcc 100%); color: #fff; }
+.dashboard-skin .btn-primary:hover { filter: brightness(1.02); transform: translateY(-1px); }
+.dashboard-skin .btn-secondary { background: #f3f4f6; color: #5559d1; border: 1px solid #e5e7eb; }
+.dashboard-skin .btn-secondary:hover { background: #eef2ff; }
+
+/* Table */
+.dashboard-skin table { border-collapse: separate; border-spacing: 0; }
+.dashboard-skin thead { background: linear-gradient(180deg, #9895ff 0%, #514dcc 100%); color: #fff; }
+.dashboard-skin tbody tr:hover { background: #f9fafb; }
+
+/* Pagination buttons */
+.dashboard-skin .pagination-btn { border: 1px solid #e5e7eb; border-radius: 10px; padding: .45rem .75rem; }
+.dashboard-skin .pagination-btn:hover { background: #f3f4f6; }
+
+/* Search icon alignment helper */
+.dashboard-skin .with-icon-left { padding-left: 2.25rem; }
+.dashboard-skin .icon-left { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+
 .shine:hover::after { 
   opacity: 1; 
   animation: shimmer 1s linear; 

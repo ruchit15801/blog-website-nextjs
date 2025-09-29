@@ -84,7 +84,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const menus = role === "admin" ? adminMenu : userMenu;
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 dashboard-skin">
       <aside className="w-64 bg-white shadow-md flex flex-col p-4 fixed top-0 left-0 h-screen overflow-auto">
         <Link href="/" className="mb-4">
           <Image src="/images/logo.png" alt="Logo" width={130} height={130} priority />
@@ -95,9 +95,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <Link
               key={item.label}
               href={item.path}
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium text-gray-700 ${
-                pathname === item.path ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
-              }`}
+              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium text-gray-700 ${pathname === item.path ? "bg-blue-100 text-blue-600" : "hover:bg-gray-100"
+                }`}
             >
               {item.icon}
               <span>{item.label}</span>

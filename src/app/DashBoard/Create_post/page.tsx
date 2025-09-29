@@ -161,15 +161,17 @@ export default function AdminLayout() {
     return (
         <>
             <DashboardLayout>
-                <div className="mx-auto max-w-6xl px-4 pb-10">
+                <div className="mx-auto max-w-7xl px-4 pb-10">
                     <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <h1 className="text-3xl font-bold text-gray-800">Create Post</h1>
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-800">Create Post</h1>
+                            <p className="text-gray-500">Compose, add media, choose category and publish with style.</p>
+                        </div>
 
                         <div className="flex gap-2">
                             <button
                                 type="button"
-                                className="px-4 py-2 rounded-lg border border-gray-300 transition font-medium"
-                                style={{ color: "#5559d1", backgroundColor: "#f0f0f0" }}
+                                className="btn btn-secondary shine"
                                 onClick={() => setShowPreview((v) => !v)}
                             >
                                 {showPreview ? "Hide Preview" : "Show Preview"}
@@ -179,9 +181,7 @@ export default function AdminLayout() {
                                 type="submit"
                                 form="new-post-form"
                                 disabled={submitting}
-                                className="px-4 py-2 rounded-lg text-white transition font-medium"
-                                style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
-
+                                className="btn btn-primary shine disabled:opacity-60"
                             >
                                 {submitting ? "Publishing..." : "Publish Post"}
                             </button>
@@ -190,7 +190,7 @@ export default function AdminLayout() {
 
                     <form id="new-post-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         {/* Left column: form fields */}
-                        <div className="space-y-5">
+                        <div className="space-y-5 bg-white rounded-2xl shadow p-6 card-hover">
                             {/* Title */}
                             <div className="space-y-1">
                                 <label className="text-sm font-semibold">Title *</label>
@@ -271,7 +271,7 @@ export default function AdminLayout() {
                                 <label className="text-sm font-semibold block">Images</label>
 
                                 {/* Upload area with preview inside */}
-                                <div className="relative flex flex-col items-center w-full max-w-md p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition">
+                                <div className="relative flex flex-col items-center w-full max-w-md p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition hover:shadow-md">
                                     {imageFiles.length > 0 && (
                                         <div className="w-full flex flex-wrap gap-3 mb-3 justify-center">
                                             {imageFiles.map((file, idx) => {
@@ -348,7 +348,7 @@ export default function AdminLayout() {
                                 <label className="text-sm font-semibold block">Banner Image</label>
 
                                 {/* Upload area with preview */}
-                                <div className="relative flex flex-col items-center w-full max-w-md p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition hover:border-blue-400">
+                                <div className="relative flex flex-col items-center w-full max-w-md p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition hover:border-blue-400 hover:shadow-md">
 
                                     {bannerFile && (
                                         <div className="relative w-32 h-20 rounded-lg border border-gray-300 mb-3">
@@ -394,7 +394,7 @@ export default function AdminLayout() {
                         </div>
 
                         {/* Right column */}
-                        <div className="space-y-3">
+                        <div className="space-y-3 bg-white rounded-2xl shadow p-6 card-hover">
                             <label className="text-sm font-semibold text-gray-700">Content (HTML) *</label>
 
                             {/* Toolbar */}
