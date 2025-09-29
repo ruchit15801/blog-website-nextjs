@@ -1,11 +1,81 @@
 import axios from "axios";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+export const HOME_API_BASE_URL = process.env.NEXT_PUBLIC_HOME_API_URL || "http://localhost:4000/api";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
 });
+
+// ---------- Home APIs ----------
+export type HomePost = {
+  _id: string;
+  title: string;
+  bannerImageUrl?: string;
+  tags?: string[];
+  author?: { _id: string; fullName?: string; name?: string; email?: string } | string;
+  publishedAt?: string | null;
+  createdAt?: string;
+  readingTimeMinutes?: number;
+};
+
+export type HomeAuthor = {
+  _id: string;
+  fullName?: string;
+  avatarUrl?: string;
+};
+
+export async function getHomeOverview() {
+  const url = `${HOME_API_BASE_URL}/home`;
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Home overview failed: ${res.status}`);
+  const data = await res.json();
+  return {
+    featuredPosts: (data.featuredPosts || []) as HomePost[],
+    trendingPosts: (data.trendingPosts || []) as HomePost[],
+    recentPosts: (data.recentPosts || []) as HomePost[],
+    topAuthors: (data.topAuthors || []) as HomeAuthor[],
+  };
+}
+
+export type ListAllPostsParams = {
+  page?: number;
+  limit?: number;
+  sort?: "latest" | "oldest" | "random";
+  category?: string | null;
+};
+
+export async function listAllHomePosts(params: ListAllPostsParams = {}) {
+  const url = new URL(`${HOME_API_BASE_URL}/home/all-posts`);
+  if (params.page != null) url.searchParams.set("page", String(params.page));
+  if (params.limit != null) url.searchParams.set("limit", String(params.limit));
+  if (params.sort) url.searchParams.set("sort", params.sort);
+  if (params.category != null) url.searchParams.set("category", String(params.category));
+  const res = await fetch(url.toString(), { cache: "no-store" });
+  if (!res.ok) throw new Error(`Home posts failed: ${res.status}`);
+  const data = await res.json();
+  const list = (data.data || data.posts || data.result || []) as HomePost[];
+  const meta = (data.meta || data) as { total?: number; page?: number; limit?: number; totalPages?: number };
+  const total = meta.total ?? list.length;
+  const page = meta.page ?? (params.page ?? 1);
+  const inferredLimit = params.limit ?? (list.length || 12);
+  const limit = meta.limit ?? inferredLimit;
+  const totalPages = meta.totalPages ?? Math.max(1, Math.ceil(total / (limit || 1)));
+  return { posts: list, total, page, limit, totalPages };
+}
+
+export type TrendingCategory = { _id: string; name: string; icon?: string };
+
+export async function listTrendingByCategory() {
+  const url = `${HOME_API_BASE_URL}/home/trending-by-category`;
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Trending by category failed: ${res.status}`);
+  const data = await res.json();
+  const categories = (data.data || []) as TrendingCategory[];
+  const meta = data.meta as { categoriesLimit?: number; postsPerCategory?: number } | undefined;
+  return { categories, meta };
+}
 
 // Signup
 export const signupUser = async (data: { fullName: string; email: string; password: string }) => {

@@ -3,6 +3,7 @@ import DashboardLayout from "../DashBoardLayout";
 import { MoreHorizontal, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import Loader from "@/components/Loader";
 import { fetchAdminPosts, fetchAdminUsers, type RemotePost, type RemoteUser } from "@/lib/adminClient";
 
 type UiPost = {
@@ -24,7 +25,7 @@ export default function UserPosts() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [items, setItems] = useState<UiPost[]>([]);
-    const [total, setTotal] = useState(0);
+    const [, setTotal] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [userOptions, setUserOptions] = useState<RemoteUser[]>([]);
 
@@ -121,7 +122,7 @@ export default function UserPosts() {
             {/* Posts Grid */}
             <main className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {loading && (
-                    <div className="col-span-full text-center text-gray-500 py-10">Loading posts…</div>
+                    <div className="col-span-full text-center py-10"><Loader inline label="Loading posts" /></div>
                 )}
                 {error && !loading && (
                     <div className="col-span-full text-center text-red-500 py-10">{error}</div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Loader from "@/components/Loader";
 import { useRouter } from "next/navigation";
 import { signupUser, loginUser } from "@/lib/api";
 
@@ -41,7 +42,7 @@ export default function AuthPage() {
                 localStorage.setItem("token", res.token);
                 localStorage.setItem("refreshToken", res.refreshToken);
                 localStorage.setItem("userProfile", JSON.stringify(res.user));
-                localStorage.setItem("role", res.user.role); 
+                localStorage.setItem("role", res.user.role);
 
                 setMessage("Sign Up successful!");
                 router.push("/DashBoard");
@@ -56,7 +57,7 @@ export default function AuthPage() {
                 localStorage.setItem("token", res.token);
                 localStorage.setItem("refreshToken", res.refreshToken);
                 localStorage.setItem("userProfile", JSON.stringify(res.user));
-                localStorage.setItem("role", res.user.role); 
+                localStorage.setItem("role", res.user.role);
 
                 setMessage(`Signed in as ${res.user.role}`);
                 router.push("/DashBoard");
@@ -70,7 +71,7 @@ export default function AuthPage() {
         }
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <Loader />;
 
     return (
         <>

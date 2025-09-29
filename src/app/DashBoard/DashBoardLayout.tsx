@@ -1,6 +1,7 @@
 "use client";
 
 import React, { ReactNode, useEffect, useState } from "react";
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -60,7 +61,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     fetchUser();
   }, [router]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loader />;
 
   const adminMenu = [
     { icon: <Home />, label: "Dashboard", path: "/DashBoard" },

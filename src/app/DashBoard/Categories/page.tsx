@@ -3,6 +3,7 @@ import DashboardLayout from "../DashBoardLayout";
 import { MoreHorizontal, Search } from "lucide-react";
 import Image from "next/image";
 import { useState, useMemo, useEffect } from "react";
+import Loader from "@/components/Loader";
 import { listCategories, createCategory, type Category } from "@/lib/api";
 
 type CategoryType = {
@@ -178,7 +179,7 @@ export default function Categories() {
 
             {/* Categories Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {loading && <div className="col-span-full text-center text-gray-500 py-10">Loading categories…</div>}
+                {loading && <div className="col-span-full text-center py-10"><Loader inline label="Loading categories" /></div>}
                 {error && <div className="col-span-full text-center text-red-500 py-4">{error}</div>}
                 {!loading && paginated.map(cat => (
                     <CategoryCard key={cat.id} cat={cat} handleEdit={handleEdit} handleDelete={handleDelete} />

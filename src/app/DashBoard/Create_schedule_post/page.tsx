@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createScheduledPost, fetchCategories, getAdminToken, saveAdminToken } from "@/lib/adminClient";
 import DashboardLayout from "../DashBoardLayout";
+import Loader from "@/components/Loader";
 
 type CategoryType = { _id: string; name: string };
 
@@ -134,7 +135,7 @@ export default function CreateSchedulePost() {
                                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                             </div>
                             {catError && <p className="text-xs" style={{ color: "#ef4444" }}>{catError}</p>}
-                            {catsLoading && <p className="text-xs text-gray-500">Loading categories…</p>}
+                            {catsLoading && <div className="pt-1"><Loader inline label="Loading categories" /></div>}
                         </div>
                         <div className="space-y-1">
                             <label className="text-sm font-semibold">Tags</label>

@@ -4,6 +4,7 @@ import { Clock, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import Loader from "@/components/Loader";
 import { fetchAdminPosts, type RemotePost } from "@/lib/adminClient";
 
 const articles = [
@@ -284,7 +285,7 @@ export default function AllPosts() {
                 <div className="lg:col-span-3 flex flex-col">
                     <div className={isSearchActive ? "flex flex-col gap-10" : "grid grid-cols-1 md:grid-cols-3 gap-8"}>
                         {loading && (
-                            <div className="col-span-full text-center py-20 text-gray-500 text-lg font-semibold">Loading latest posts…</div>
+                            <div className="col-span-full text-center py-20"><Loader inline label="Loading latest posts" /></div>
                         )}
                         {error && !loading && (
                             <div className="col-span-full text-center py-20 text-red-500 text-lg font-semibold">{error}</div>

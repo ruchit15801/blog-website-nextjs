@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Loader from "@/components/Loader";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createRemotePost, fetchCategories, getAdminToken, saveAdminToken, } from "@/lib/adminClient";
 import DashboardLayout from "../DashBoardLayout";
@@ -250,7 +251,7 @@ export default function AdminLayout() {
                                     </svg>
                                 </div>
                                 {catError && <p className="text-xs" style={{ color: "#ef4444" }}>{catError}</p>}
-                                {catsLoading && <p className="text-xs text-gray-500">Loading categories…</p>}
+                                {catsLoading && <div className="pt-1"><Loader inline label="Loading categories" /></div>}
                             </div>
 
                             {/* Tags */}

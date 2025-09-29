@@ -1,239 +1,72 @@
 import { ChevronLeft, ChevronRight, Clock, ExternalLink, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import type { HomeAuthor, HomePost } from "@/lib/api";
 
-export default function ArticlesSection() {
-    const articles = [
-        {
-            id: 1,
-            title: "How Tech Shapes the Future of Work in 2024",
-            date: "October 16, 2024",
-            author: "Ethan Caldwell",
-            excerpt: "In today’s ever-evolving world, storytelling has become a powerful tool for connection. Revision provides a unique platform for individuals to…",
-            image: "/images/a1.webp",
-            tag: ["Business", "News"],
-            readTime: 6,
-        },
-        {
-            id: 2,
-            title: "The Future of Work: Tech and Remote Trends",
-            date: "October 18, 2024",
-            author: "Jane Doe",
-            excerpt: "Find out why 2024 is predicted to be a pivotal year for sports technology and its impact on the industry.",
-            image: "/images/a2.webp",
-            tag: ["Sport", 'Travel'],
-            readTime: 3,
-        },
-        {
-            id: 3,
-            title: "Remote Work Trends in the Digital Age",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: "Discover the cutting-edge tech gadgets making travel smarter and more convenient in 2024.",
-            image: "/images/a3.webp",
-            tag: ["News", 'Trends'],
-            readTime: 5,
-        },
-        {
-            id: 4,
-            title: "Business Travel Tools for the Digital Age",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: " Learn how startups are leveraging data to fuel growth and scale in today’s competitive landscape.",
-            image: "/images/a4.webp",
-            tag: "Business",
-            readTime: 7,
-        },
-        {
-            id: 5,
-            title: "Key Sports Trends for 2024: From AI to Virtual Reality",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: "Dive into the key sports trends like AI and virtual reality set to redefine the sports industry in 2024.",
-            image: "/images/a5.webp",
-            tag: "Sport",
-            readTime: 4,
-        },
-        {
-            id: 6,
-            title: "The Impact of Automation on Business Management Efficiency",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: "Learn how automation is boosting business management efficiency and driving growth in various sectors.",
-            image: "/images/a6.webp",
-            tag: "Technology",
-            readTime: 6,
-        },
-        {
-            id: 7,
-            title: "Startups Disrupting the Sports Industry with Innovative Tech",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: " Discover how startups are leveraging technology to disrupt and innovate within the sports industry.",
-            image: "/images/a7.webp",
-            tag: "Sport",
-            readTime: 3,
-        },
-        {
-            id: 8,
-            title: "Travel Trends in 2024: Virtual Tours and Immersive Experiences",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: "Explore the rise of virtual tours and immersive experiences shaping the future of travel in 2024.",
-            image: "/images/a8.webp",
-            tag: "News",
-            readTime: 5,
-        },
-        {
-            id: 9,
-            title: "Why Data Security is a Priority for Business Management in 2024",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: "Understand why data security is a growing concern for business management in today's digital world.",
-            image: "/images/a9.webp",
-            tag: "Trends",
-            readTime: 7,
-        },
-        {
-            id: 10,
-            title: "Startups and AI: How Artificial Intelligence Drives Innovation",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: "See how startups are harnessing the power of AI to foster innovation and reshape industries.",
-            image: "/images/a10.webp",
-            tag: "Startups",
-            readTime: 4,
-        },
-        {
-            id: 11,
-            title: "Top Business Management Software Solutions for 2024",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: "Learn about the top management software solutions driving efficiency and growth in businesses.",
-            image: "/images/a11.webp",
-            tag: "Management",
-            readTime: 6,
-        },
-        {
-            id: 12,
-            title: "How 5G Technology Will Impact the Travel Industry in 2024",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt: "Discover how 5G technology is set to revolutionize connectivity and enhance travel experiences.",
-            image: "/images/a12.webp",
-            tag: "Technology",
-            readTime: 3,
-        },
-        {
-            id: 13,
-            title: "Sample Article Title 1",
-            date: "October 16, 2024",
-            author: "Ethan Caldwell",
-            excerpt:
-                "This is a short preview of the article content. Add a captivating summary here.",
-            image: "/images/a1.webp",
-            tag: "Management",
-            readTime: 5,
-        },
-        {
-            id: 14,
-            title: "Second Article Title",
-            date: "October 18, 2024",
-            author: "Jane Doe",
-            excerpt:
-                "Another article with its own short preview. Keep it catchy.",
-            image: "/images/a2.webp",
-            tag: "Sport",
-            readTime: 6,
-        },
-        {
-            id: 15,
-            title: "Third Amazing Article",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt:
-                "Yet another interesting article summary goes here.",
-            image: "/images/a3.webp",
-            tag: ["Business", "News"],
-            readTime: 3,
-        },
-        {
-            id: 16,
-            title: "Third Amazing Article",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt:
-                "Yet another interesting article summary goes here.",
-            image: "/images/a4.webp",
-            tag: ["Startups", "Technology"],
-            readTime: 5,
-        },
-        {
-            id: 17,
-            title: "Third Amazing Article",
-            date: "October 20, 2024",
-            author: "John Smith",
-            excerpt:
-                "Yet another interesting article summary goes here.",
-            image: "/images/a5.webp",
-            tag: ['News', 'Sport'],
-            readTime: 4,
-        },
-    ];
+export default function ArticlesSection({
+    featuredPosts,
+    recentPosts,
+    trendingPosts,
+    topAuthors,
+}: {
+    featuredPosts: HomePost[];
+    recentPosts: HomePost[];
+    trendingPosts: HomePost[];
+    topAuthors: HomeAuthor[];
+}) {
+    // Main articles grid uses recent posts
+    const articles = useMemo(() => {
+        return (recentPosts || []).map((p) => {
+            const fallbackEmail = (typeof (p as unknown as { author?: { email?: string } }).author?.email === "string")
+                ? (p as unknown as { author?: { email?: string } }).author!.email!.split("@")[0]
+                : "";
+            const fallbackName = (typeof (p as unknown as { author?: { name?: string } }).author?.name === "string")
+                ? (p as unknown as { author?: { name?: string } }).author!.name!
+                : fallbackEmail;
+            const authorName = typeof p.author === "string"
+                ? p.author
+                : (p.author?.fullName || fallbackName || "");
+            return {
+                id: p._id,
+                title: p.title,
+                date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
+                author: authorName,
+                excerpt: "",
+                image: p.bannerImageUrl || "/images/a1.webp",
+                tag: Array.isArray(p.tags) ? p.tags : [],
+                readTime: (p as unknown as { readingTimeMinutes?: number }).readingTimeMinutes ?? 0,
+            };
+        });
+    }, [recentPosts]);
 
-    const posts = [
-        {
-            img: "/images/aside1.webp",
-            title: "AI in Business Management: Improving Efficiency and Decision Making",
-            author: "Ethan Caldwell",
-            date: "on July 7, 2024",
-            tag: "Management",
-        },
-        {
-            img: "/images/a4.webp",
-            title: "Business Travel Tools for the Digital Age",
-            author: "Ethan Caldwell",
-            date: "on September 25,2024",
-            tag: "Business",
-        },
-        {
-            img: "/images/aside.webp",
-            title: "Business Travel Trends to Expect in 2024: Tech and Efficiency",
-            author: "Ethan Caldwell",
-            date: "on August 5,2024",
-            tag: "Business",
-        },
-    ];
-
-    const technologies = [
-        {
-            img: "/images/aside_tech.webp",
-            name: "Figma",
-            desc: "Collaborate and design interfaces in real-time.",
-        },
-        {
-            img: "/images/aside_tech1.webp",
-            name: "Notion",
-            desc: "Organize, track, and collaborate on projects easily.",
-        },
-        {
-            img: "/images/aside_tech2.webp",
-            name: "Photoshop",
-            desc: "Professional image and graphic editing tool.",
-        },
-        {
-            img: "/images/aside_tech3.webp",
-            name: "Illustrator",
-            desc: "Create precise vector graphics and illustrations.",
-        },
-    ];
+    // Sidebar featured slider uses featured posts
+    const slider = useMemo(() => {
+        return (featuredPosts || []).map((p) => {
+            const fEmail = (typeof (p as unknown as { author?: { email?: string } }).author?.email === "string")
+                ? (p as unknown as { author?: { email?: string } }).author!.email!.split("@")[0]
+                : "";
+            const fName = (typeof (p as unknown as { author?: { name?: string } }).author?.name === "string")
+                ? (p as unknown as { author?: { name?: string } }).author!.name!
+                : fEmail;
+            const authorName = typeof p.author === "string"
+                ? p.author
+                : (p.author?.fullName || fName || "");
+            return {
+                img: p.bannerImageUrl || "/images/a1.webp",
+                title: p.title,
+                author: authorName,
+                date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
+                tag: Array.isArray(p.tags) && p.tags.length ? p.tags[0] : "",
+            };
+        });
+    }, [featuredPosts]);
 
     const [index, setIndex] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 12;
-    const prev = () => setIndex((i) => (i - 1 + posts.length) % posts.length);
-    const next = () => setIndex((i) => (i + 1) % posts.length);
+    const prev = () => setIndex((i) => (i - 1 + slider.length) % slider.length);
+    const next = () => setIndex((i) => (i + 1) % slider.length);
     const totalPages = Math.ceil(articles.length / perPage);
     const start = (currentPage - 1) * perPage;
     const paginatedArticles = articles.slice(start, start + perPage);
@@ -312,7 +145,7 @@ export default function ArticlesSection() {
                                     </div>
 
                                     {/* Title */}
-                                    <h2 style={{ fontSize: '1.3125rem', fontWeight: 700, letterSpacing: '-.04em', lineHeight: 1.2 , color : '#29294b' }}>
+                                    <h2 style={{ fontSize: '1.3125rem', fontWeight: 700, letterSpacing: '-.04em', lineHeight: 1.2, color: '#29294b' }}>
                                         {a.title}
                                     </h2>
 
@@ -386,20 +219,20 @@ export default function ArticlesSection() {
                         <div className="flex gap-3">
                             <div>
                                 <Image
-                                    src="/images/aside_about.webp"
-                                    alt="Profile"
+                                    src={(topAuthors?.[0]?.avatarUrl) || "/images/aside_about.webp"}
+                                    alt={topAuthors?.[0]?.fullName || "Profile"}
                                     width={50}
                                     height={50}
                                     className="rounded-full mb-4 object-cover"
                                 />
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-900" style={{ color: '#29294b', fontWeight: 700, letterSpacing: '-0.04em' }}>Ethan Caldwell</h3>
-                                <p className="text-sm text-gray-500 mb-3 uppercase" style={{ fontSize: '12px', fontWeight: 800, color: '#696981', letterSpacing: '0.1em' }}>Reflective Blogger</p>
+                                <h3 className="text-lg font-semibold text-900" style={{ color: '#29294b', fontWeight: 700, letterSpacing: '-0.04em' }}>{topAuthors?.[0]?.fullName || "Top Author"}</h3>
+                                <p className="text-sm text-gray-500 mb-3 uppercase" style={{ fontSize: '12px', fontWeight: 800, color: '#696981', letterSpacing: '0.1em' }}>{topAuthors?.[0]?.fullName ? "Top Author" : ""}</p>
                             </div>
                         </div>
                         <p className="text-gray-600 text-sm mb-4 mx-auto" style={{ marginTop: '12px', lineHeight: '1.55', color: '#696981', fontSize: '17px' }}>
-                            Ethan Caldwell shares thoughtful insights and reflections on life, culture, and personal growth. His work explores the intersections of creativity and experience, offering readers unique perspectives.
+                            Discover insights from our leading contributors and explore trending stories curated just for you.
                         </p>
                         {/* Location */}
                         <h4 className="flex items-center text-sm mb-4 gap-1">
@@ -436,7 +269,7 @@ export default function ArticlesSection() {
                     <h3 className="text-lg font-semibold mb-4">Featured Posts</h3>
                     <div>
                         <div className="relative w-full h-80 overflow-hidden group">
-                            {posts.map((post, i) => (
+                            {slider.map((post, i) => (
                                 <div
                                     key={post.title}
                                     className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${i === index ? "opacity-100 z-10" : "opacity-0 z-0"}`}
@@ -449,7 +282,7 @@ export default function ArticlesSection() {
                                             {post.tag}
                                         </span>
                                         <div>
-                                            <span className="block text-sm">{post.author}{post.date}</span>
+                                            <span className="block text-sm">{post.author} • {post.date}</span>
                                             <h4 className="text-lg font-semibold">{post.title}</h4>
                                         </div>
                                     </div>
@@ -474,35 +307,29 @@ export default function ArticlesSection() {
                         </div>
                     </div>
 
-                    {/* 3️⃣ Work Experience */}
+                    {/* 3️⃣ Top Authors (from API) */}
                     <div className="aside-shadow rounded-xl shadow p-6">
-                        <h3 className="text-lg font-semibold mb-4 uppercase" style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem', lineHeight: '1.2' }}>Work Experience</h3>
+                        <h3 className="text-lg font-semibold mb-4 uppercase" style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem', lineHeight: '1.2' }}>Top Authors</h3>
                         <div className="space-y-4">
-                            <div className="flex justify-between">
-                                <div>
-                                    <h4 className="font-medium" style={{ fontWeight: 600 }}>Product Designer</h4>
-                                    <p className="text-sm text-gray-500" style={{ fontWeight: 400, fontSize: '16px', marginTop: '4px' }}>Pioneer</p>
+                            {(topAuthors || []).slice(0, 3).map((a) => (
+                                <div key={a._id} className="flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="rounded-full object-cover" />
+                                        <div>
+                                            <h4 className="font-medium" style={{ fontWeight: 600 }}>{a.fullName || "Author"}</h4>
+                                            <p className="text-sm text-gray-500" style={{ fontWeight: 400, fontSize: '14px', marginTop: '2px' }}>Featured contributor</p>
+                                        </div>
+                                    </div>
+                                    <a href="#" className="text-sm link-underline">View</a>
                                 </div>
-                                <span className="text-sm text-gray-400" style={{ fontWeight: 500, fontSize: '15px', lineHeight: '1.2' }}>2022 – Now</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <div>
-                                    <h4 className="font-medium" style={{ fontWeight: 600 }}>Product Designer</h4>
-                                    <p className="text-sm text-gray-500" style={{ fontWeight: 400, fontSize: '16px', marginTop: '4px' }}>Digital</p>
-                                </div>
-                                <span className="text-sm text-gray-400" style={{ fontWeight: 500, fontSize: '15px', lineHeight: '1.2' }}>2020 – 2022</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <div>
-                                    <h4 className="font-medium" style={{ fontWeight: 600 }}>UI/UX Designer</h4>
-                                    <p className="text-sm text-gray-500" style={{ fontWeight: 400, fontSize: '16px', marginTop: '4px' }}>Digital</p>
-                                </div>
-                                <span className="text-sm text-gray-400" style={{ fontWeight: 500, fontSize: '15px', lineHeight: '1.2' }}>2017 – 2020</span>
-                            </div>
+                            ))}
+                            {(!topAuthors || topAuthors.length === 0) && (
+                                <p className="text-sm text-gray-500">No authors to display.</p>
+                            )}
                         </div>
                     </div>
 
-                    {/* 4️⃣ Technologies */}
+                    {/* 4️⃣ Technologies (derived from trending posts tags) */}
                     <div className="aside-shadow rounded-xl shadow py-6 ps-6 pe-10">
                         <h3
                             className="text-lg font-semibold mb-4 uppercase"
@@ -510,60 +337,29 @@ export default function ArticlesSection() {
                         >
                             Technologies
                         </h3>
-
-                        {/* Loop through technologies */}
-                        {technologies.map((tech) => (
-                            <div
-                                key={tech.name}
-                                className="flex gap-4 items-center justify-center mb-4 last:mb-0"
-                            >
-                                <Image
-                                    src={tech.img}
-                                    alt={tech.name}
-                                    width={50}
-                                    height={50}
-                                    className="rounded-xl object-cover"
-                                />
+                        {Array.from(new Set((trendingPosts || []).flatMap(p => (Array.isArray(p.tags) ? p.tags : [] as string[])))).slice(0, 6).map((tag) => (
+                            <div key={tag} className="flex gap-4 items-center justify-center mb-4 last:mb-0">
+                                <Image src="/images/aside_tech.webp" alt={tag} width={50} height={50} className="rounded-xl object-cover" />
                                 <div>
-                                    <h3
-                                        className="text-lg font-semibold"
-                                        style={{
-                                            color: "#29294b",
-                                            fontWeight: 700,
-                                            letterSpacing: "-0.04em",
-                                        }}
-                                    >
-                                        {tech.name}
-                                    </h3>
-                                    <p
-                                        className="text-sm text-gray-500"
-                                        style={{ fontSize: "14px", color: "#696981", lineHeight: "1.55" }}
-                                    >
-                                        {tech.desc}
+                                    <h3 className="text-lg font-semibold" style={{ color: "#29294b", fontWeight: 700, letterSpacing: "-0.04em" }}>{tag}</h3>
+                                    <p className="text-sm text-gray-500" style={{ fontSize: "14px", color: "#696981", lineHeight: "1.55" }}>
+                                        Popular topic from trending posts
                                     </p>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {/* 5️⃣ Creating */}
+                    {/* 5️⃣ Creating (from recent post titles) */}
                     <div className="aside-shadow rounded-xl shadow p-6 space-y-4">
                         <h3 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase text-lg font-semibold mb-4" >Creating</h3>
-                        {[
-                            { title: "Heartfelt Reflections", desc: "A deep dive into emotional experiences and personal growth, sharing valuable insights on life's most meaningful moments." },
-                            { title: "Latest Tech Gadgets", desc: "Explore the newest and most innovative technology products hitting the market, from smart devices to cutting-edge tools." },
-                            { title: "Trends For 2024", desc: "A look ahead at the emerging trends that will shape the world in 2024, from lifestyle shifts to groundbreaking innovations." },
-                        ].map((item) => (
-                            <div key={item.title}>
-                                <a
-                                    href="#"
-                                    className="flex items-center gap-2 font-medium text-blue-600 hover:underline"
-                                    style={{ color: '#5955d1', fontWeight: 700, fontSize: '18px', lineHeight: 1.2 }}
-                                >
-                                    {item.title}
+                        {(recentPosts || []).slice(0, 3).map((p) => (
+                            <div key={p._id}>
+                                <a href={`/articles/${p._id}`} className="flex items-center gap-2 font-medium text-blue-600 hover:underline" style={{ color: '#5955d1', fontWeight: 700, fontSize: '18px', lineHeight: 1.2 }}>
+                                    {p.title}
                                     <ExternalLink className="w-4 h-4" strokeWidth={3} />
                                 </a>
-                                <p className="text-sm text-gray-600" style={{ marginTop: '6px', fontSize: '14px', lineHeight: '1.55', color: '#696981' }}>{item.desc}</p>
+                                <p className="text-sm text-gray-600" style={{ marginTop: '6px', fontSize: '14px', lineHeight: '1.55', color: '#696981' }}>{new Date(p.publishedAt || p.createdAt || Date.now()).toDateString()}</p>
                             </div>
                         ))}
                     </div>

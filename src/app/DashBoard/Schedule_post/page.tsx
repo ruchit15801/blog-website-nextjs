@@ -4,6 +4,7 @@ import { MoreHorizontal, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import Loader from "@/components/Loader";
 import { fetchAdminScheduledPosts, type RemotePost } from "@/lib/adminClient";
 
 const posts = [
@@ -279,7 +280,7 @@ export default function SchedulePosts() {
             {/* Posts Grid */}
             <main className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {loading && (
-                    <div className="col-span-full text-center py-16 text-gray-500">Loading scheduled posts…</div>
+                    <div className="col-span-full text-center py-16"><Loader inline label="Loading scheduled posts" /></div>
                 )}
                 {error && !loading && (
                     <div className="col-span-full text-center py-16 text-red-500">{error}</div>

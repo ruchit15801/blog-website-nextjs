@@ -4,6 +4,7 @@ import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
 import { Pencil, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import Loader from "@/components/Loader";
 import { fetchAdminUsers, RemoteUser } from "@/lib/adminClient";
 
 export default function UsersPage() {
@@ -36,7 +37,6 @@ export default function UsersPage() {
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit, searchTerm]);
 
   // Filter logic
@@ -123,7 +123,7 @@ export default function UsersPage() {
           <tbody>
             {loading && (
               <tr>
-                <td className="px-4 py-6 text-center text-gray-600" colSpan={7}>Loading...</td>
+                <td className="px-4 py-6 text-center" colSpan={7}><Loader inline label="Loading users" /></td>
               </tr>
             )}
             {error && !loading && (
@@ -138,7 +138,7 @@ export default function UsersPage() {
             )}
             {!loading && !error && filteredUsers.map((user, index) => (
               <tr
-                key={(user as any)._id || (user as any).id || `${index}`}
+                key={user._id || user.email || String(index)}
                 className="border-b border-gray-200 hover:bg-gray-50 transition"
               >
                 <td className="px-4 py-3 font-medium text-gray-800">{index + 1 + (page - 1) * limit}</td>
@@ -146,7 +146,7 @@ export default function UsersPage() {
                 <td className="px-4 py-3">
                   <div className="w-10 h-10 relative rounded-full overflow-hidden">
                     <Image
-                      src={user.avatarUrl || (user as any).avatar || "/images/default-avatar.png"}
+                      src={user.avatarUrl || user.avatar || "/images/default-avatar.png"}
                       alt={(user.fullName || user.name || "User") as string}
                       width={40}
                       height={40}
