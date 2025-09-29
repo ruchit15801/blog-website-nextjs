@@ -1,6 +1,7 @@
 "use client";
 import { ChevronUp } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Footer() {
@@ -69,44 +70,34 @@ export default function Footer() {
           </div>
 
           {/* ===== RIGHT SIDE ===== */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 ps-30">
-
-            {/* === Homepages === */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 ps-30">
+            {/* === Site === */}
             <div>
-              <a href="#" className="home-page-list uppercase block text-base font-semibold mb-3">
-                Homepages
-              </a>
+              <span className="home-page-list uppercase block text-base font-semibold mb-3">Site</span>
               <ul className="home-page-sub-menu space-y-2 opacity-80">
-                <li><a href="#" className="hover:underline">Classic List</a></li>
-                <li><a href="#" className="hover:underline">Classic Grid</a></li>
-                <li><a href="#" className="hover:underline">Classic Overlay</a></li>
-                <li><a href="#" className="hover:underline">Hero Slider</a></li>
-                <li><a href="#" className="hover:underline">Featured Posts</a></li>
+                <li><Link href="/" className="hover:underline">Home</Link></li>
+                <li><Link href="/blog" className="hover:underline">Blog</Link></li>
+                <li><Link href="/about" className="hover:underline">About</Link></li>
+                <li><Link href="/contact" className="hover:underline">Contact</Link></li>
               </ul>
             </div>
 
-            {/* === Categories === */}
+            {/* === Legal === */}
             <div>
-              <a href="#" className="home-page-list uppercase block text-base font-semibold mb-3">
-                Categories
-              </a>
+              <span className="home-page-list uppercase block text-base font-semibold mb-3">Legal</span>
               <ul className="home-page-sub-menu space-y-2 opacity-80">
-                <li><a href="#" className="hover:underline">Technology</a></li>
-                <li><a href="#" className="hover:underline">Travel</a></li>
-                <li><a href="#" className="hover:underline">Sport</a></li>
-                <li><a href="#" className="hover:underline">Business</a></li>
+                <li><Link href="/privacy-policy" className="hover:underline">Privacy Policy</Link></li>
+                <li><Link href="/cookie-policy" className="hover:underline">Cookie Policy</Link></li>
+                <li><Link href="/disclaimer" className="hover:underline">Disclaimer</Link></li>
               </ul>
             </div>
 
-            {/* === Pages === */}
+            {/* === Account === */}
             <div>
-              <a href="#" className="home-page-list uppercase block text-base font-semibold mb-3">
-                Pages
-              </a>
+              <span className="home-page-list uppercase block text-base font-semibold mb-3">Account</span>
               <ul className="home-page-sub-menu space-y-2 opacity-80">
-                <li><a href="#" className="hover:underline">About</a></li>
-                <li><a href="#" className="hover:underline">Categories</a></li>
-                <li><a href="#" className="hover:underline">Contacts</a></li>
+                <li><Link href="/auth" className="hover:underline">Create Account</Link></li>
+                <li><Link href="/auth" className="hover:underline">Sign In</Link></li>
               </ul>
             </div>
           </div>
@@ -115,7 +106,7 @@ export default function Footer() {
         {/* ========= BOTTOM / COPYRIGHT ========= */}
         <div className="footer-item-bottom">
           <div className="px-8 text-sm opacity-60">
-            © {year} – Revision. All Rights Reserved.
+            © {year} – BlogCafeAI. All rights reserved.
           </div>
         </div>
       </footer>
