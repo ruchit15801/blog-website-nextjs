@@ -8,12 +8,9 @@ type CategoryType = { _id: string; name: string };
 
 export default function AdminLayout() {
     const [token, setToken] = useState<string>("");
-    const [tokenLocked, setTokenLocked] = useState<boolean>(false);
-    console.log(tokenLocked);
     const [title, setTitle] = useState("");
     const [subtitle, setSubtitle] = useState("");
-    const [categoryId, setCategoryId] = useState("");
-    console.log("Categories :-", setCategoryId);
+    const [categoryId,] = useState("");
     const [categoryName, setCategoryName] = useState("");
     // const [categories, setCategories] = useState<RemoteCategory[]>([]);
     const [categories, setCategories] = useState<CategoryType[]>(() => {
@@ -24,25 +21,13 @@ export default function AdminLayout() {
         return [];
     });
     const [catsLoading, setCatsLoading] = useState(false);
-    console.log(catsLoading);
     const [catError, setCatError] = useState<string | null>(null);
-    console.log(catError);
-    const [tags, setTags] = useState("");
+    const [catSearch, setCatSearch] = useState("");
+
     const [tagsList, setTagsList] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
 
-    const [isScheduleMode, setIsScheduleMode] = useState(false);
-
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        setIsScheduleMode(params.get("mode") === "schedule");
-    }, []);
-
-    const [status, setStatus] = useState<"draft" | "published" | "schedule">("published");
-
-    useEffect(() => {
-        setStatus(isScheduleMode ? "schedule" : "published");
-    }, [isScheduleMode]);
+    const [status, setStatus] = useState<"draft" | "published">("published");
 
     const editorRef = useRef<HTMLDivElement | null>(null);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -51,15 +36,22 @@ export default function AdminLayout() {
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
     const [showPreview, setShowPreview] = useState(false);
-    const [scheduleDate, setScheduleDate] = useState<string>("");
+
 
     useEffect(() => {
-        const existing = getAdminToken();
+        const existing = getAdminToken() || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
         if (existing) {
             setToken(existing);
-            setTokenLocked(true);
         }
     }, []);
+
+    // Auto-load categories once token is available
+    useEffect(() => {
+        if (token && token.length > 10) {
+            loadCategories();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [token]);
 
     async function loadCategories() {
         setCatError(null);
@@ -119,15 +111,17 @@ export default function AdminLayout() {
                 images,
                 imageFiles,
                 categoryId: resolvedCategoryId,
-                tags,
-                status: isScheduleMode ? "draft" : "draft",
+                tags: tagsList,
+                status: "draft",
             });
             setMessage("Post created successfully.");
+            // redirect to See all posts after brief delay
+            setTimeout(() => { window.location.href = "/DashBoard/See_all_post"; }, 600);
             // Reset form fields (keep token locked)
             setTitle("");
             setSubtitle("");
             setCategoryName("");
-            setTags("");
+            setTagsList([]);
             setStatus('published');
             setBannerFile(null);
             setImageFiles([]);
@@ -169,9 +163,7 @@ export default function AdminLayout() {
             <DashboardLayout>
                 <div className="mx-auto max-w-6xl px-4 pb-10">
                     <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <h1 className="text-3xl font-bold text-gray-800">
-                            {isScheduleMode ? "Create Schedule Post" : "Create Post"}
-                        </h1>
+                        <h1 className="text-3xl font-bold text-gray-800">Create Post</h1>
 
                         <div className="flex gap-2">
                             <button
@@ -183,16 +175,6 @@ export default function AdminLayout() {
                                 {showPreview ? "Hide Preview" : "Show Preview"}
                             </button>
 
-                            {/* Schedule Date & Time */}
-                            <div className="flex flex-col">
-                                <input
-                                    type="datetime-local"
-                                    value={scheduleDate}
-                                    onChange={(e) => setScheduleDate(e.target.value)}
-                                    className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                                />
-
-                            </div>
                             <button
                                 type="submit"
                                 form="new-post-form"
@@ -234,17 +216,27 @@ export default function AdminLayout() {
                             {/* Category */}
                             <div className="space-y-1 relative">
                                 <label className="text-sm font-semibold">Category</label>
+                                <button type="button" className="btn btn-secondary" onClick={loadCategories} style={{ marginLeft: 8 }}>Refresh</button>
+                                <input
+                                    value={catSearch}
+                                    onChange={(e) => setCatSearch(e.target.value)}
+                                    placeholder="Search categories..."
+                                    className="w-full mt-1 px-3 h-10 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                />
                                 <select
                                     value={categoryName}
                                     onChange={(e) => setCategoryName(e.target.value)}
+                                    onFocus={() => { if (!categories.length && token) { loadCategories(); } }}
                                     className="w-full mt-1 h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none pr-8"
                                 >
                                     <option value="">Select a category</option>
-                                    {categories.map((c) => (
-                                        <option key={c.name} value={c.name}>
-                                            {c.name}
-                                        </option>
-                                    ))}
+                                    {categories
+                                        .filter(c => c.name.toLowerCase().includes(catSearch.toLowerCase()))
+                                        .map((c) => (
+                                            <option key={c.name} value={c.name}>
+                                                {c.name}
+                                            </option>
+                                        ))}
                                 </select>
                                 <div className="absolute inset-y-0 top-5 right-3 flex items-center pointer-events-none">
                                     <svg
@@ -257,34 +249,18 @@ export default function AdminLayout() {
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </div>
+                                {catError && <p className="text-xs" style={{ color: "#ef4444" }}>{catError}</p>}
+                                {catsLoading && <p className="text-xs text-gray-500">Loading categories…</p>}
                             </div>
 
                             {/* Tags */}
                             <div className="space-y-1">
                                 <label className="text-sm font-semibold">Tags</label>
-
-                                {/* Input field */}
-                                <input
-                                    value={tagInput}
-                                    onChange={(e) => setTagInput(e.target.value)}
-                                    onKeyDown={handleTagKeyDown}
-                                    placeholder="Type a tag and press Enter"
-                                    className="w-full px-3 h-11 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-1"
-                                />
-
-                                {/* Chips list */}
+                                <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} placeholder="Type a tag and press Enter" className="w-full px-3 h-11 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-1" />
                                 <div className="flex flex-wrap gap-2 my-2">
                                     {tagsList.map((tag, idx) => (
-                                        <span
-                                            key={idx}
-                                            className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                                            {tag}
-                                            <button
-                                                type="button"
-                                                onClick={() => removeTag(idx)}
-                                                className="ml-1 text-blue-500 hover:text-blue-700 focus:outline-none">
-                                                ×
-                                            </button>
+                                        <span key={idx} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">{tag}
+                                            <button type="button" onClick={() => removeTag(idx)} className="ml-1 text-blue-500 hover:text-blue-700 focus:outline-none">×</button>
                                         </span>
                                     ))}
                                 </div>
@@ -356,10 +332,8 @@ export default function AdminLayout() {
                                 <select
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value as "draft" | "published")}
-                                    disabled={isScheduleMode}
                                     className="w-full mt-1 h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none pr-8">
                                     <option value="draft">Draft</option>
-                                    <option value="schedule">Schedule Post</option>
                                     <option value="published">Published</option>
                                 </select>
                                 <div className="absolute inset-y-0 top-5 right-3 flex items-center pointer-events-none">

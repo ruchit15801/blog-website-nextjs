@@ -2,40 +2,60 @@
 
 import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
-import { Pencil, Search } from "lucide-react";
-import { useState } from "react";
+import { Pencil, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { fetchAdminUsers, RemoteUser } from "@/lib/adminClient";
 
 export default function UsersPage() {
-  const users = [
-    { id: 1, name: "Alice Johnson", email: "alice@example.com", avatar: "/images/aside_tech.webp", totalPosts: 12, scheduledPosts: 3 },
-    { id: 2, name: "Bob Smith", email: "bob@example.com", avatar: "/images/aside_about.webp", totalPosts: 8, scheduledPosts: 1 },
-    { id: 3, name: "Charlie Brown", email: "charlie@example.com", avatar: "/images/aside_tech2.webp", totalPosts: 20, scheduledPosts: 6 },
-    { id: 4, name: "Diana Prince", email: "diana@example.com", avatar: "/images/aside_tech3.webp", totalPosts: 5, scheduledPosts: 0 },
-    { id: 5, name: "Diana Prince", email: "diana@example.com", avatar: "/images/c1.jpeg", totalPosts: 15, scheduledPosts: 10 },
-    { id: 6, name: "Diana Prince", email: "diana@example.com", avatar: "/images/c2.jpeg", totalPosts: 115, scheduledPosts: 20 },
-    { id: 7, name: "Diana Prince", email: "diana@example.com", avatar: "/images/aside_tech1.webp", totalPosts: 25, scheduledPosts: 320 },
-    { id: 8, name: "Diana Prince", email: "diana@example.com", avatar: "/images/about2.webp", totalPosts: 45, scheduledPosts: 43 },
-    { id: 9, name: "Diana Prince", email: "diana@example.com", avatar: "/images/about1.webp", totalPosts: 35, scheduledPosts: 20 },
-    { id: 10, name: "Diana Prince", email: "diana@example.com", avatar: "/images/favicon.png", totalPosts: 65, scheduledPosts: 70 },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [items, setItems] = useState<RemoteUser[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
   // 🔎 Search + Filter state
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all"); // all | low | mid | high
 
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(null);
+    fetchAdminUsers({ page, limit, q: searchTerm || undefined })
+      .then((res) => {
+        if (!active) return;
+        setItems(res.users || []);
+        setTotal(res.total || 0);
+        setTotalPages(res.totalPages || 1);
+        setLimit(res.limit || limit);
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
+      .finally(() => setLoading(false));
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit, searchTerm]);
+
   // Filter logic
-  const filteredUsers = users.filter((u) => {
+  const filteredUsers = useMemo(() => items.filter((u) => {
     const matchSearch =
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchTerm.toLowerCase());
+      (u.fullName || u.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (u.email || "").toLowerCase().includes(searchTerm.toLowerCase());
 
     let matchFilter = true;
-    if (filter === "low") matchFilter = u.totalPosts < 10;
-    else if (filter === "mid") matchFilter = u.totalPosts >= 10 && u.totalPosts <= 50;
-    else if (filter === "high") matchFilter = u.totalPosts > 50;
+    const totalPosts = u.totalPosts ?? 0;
+    if (filter === "low") matchFilter = totalPosts < 10;
+    else if (filter === "mid") matchFilter = totalPosts >= 10 && totalPosts <= 50;
+    else if (filter === "high") matchFilter = totalPosts > 50;
 
     return matchSearch && matchFilter;
-  });
+  }), [items, searchTerm, filter]);
+
+  const canPrev = page > 1;
+  const canNext = page < totalPages;
 
   return (
     <DashboardLayout>
@@ -70,13 +90,25 @@ export default function UsersPage() {
             <option value="mid">Total Posts 10–50</option>
             <option value="high">Total Posts &gt; 50</option>
           </select>
+
+          {/* Page size */}
+          <select
+            value={limit}
+            onChange={(e) => { setPage(1); setLimit(Number(e.target.value)); }}
+            className="border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+          >
+            <option value={5}>5 / page</option>
+            <option value={10}>10 / page</option>
+            <option value={20}>20 / page</option>
+            <option value={50}>50 / page</option>
+          </select>
         </div>
       </div>
 
       {/* ---- Table ---- */}
       <div className="overflow-x-auto rounded-xl shadow border border-gray-200">
         <table className="table-auto w-full text-left text-sm">
-          <thead style={{ background : "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }} className="text-white">
+          <thead style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }} className="text-white">
             <tr>
               <th className="px-4 py-3">No</th>
               <th className="px-4 py-3">Profile</th>
@@ -89,18 +121,33 @@ export default function UsersPage() {
           </thead>
 
           <tbody>
-            {filteredUsers.map((user, index) => (
+            {loading && (
+              <tr>
+                <td className="px-4 py-6 text-center text-gray-600" colSpan={7}>Loading...</td>
+              </tr>
+            )}
+            {error && !loading && (
+              <tr>
+                <td className="px-4 py-6 text-center text-red-600" colSpan={7}>{error}</td>
+              </tr>
+            )}
+            {!loading && !error && filteredUsers.length === 0 && (
+              <tr>
+                <td className="px-4 py-6 text-center text-gray-600" colSpan={7}>No users found.</td>
+              </tr>
+            )}
+            {!loading && !error && filteredUsers.map((user, index) => (
               <tr
-                key={user.id}
+                key={(user as any)._id || (user as any).id || `${index}`}
                 className="border-b border-gray-200 hover:bg-gray-50 transition"
               >
-                <td className="px-4 py-3 font-medium text-gray-800">{index + 1}</td>
+                <td className="px-4 py-3 font-medium text-gray-800">{index + 1 + (page - 1) * limit}</td>
 
                 <td className="px-4 py-3">
                   <div className="w-10 h-10 relative rounded-full overflow-hidden">
                     <Image
-                      src={user.avatar}
-                      alt={user.name}
+                      src={user.avatarUrl || (user as any).avatar || "/images/default-avatar.png"}
+                      alt={(user.fullName || user.name || "User") as string}
                       width={40}
                       height={40}
                       className="object-cover rounded-full"
@@ -108,16 +155,16 @@ export default function UsersPage() {
                   </div>
                 </td>
 
-                <td className="px-4 py-3 text-gray-800">{user.name}</td>
+                <td className="px-4 py-3 text-gray-800">{user.fullName || user.name}</td>
                 <td className="px-4 py-3 text-gray-600">{user.email}</td>
-                <td className="px-4 py-3 text-gray-800">{user.totalPosts}</td>
-                <td className="px-4 py-3 text-gray-800">{user.scheduledPosts}</td>
+                <td className="px-4 py-3 text-gray-800">{user.totalPosts ?? 0}</td>
+                <td className="px-4 py-3 text-gray-800">{user.scheduledPosts ?? 0}</td>
 
                 <td className="px-4 py-3 text-center">
                   <button
-                    onClick={() => alert(`Edit ${user.name}`)}
+                    onClick={() => alert(`Edit ${user.fullName || user.name}`)}
                     className="inline-flex items-center justify-center p-2 rounded-full text-white hover:bg-[#4447b3] transition-colors"
-                    style={{ background : "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }} 
+                    style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
                   >
                     <Pencil className="w-5 h-5" />
                   </button>
@@ -126,6 +173,30 @@ export default function UsersPage() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* ---- Pagination ---- */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="text-sm text-gray-600">
+          Showing {filteredUsers.length ? (page - 1) * limit + 1 : 0}–{(page - 1) * limit + filteredUsers.length} of {total}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            disabled={!canPrev}
+            onClick={() => canPrev && setPage((p) => p - 1)}
+            className={`inline-flex items-center gap-1 px-3 py-2 rounded border ${canPrev ? "bg-white hover:bg-gray-50" : "bg-gray-100 text-gray-400"}`}
+          >
+            <ChevronLeft className="w-4 h-4" /> Prev
+          </button>
+          <span className="text-sm text-gray-700 px-2">Page {page} / {totalPages}</span>
+          <button
+            disabled={!canNext}
+            onClick={() => canNext && setPage((p) => p + 1)}
+            className={`inline-flex items-center gap-1 px-3 py-2 rounded border ${canNext ? "bg-white hover:bg-gray-50" : "bg-gray-100 text-gray-400"}`}
+          >
+            Next <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </DashboardLayout>
   );

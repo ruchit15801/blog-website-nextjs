@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
         hostname: "blogcafeai.s3.eu-north-1.amazonaws.com",
         pathname: "/**",
       },
-      // Fallback: any s3 subdomain under eu-north-1
       {
         protocol: "https",
         hostname: "*.s3.eu-north-1.amazonaws.com",

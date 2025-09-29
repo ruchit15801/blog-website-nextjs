@@ -38,7 +38,9 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <head></head>
+      <head>
+        <meta name="google-adsense-account" content="ca-pub-8481647724806223"></meta>
+      </head>
       <body>
         <div className="min-h-screen flex flex-col">
           {loading && (

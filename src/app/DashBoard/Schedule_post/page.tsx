@@ -3,7 +3,8 @@ import DashboardLayout from "../DashBoardLayout";
 import { MoreHorizontal, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { fetchAdminScheduledPosts, type RemotePost } from "@/lib/adminClient";
 
 const posts = [
     {
@@ -188,10 +189,40 @@ export default function SchedulePosts() {
     const [search, setSearch] = useState("");
     const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
     const [page, setPage] = useState(1);
+    const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        let active = true;
+        setLoading(true);
+        setError(null);
+        fetchAdminScheduledPosts({ page, limit: perPage, q: search || undefined })
+            .then((res) => { if (!active) return; setLivePosts(res.posts || []); })
+            .catch((e) => setError(e instanceof Error ? e.message : String(e)))
+            .finally(() => setLoading(false));
+        return () => { active = false; };
+    }, [page, perPage, search]);
 
     // --- Filter + Sort ---
+    const baseList = useMemo(() => {
+        if (livePosts.length) {
+            return livePosts.map((p: RemotePost) => ({
+                id: p._id,
+                title: p.title,
+                date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
+                author: typeof p.author === "string" ? p.author : (p.author?.fullName || ""),
+                excerpt: "",
+                image: p.bannerImageUrl || "/images/a1.webp",
+                tag: p.tags || [],
+                readTime: p.readingTimeMinutes || 0,
+            }));
+        }
+        return posts;
+    }, [livePosts]);
+
     const filtered = useMemo(() => {
-        const f = posts.filter(p =>
+        const f = baseList.filter(p =>
             p.title.toLowerCase().includes(search.toLowerCase())
         );
         f.sort((a, b) =>
@@ -200,7 +231,7 @@ export default function SchedulePosts() {
                 : new Date(a.date).getTime() - new Date(b.date).getTime()
         );
         return f;
-    }, [search, sortOrder]);
+    }, [search, sortOrder, baseList]);
 
     // --- Pagination ---
     const totalPages = Math.ceil(filtered.length / perPage);
@@ -240,22 +271,20 @@ export default function SchedulePosts() {
                         <option value="oldest">Oldest</option>
                     </select>
 
-                    <Link
-                        href={{
-                            pathname: "/DashBoard/Create_post",
-                            query: { mode: "schedule" },   
-                        }}
-                        className="Create_Schedule px-4 py-2 rounded-lg transition"
-                    >
-                        Create Schedule Post
-                    </Link>
+                    <Link href="/DashBoard/Create_schedule_post" className="Create_Schedule px-4 py-2 rounded-lg transition">Create Schedule Post</Link>
 
                 </div>
             </div>
 
             {/* Posts Grid */}
             <main className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {paginated.map((p) => (
+                {loading && (
+                    <div className="col-span-full text-center py-16 text-gray-500">Loading scheduled posts…</div>
+                )}
+                {error && !loading && (
+                    <div className="col-span-full text-center py-16 text-red-500">{error}</div>
+                )}
+                {!loading && !error && paginated.map((p) => (
                     <article key={p.id} className="relative group flex flex-col overflow-hidden transition">
                         <div className="relative w-full h-56">
                             <Image src={p.image} alt={p.title} fill className="object-cover rounded-2xl" />
@@ -311,7 +340,7 @@ export default function SchedulePosts() {
                     </article>
                 ))}
 
-                {paginated.length === 0 && (
+                {!loading && !error && paginated.length === 0 && (
                     <div className="col-span-full text-center text-gray-500 py-10">
                         No posts found.
                     </div>

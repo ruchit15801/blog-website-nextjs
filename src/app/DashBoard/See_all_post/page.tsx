@@ -3,7 +3,8 @@ import DashboardLayout from "../DashBoardLayout";
 import { Clock, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { fetchAdminPosts, type RemotePost } from "@/lib/adminClient";
 
 const articles = [
     {
@@ -186,15 +187,45 @@ export default function AllPosts() {
 
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 6;
+    const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     // Search & Filter States
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
     const isSearchActive = searchQuery.trim() !== "";
 
+    useEffect(() => {
+        let active = true;
+        setLoading(true);
+        setError(null);
+        fetchAdminPosts({ page: 1, limit: 24 })
+            .then((res) => { if (!active) return; setLivePosts(res.posts || []); })
+            .catch((e) => setError(e instanceof Error ? e.message : String(e)))
+            .finally(() => setLoading(false));
+        return () => { active = false; };
+    }, []);
+
+    const baseList = useMemo(() => {
+        if (livePosts.length) {
+            return livePosts.map((p: RemotePost) => ({
+                id: p._id,
+                title: p.title,
+                date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
+                author: typeof p.author === "string" ? p.author : (p.author?.fullName || ""),
+                excerpt: "",
+                image: p.bannerImageUrl || "/images/a1.webp",
+                tag: p.tags || [],
+                readTime: p.readingTimeMinutes || 0,
+            }));
+        }
+        return articles;
+    }, [livePosts]);
+
     // Filtered + Sorted Articles
     const filteredArticles = useMemo(() => {
-        const filtered = articles.filter(a =>
+        const filtered = baseList.filter(a =>
             a.title.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
@@ -207,7 +238,7 @@ export default function AllPosts() {
         });
 
         return filtered;
-    }, [searchQuery, sortOrder]);
+    }, [searchQuery, sortOrder, baseList]);
 
     const totalPages = Math.ceil(filteredArticles.length / perPage);
     const start = (currentPage - 1) * perPage;
@@ -252,7 +283,13 @@ export default function AllPosts() {
             <main className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <div className="lg:col-span-3 flex flex-col">
                     <div className={isSearchActive ? "flex flex-col gap-10" : "grid grid-cols-1 md:grid-cols-3 gap-8"}>
-                        {paginatedArticles.length === 0 ? (
+                        {loading && (
+                            <div className="col-span-full text-center py-20 text-gray-500 text-lg font-semibold">Loading latest posts…</div>
+                        )}
+                        {error && !loading && (
+                            <div className="col-span-full text-center py-20 text-red-500 text-lg font-semibold">{error}</div>
+                        )}
+                        {!loading && !error && paginatedArticles.length === 0 ? (
                             <div className="col-span-full text-center py-20 text-gray-500 text-lg font-semibold">
                                 {isSearchActive ? "No posts found for your search." : "No posts available."}
                             </div>
