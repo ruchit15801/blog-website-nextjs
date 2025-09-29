@@ -77,6 +77,30 @@ export async function listTrendingByCategory() {
   return { categories, meta };
 }
 
+// New: Top trending categories (maps { category, totalViews, totalPosts })
+export async function listTopTrendingCategories(limit = 9) {
+  const url = new URL(`${HOME_API_BASE_URL}/home/top-trending-categories`);
+  if (limit) url.searchParams.set("limit", String(limit));
+  const res = await fetch(url.toString(), { cache: "no-store" });
+  if (!res.ok) throw new Error(`Top trending categories failed: ${res.status}`);
+  const json = await res.json();
+  const entries = (json.data || []) as Array<{ category: { _id: string; name: string; slug?: string }; totalViews?: number; totalPosts?: number }>;
+  const categories: TrendingCategory[] = entries.map(e => ({ _id: e.category._id, name: e.category.name }));
+  return { categories, meta: json.meta } as { categories: TrendingCategory[]; meta?: { limit?: number } };
+}
+
+// New: Top trending authors (maps { author, totals })
+export async function listTopTrendingAuthors(limit = 5) {
+  const url = new URL(`${HOME_API_BASE_URL}/home/top-trending-authors`);
+  if (limit) url.searchParams.set("limit", String(limit));
+  const res = await fetch(url.toString(), { cache: "no-store" });
+  if (!res.ok) throw new Error(`Top trending authors failed: ${res.status}`);
+  const json = await res.json();
+  const entries = (json.data || []) as Array<{ author: { _id: string; fullName?: string; email?: string } }>;
+  const authors: HomeAuthor[] = entries.map(e => ({ _id: e.author._id, fullName: e.author.fullName }));
+  return { authors, meta: json.meta } as { authors: HomeAuthor[]; meta?: { limit?: number } };
+}
+
 // Signup
 export const signupUser = async (data: { fullName: string; email: string; password: string }) => {
   const response = await api.post("/auth/signup", data);

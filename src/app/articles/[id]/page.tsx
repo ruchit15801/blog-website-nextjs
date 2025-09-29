@@ -281,7 +281,7 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
     const next = () => setIndex((i) => (i + 1) % posts.length);
     const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({ name: "", email: "", comment: "", remember: false, replyingTo: "" });
-    const [comments, setComments] = useState<CommentType[]>([
+    const [comments, /* setComments */] = useState<CommentType[]>([
         {
             id: 1,
             name: "Joanna Wellick",

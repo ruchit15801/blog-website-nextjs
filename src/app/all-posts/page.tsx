@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Clock, Search } from "lucide-react";
-import { listAllHomePosts, listTrendingByCategory, type HomePost, type TrendingCategory } from "@/lib/api";
+import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, type HomePost, type TrendingCategory, type HomeAuthor } from "@/lib/api";
 
 type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
 
@@ -24,8 +24,8 @@ export default function AllPostsPage() {
 
     useEffect(() => {
         let active = true;
-        listTrendingByCategory().then((d) => { if (!active) return; setCategories(d.categories); }).catch(() => { });
-        // derive authors from current posts when loaded later
+        listTopTrendingCategories(9).then((d) => { if (!active) return; setCategories(d.categories); }).catch(() => { });
+        listTopTrendingAuthors(8).then((d) => { if (!active) return; setAuthors((d.authors || []).map((a: HomeAuthor) => ({ _id: a._id, fullName: a.fullName }))); }).catch(() => { });
         return () => { active = false; };
     }, []);
 
@@ -40,18 +40,7 @@ export default function AllPostsPage() {
         return () => { active = false; };
     }, [page, limit, sort, selectedCat]);
 
-    // derive authors from posts (de-dup)
-    useEffect(() => {
-        const list: SidebarAuthor[] = [];
-        const seen = new Set<string>();
-        for (const p of posts) {
-            const id = typeof p.author === "string" ? p.author : (p.author?._id || p.author?.fullName || "");
-            if (!id || seen.has(id)) continue;
-            seen.add(id);
-            list.push({ _id: id, fullName: typeof p.author === "string" ? p.author : (p.author?.fullName || id), avatarUrl: undefined });
-        }
-        setAuthors(list.slice(0, 8));
-    }, [posts]);
+    // authors now loaded from API
 
     const filtered = useMemo(() => {
         if (!search.trim()) return posts;
@@ -103,7 +92,7 @@ export default function AllPostsPage() {
                         <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search posts..." className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <select value={sort} onChange={(e) => { setSort(e.target.value as any); setPage(1); }} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]">
+                        <select value={sort} onChange={(e) => { const v = e.target.value as "latest" | "oldest" | "random"; setSort(v); setPage(1); }} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]">
                             <option value="latest">Latest</option>
                             <option value="oldest">Oldest</option>
                             <option value="random">Random</option>
@@ -130,7 +119,7 @@ export default function AllPostsPage() {
                                         <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl" />
                                         <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/10 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Clock className="w-5 h-5" />
-                                            <span>{(p as any).readingTimeMinutes ?? 0} min read</span>
+                                            <span>{p.readingTimeMinutes ?? 0} min read</span>
                                         </div>
                                     </div>
                                     <div className="py-4 px-1 flex flex-col gap-2">
