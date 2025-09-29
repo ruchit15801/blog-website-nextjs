@@ -5,119 +5,126 @@ export default function AboutPage() {
     return (
         <>
             <div className="mx-auto max-w-7xl px-4">
+                {/* Breadcrumb */}
                 <div className="mb-6 text-sm text-gray-500">
                     <Link href="/">Home</Link> &gt; <span> About</span>
                 </div>
-                {/* Main Section */}
-                <section className="mb-12 text-center">
-                    <h1 className="text-4xl sm:text-5xl font-bold mb-6" style={{color : '#29294b'}}>
-                        Hey,{" "}
-                        <span className="text-white px-3 py-1 rounded-md"
-                            style={{
-                                background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                display: "inline-block",
-                            }}>Wonderful</span>{" "}
-                        to Meet You
-                    </h1>
-                </section>
 
-                {/* Image Section */}
-                <section className="flex gap-4 mb-12">
-                    <div className="flex-1 relative" style={{ flexBasis: "40%", height: "400px" }}>
-                        <Image
-                            src="/images/about.webp"
-                            alt="Image 1"
-                            fill
-                            className="rounded-xl object-cover"
-                        />
-                    </div>
-                    <div className="flex-1 relative" style={{ flexBasis: "25%", height: "400px" }}>
-                        <Image
-                            src="/images/about1.webp"
-                            alt="Image 2"
-                            fill
-                            className="rounded-xl object-cover"
-                        />
-                    </div>
-                    <div className="flex-1 relative" style={{ flexBasis: "35%", height: "400px" }}>
-                        <Image
-                            src="/images/about2.webp"
-                            alt="Image 3"
-                            fill
-                            className="rounded-xl object-cover"
-                        />
-                    </div>
-                </section>
-
-                <div className="flex flex-col items-center mx-auto px-4 py-8 space-y-6">
-                    <h4
-                        className="text-center"
-                        style={{
-                            color: "#29294b",
-                            maxWidth: "640px",
-                            fontSize: "24px",
-                            fontWeight: 700,
-                            lineHeight: 1.5,
-                            letterSpacing : '-.04em',
-                            wordWrap: "break-word",
-                        }}
-                    >
-                        By 2016, we began to see the fruits of our labor as word spread about our work, leading us to our first major client — a regional retail chain. This was a pivotal moment for us, as it allowed us to hire our first employee. Emma stepped up to lead user experience design, while Liam and I focused on coding and project management.
-                    </h4>
-                    <h4
-                        className="text-center"
-                        style={{
-                            color: "#29294b",
-                            maxWidth: "640px",
-                            fontSize: "24px",
-                            fontWeight: 700,
-                            lineHeight: 1.5,
-                            letterSpacing : '-.04em',
-                            wordWrap: "break-word",
-                        }}
-                    >
-                        As we gathered to reflect on our incredible journey, hosting a community event to showcase local tech talent felt like the perfect way to give back and inspire the next generation of innovators. It reminded us that with passion, collaboration, and a bit of code, anything is possible.
-                    </h4>
-                </div>
-
-                <section className="mx-auto max-w-6xl px-4 py-16">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Box 1 */}
-                        <div className="bg-white rounded-xl shadow p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow">
-                            <div className="text-4xl text-indigo-500">
-                                🚀
-                            </div>
-                            <h3 className="text-xl font-bold" style={{ color: '#292981', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-.04em' }}>Empowering Innovation</h3>
-                            <p className="text-gray-600 leading-relaxed" style={{ fontWeight: 400, lineHeight: 1.55, color: "#696981" }}>
-                                We consistently push the boundaries of technology, leading to unique and effective solutions.
+                {/* HERO */}
+                <section className="relative overflow-hidden rounded-3xl mb-10" style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/0" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center px-6 sm:px-10 py-12">
+                        <div className="space-y-4">
+                            <h1 className="text-white font-extrabold" style={{ fontSize: '2.75rem', lineHeight: 1.1, letterSpacing: '-.04em' }}>
+                                Welcome to BlogCafeAI
+                            </h1>
+                            <p className="text-white/90" style={{ fontSize: '1.1rem', lineHeight: 1.6 }}>
+                                A creative hub where ideas brew, stories flow, and every voice finds a place to be heard.
                             </p>
+                            <div className="flex flex-wrap gap-3 pt-2">
+                                <Link href="/auth" className="btn btn-primary shine">Start Writing</Link>
+                                <Link href="/contact" className="btn btn-secondary">Contact Us</Link>
+                            </div>
                         </div>
-
-                        {/* Box 2 */}
-                        <div className="bg-white rounded-xl shadow p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow">
-                            <div className="text-4xl text-indigo-500">
-                                💡
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-800" style={{ color: '#292981', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-.04em' }}>Community-Centric Approach</h3>
-                            <p className="text-gray-600 leading-relaxed" style={{ fontWeight: 400, lineHeight: 1.55, color: "#696981" }}>
-                                Our commitment to giving back not only enhances their reputation but also strengthens ties within the community.
-                            </p>
-                        </div>
-
-                        {/* Box 3 */}
-                        <div className="bg-white rounded-xl shadow p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow">
-                            <div className="text-4xl text-indigo-500">
-                                🌐
-                            </div>
-                            <h3 className="text-xl font-bold text-gray-800" style={{ color: '#292981', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-.04em' }}>Flexibility & Adaptability</h3>
-                            <p className="text-gray-600 leading-relaxed" style={{ fontWeight: 400, lineHeight: 1.55, color: "#696981" }}>
-                                Our team agile work environment allows them to quickly adapt to changing market needs.
-                            </p>
+                        <div className="relative hidden md:block" style={{ height: 280 }}>
+                            <Image src="/images/aside_about.webp" alt="About" fill className="object-cover rounded-2xl shadow-lg" />
                         </div>
                     </div>
                 </section>
+
+                {/* INTRO COPY */}
+                <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                    <div className="lg:col-span-2">
+                        <div className="bg-white rounded-2xl shadow p-6 card-hover">
+                            <h2 className="text-2xl font-bold mb-3" style={{ color: '#29294b' }}>Our Story</h2>
+                            <p className="text-gray-700" style={{ lineHeight: 1.7 }}>
+                                We believe everyone has a story, an idea, or an experience worth sharing. BlogCafeAI is designed to give writers, thinkers, and creators a simple and open platform to publish their blogs and connect with a wider audience. Whether you’re passionate about technology, lifestyle, travel, business, or personal experiences – this is your space to express, inspire, and engage.
+                            </p>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-6 mt-6">
+                            <div className="bg-white rounded-2xl shadow p-6">
+                                <h3 className="text-lg font-bold mb-2" style={{ color: '#29294b' }}>What We Offer</h3>
+                                <ul className="space-y-2 text-gray-700">
+                                    <li>Open Platform – Anyone can write and publish their blogs.</li>
+                                    <li>Diverse Content – From personal stories to professional insights, we welcome all categories of writing.</li>
+                                    <li>Community Spirit – Connect with like-minded readers and writers across the globe.</li>
+                                    <li>Easy Sharing – Share your voice effortlessly and let your ideas reach people everywhere.</li>
+                                </ul>
+                            </div>
+
+                            <div className="bg-white rounded-2xl shadow p-6">
+                                <h3 className="text-lg font-bold mb-2" style={{ color: '#29294b' }}>Our Mission</h3>
+                                <p className="text-gray-700" style={{ lineHeight: 1.7 }}>
+                                    At BlogCafeAI, our mission is simple – to make blogging accessible for everyone. We want to empower individuals to share knowledge, express creativity, and build meaningful connections through words.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ASIDE CARDS */}
+                    <div className="space-y-6">
+                        <div className="aside-shadow rounded-2xl shadow p-6 bg-white">
+                            <h3 className="text-lg font-bold mb-2" style={{ color: '#29294b' }}>Why BlogCafeAI?</h3>
+                            <p className="text-gray-700" style={{ lineHeight: 1.7 }}>
+                                Because we’re not just another blogging site. We’re a community café of ideas, fueled by creativity and powered by people like you.
+                            </p>
+                        </div>
+                        <div className="rounded-2xl shadow p-6 text-center" style={{ background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)' }}>
+                            <h4 className="text-white text-xl font-bold">Ready to share your story?</h4>
+                            <p className="text-white/90 mt-1">Grab your virtual cup of coffee and start writing.</p>
+                            <div className="mt-3">
+                                <Link href="/auth" className="btn btn-secondary">Create your account</Link>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* SECOND BLOCK (ALT COPY) */}
+                <section className="bg-white rounded-2xl shadow p-6 card-hover">
+                    <h2 className="text-2xl font-bold mb-3" style={{ color: '#29294b' }}>Welcome to BlogCafeAI.com</h2>
+                    <p className="text-gray-700" style={{ lineHeight: 1.7 }}>
+                        A community-driven platform where ideas, stories, and knowledge come together. We believe everyone has a voice worth sharing. At BlogCafeAI, users can create, publish, and share their blogs with a global audience. Whether you’re passionate about technology, lifestyle, travel, business, or personal experiences, our platform gives you the space to express yourself.
+                    </p>
+                    <div className="grid sm:grid-cols-3 gap-6 mt-6">
+                        <div>
+                            <h4 className="font-semibold mb-1" style={{ color: '#29294b' }}>Empower Creators</h4>
+                            <p className="text-gray-700">Empower writers, thinkers, and creators to share their perspectives.</p>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold mb-1" style={{ color: '#29294b' }}>Build Community</h4>
+                            <p className="text-gray-700">Build a community where learning, creativity, and inspiration flow freely.</p>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold mb-1" style={{ color: '#29294b' }}>Delight Readers</h4>
+                            <p className="text-gray-700">Provide readers with diverse content to explore, learn, and enjoy.</p>
+                        </div>
+                    </div>
+                    <p className="text-gray-700 mt-6" style={{ lineHeight: 1.7 }}>
+                        Think of BlogCafeAI as your digital café – where conversations never end, ideas are served hot, and creativity has no boundaries.
+                    </p>
+                </section>
+
+                {/* CONTACT STRIP */}
+                {/* <section className="mt-10">
+                    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, var(--surface), transparent)' }}>
+                        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 items-stretch">
+                            <div className="p-6 md:p-10">
+                                <h3 className="text-2xl font-bold" style={{ color: '#29294b' }}>Contact Us</h3>
+                                <p className="text-gray-700 mt-1" style={{ lineHeight: 1.7 }}>Have a question or want to collaborate? We’re here.</p>
+                                <form className="mt-5 grid gap-3 max-w-xl">
+                                    <input placeholder="Your name" className="rounded-xl px-3 h-11 bg-white/5 border border-white/10" />
+                                    <input placeholder="Your email" className="rounded-xl px-3 h-11 bg-white/5 border border-white/10" />
+                                    <textarea placeholder="Your message" className="rounded-xl px-3 py-2 min-h-[120px] bg-white/5 border border-white/10" />
+                                    <button type="button" className="btn btn-primary shine w-fit">Send Message</button>
+                                </form>
+                            </div>
+                            <div className="relative min-h-[260px]">
+                                <Image src="/images/a10.webp" alt="workspace" fill className="object-cover" />
+                            </div>
+                        </div>
+                    </div>
+                </section> */}
             </div>
         </>
     );
