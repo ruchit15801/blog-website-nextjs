@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import {Search} from "lucide-react";
+import { Search } from "lucide-react";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -33,6 +33,14 @@ export default function Navbar() {
                             className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 rounded-l px-2 py-2`}
                         >
                             About
+                        </Link>
+                    </li>
+                    <li className="pt-2">
+                        <Link
+                            href="/all-posts"
+                            className={`nav-link ${pathname === "/all-posts" ? "active" : ""} hover:bg-gray-100 rounded-l px-2 py-2`}
+                        >
+                            All Posts
                         </Link>
                     </li>
                     <li className="pt-2">

@@ -1,0 +1,172 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Clock, Search } from "lucide-react";
+import { listAllHomePosts, listTrendingByCategory, type HomePost, type TrendingCategory } from "@/lib/api";
+
+type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
+
+export default function AllPostsPage() {
+    const [posts, setPosts] = useState<HomePost[]>([]);
+    const [total, setTotal] = useState(0);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(12);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const [categories, setCategories] = useState<TrendingCategory[]>([]);
+    const [selectedCat, setSelectedCat] = useState<string | null>(null);
+    const [search, setSearch] = useState("");
+    const [sort, setSort] = useState<"latest" | "oldest" | "random">("latest");
+    const [authors, setAuthors] = useState<SidebarAuthor[]>([]);
+
+    useEffect(() => {
+        let active = true;
+        listTrendingByCategory().then((d) => { if (!active) return; setCategories(d.categories); }).catch(() => { });
+        // derive authors from current posts when loaded later
+        return () => { active = false; };
+    }, []);
+
+    useEffect(() => {
+        let active = true;
+        setLoading(true);
+        setError(null);
+        listAllHomePosts({ page, limit, sort, category: selectedCat })
+            .then((res) => { if (!active) return; setPosts(res.posts); setTotal(res.total); })
+            .catch((e) => setError(e instanceof Error ? e.message : String(e)))
+            .finally(() => setLoading(false));
+        return () => { active = false; };
+    }, [page, limit, sort, selectedCat]);
+
+    // derive authors from posts (de-dup)
+    useEffect(() => {
+        const list: SidebarAuthor[] = [];
+        const seen = new Set<string>();
+        for (const p of posts) {
+            const id = typeof p.author === "string" ? p.author : (p.author?._id || p.author?.fullName || "");
+            if (!id || seen.has(id)) continue;
+            seen.add(id);
+            list.push({ _id: id, fullName: typeof p.author === "string" ? p.author : (p.author?.fullName || id), avatarUrl: undefined });
+        }
+        setAuthors(list.slice(0, 8));
+    }, [posts]);
+
+    const filtered = useMemo(() => {
+        if (!search.trim()) return posts;
+        const q = search.toLowerCase();
+        return posts.filter(p => (p.title || "").toLowerCase().includes(q));
+    }, [posts, search]);
+
+    const totalPages = Math.max(1, Math.ceil((filtered.length || total) / limit));
+
+    return (
+        <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Sidebar */}
+            <aside className="lg:col-span-1 space-y-8">
+                {/* Categories */}
+                <div className="aside-shadow rounded-2xl shadow p-6 bg-white">
+                    <h3 className="text-lg font-semibold mb-3 uppercase" style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981' }}>Categories</h3>
+                    <div className="flex flex-wrap gap-2">
+                        <button onClick={() => { setSelectedCat(null); setPage(1); }} className={`btn btn-secondary ${selectedCat === null ? "ring-2" : ""}`}>All</button>
+                        {categories.map(c => (
+                            <button key={c._id} onClick={() => { setSelectedCat(c._id); setPage(1); }} className={`btn btn-secondary ${selectedCat === c._id ? "ring-2" : ""}`}>{c.name}</button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Top Authors */}
+                <div className="aside-shadow rounded-2xl shadow p-6 bg-white">
+                    <h3 className="text-lg font-semibold mb-3 uppercase" style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981' }}>Top Authors</h3>
+                    <div className="space-y-3">
+                        {authors.length === 0 && <p className="text-sm text-gray-500">No authors to display.</p>}
+                        {authors.map(a => (
+                            <div key={a._id} className="flex items-center gap-3">
+                                <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="rounded-full object-cover" />
+                                <div className="flex-1">
+                                    <div className="font-medium" style={{ color: '#29294b' }}>{a.fullName}</div>
+                                </div>
+                                <Link href={`/blog?author=${encodeURIComponent(a._id)}`} className="text-sm link-underline">View</Link>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </aside>
+
+            {/* Main grid */}
+            <section className="lg:col-span-2">
+                {/* Controls */}
+                <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-4">
+                    <div className="relative w-full md:w-80">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search posts..." className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <select value={sort} onChange={(e) => { setSort(e.target.value as any); setPage(1); }} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]">
+                            <option value="latest">Latest</option>
+                            <option value="oldest">Oldest</option>
+                            <option value="random">Random</option>
+                        </select>
+                        <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]">
+                            <option value={6}>6 / page</option>
+                            <option value={12}>12 / page</option>
+                            <option value={24}>24 / page</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    {loading && <div className="col-span-full text-center py-20">Loading...</div>}
+                    {error && !loading && <div className="col-span-full text-center text-red-500 py-10">{error}</div>}
+                    {!loading && !error && filtered.map((p) => {
+                        const authorName = typeof p.author === "string" ? p.author : (p.author?.fullName || "");
+                        const date = new Date(p.publishedAt || p.createdAt || Date.now()).toDateString();
+                        return (
+                            <Link key={p._id} href={`/articles/${p._id}`}>
+                                <article className="flex flex-col overflow-hidden group">
+                                    <div className="relative w-full h-56">
+                                        <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl" />
+                                        <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/10 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Clock className="w-5 h-5" />
+                                            <span>{(p as any).readingTimeMinutes ?? 0} min read</span>
+                                        </div>
+                                    </div>
+                                    <div className="py-4 px-1 flex flex-col gap-2">
+                                        <div className="flex items-center text-sm text-gray-500 gap-1">
+                                            <span className="font-medium text-gray-700" style={{ color: '#5559d1' }}>{authorName}</span>
+                                            <span>on {date}</span>
+                                        </div>
+                                        <h2 className="text-lg font-bold" style={{ color: '#29294b' }}>{p.title}</h2>
+                                        <div className="flex flex-wrap gap-1 mt-1">
+                                            {Array.isArray(p.tags) && p.tags.map((t) => (
+                                                <span key={t} className="bg-gray-200 text-gray-800 text-xs font-semibold px-2 py-1 rounded-md uppercase">{t}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </article>
+                            </Link>
+                        );
+                    })}
+                    {!loading && !error && filtered.length === 0 && (
+                        <div className="col-span-full text-center text-gray-500 py-20">No posts found.</div>
+                    )}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="flex justify-center mt-10 gap-2">
+                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className={`px-3 py-1 rounded-md ${page === 1 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-[#5559d1] shadow-sm"}`}>Prev</button>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pnum) => (
+                            <button key={pnum} onClick={() => setPage(pnum)} className={`px-3 py-1 rounded-md font-medium transition-colors ${page === pnum ? "bg-[#5559d1] text-white shadow-md" : "bg-white text-[#5559d1] hover:bg-[#5559d1] hover:text-white shadow-sm"}`}>{pnum}</button>
+                        ))}
+                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className={`px-3 py-1 rounded-md ${page === totalPages ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-[#5559d1] shadow-sm"}`}>Next</button>
+                    </div>
+                )}
+            </section>
+        </div>
+    );
+}
+
+
