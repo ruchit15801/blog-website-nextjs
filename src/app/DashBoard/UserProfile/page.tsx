@@ -5,6 +5,7 @@ import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { fetchAdminMeProfile, type AdminMeProfile } from "@/lib/adminClient";
+import { logoutAndRedirect } from "@/lib/auth";
 
 type UserProfileType = {
     fullName: string;
@@ -71,11 +72,7 @@ export default function UserProfileWithCategories() {
         setCategories(prev => prev.filter(cat => cat.id !== id));
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem("role");
-        localStorage.removeItem("userProfile");
-        window.location.href = "/auth";
-    };
+    const handleLogout = () => { logoutAndRedirect(); };
 
     return (
         <DashboardLayout>
