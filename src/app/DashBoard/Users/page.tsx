@@ -2,10 +2,10 @@
 
 import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
-import { Pencil, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pencil, Trash, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
-import { fetchAdminUsers, RemoteUser } from "@/lib/adminClient";
+import { fetchAdminUsers, RemoteUser, updateAdminUser, deleteAdminUser } from "@/lib/adminClient";
 
 export default function UsersPage() {
   const [loading, setLoading] = useState(false);
@@ -16,17 +16,19 @@ export default function UsersPage() {
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  // 🔎 Search + Filter state
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all"); // all | low | mid | high
+  const [filter, setFilter] = useState("all"); 
 
-  useEffect(() => {
-    let active = true;
+  // --- Edit Modal ---
+  const [showModal, setShowModal] = useState(false);
+  const [editUser, setEditUser] = useState<RemoteUser | null>(null);
+  const [updating, setUpdating] = useState(false);
+
+  const loadUsers = () => {
     setLoading(true);
     setError(null);
     fetchAdminUsers({ page, limit, q: searchTerm || undefined })
       .then((res) => {
-        if (!active) return;
         setItems(res.users || []);
         setTotal(res.total || 0);
         setTotalPages(res.totalPages || 1);
@@ -34,12 +36,12 @@ export default function UsersPage() {
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
-    return () => {
-      active = false;
-    };
+  };
+
+  useEffect(() => {
+    loadUsers();
   }, [page, limit, searchTerm]);
 
-  // Filter logic
   const filteredUsers = useMemo(() => items.filter((u) => {
     const matchSearch =
       (u.fullName || u.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -57,6 +59,43 @@ export default function UsersPage() {
   const canPrev = page > 1;
   const canNext = page < totalPages;
 
+  const handleEdit = (user: RemoteUser) => {
+    setEditUser(user);
+    setShowModal(true);
+  };
+
+  const handleDelete = async (userId: string) => {
+    if (confirm("Are you sure you want to delete this user?")) {
+      try {
+        setLoading(true);
+        await deleteAdminUser(userId);
+        loadUsers();
+      } catch (err) {
+        alert(err instanceof Error ? err.message : String(err));
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleUpdateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editUser) return;
+    try {
+      setUpdating(true);
+      const { _id, fullName, role } = editUser;
+      await updateAdminUser(_id, { fullName, role });
+      loadUsers();
+      setShowModal(false);
+      setEditUser(null);
+
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
+    } finally {
+      setUpdating(false);
+    }
+  };
+
   return (
     <DashboardLayout>
       {/* ---- Heading + Search + Filter ---- */}
@@ -67,7 +106,6 @@ export default function UsersPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Search box */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -75,11 +113,9 @@ export default function UsersPage() {
               placeholder="Search name or email"
               className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5559d1] text-sm"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
             />
           </div>
-
-          {/* Filter dropdown */}
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -90,8 +126,6 @@ export default function UsersPage() {
             <option value="mid">Total Posts 10–50</option>
             <option value="high">Total Posts &gt; 50</option>
           </select>
-
-          {/* Page size */}
           <select
             value={limit}
             onChange={(e) => { setPage(1); setLimit(Number(e.target.value)); }}
@@ -160,13 +194,21 @@ export default function UsersPage() {
                 <td className="px-4 py-3 text-gray-800">{user.totalPosts ?? 0}</td>
                 <td className="px-4 py-3 text-gray-800">{user.scheduledPosts ?? 0}</td>
 
-                <td className="px-4 py-3 text-center">
+                <td className="px-4 py-3 text-center flex justify-center gap-2">
                   <button
-                    onClick={() => alert(`Edit ${user.fullName || user.name}`)}
+                    onClick={() => handleEdit(user)}
                     className="inline-flex items-center justify-center p-2 rounded-full text-white hover:bg-[#4447b3] transition-colors"
                     style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
                   >
                     <Pencil className="w-5 h-5" />
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(user._id)}
+                    className="inline-flex items-center justify-center p-2 rounded-full text-white hover:bg-red-700 transition-colors"
+                    style={{ background: "linear-gradient(180deg, #ff5a5f 0%, #c12a2a 100%)" }}
+                  >
+                    <Trash className="w-5 h-5" />
                   </button>
                 </td>
               </tr>
@@ -198,6 +240,62 @@ export default function UsersPage() {
           </button>
         </div>
       </div>
+
+      {/* ---- Edit Modal ---- */}
+      {showModal && editUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowModal(false)} />
+          <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+            <h2 className="text-xl font-semibold mb-4">Edit User</h2>
+            <form className="flex flex-col gap-4" onSubmit={handleUpdateSubmit}>
+              <div className="flex flex-col gap-2">
+                <label className="font-medium">Full Name</label>
+                <input
+                  type="text"
+                  value={editUser.fullName || ""}
+                  onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })}
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-medium">Email</label>
+                <input
+                  type="email"
+                  value={editUser.email}
+                  disabled
+                  className="border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-medium">Role</label>
+                <select
+                  value={editUser.role || "user"}
+                  onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-4">
+                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg border">Cancel</button>
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="px-4 py-2 rounded-lg text-white disabled:opacity-60"
+                  style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
+                >
+                  {updating ? "Updating..." : "Update"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

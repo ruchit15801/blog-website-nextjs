@@ -113,6 +113,19 @@ export const loginUser = async (data: { email: string; password: string }) => {
   return response.data;
 };
 
+// Forgot Password
+export const forgotPasswordAPI = async (email: string) => {
+  const res = await api.post("/auth/forgot", { email });
+  return res.data; // { success: true, message: "Reset link sent" }
+};
+
+// Reset Password
+export const resetPasswordAPI = async (token: string, password: string) => {
+  const res = await api.post("/auth/reset", { token, password });
+  return res.data; // { success: true, message: "Password updated" }
+};
+
+
 // Get current user
 export const getMe = async (token: string) => {
   const response = await api.get("/auth/me", {
@@ -126,7 +139,7 @@ export const createPost = async (
   data: FormData,
   token: string
 ) => {
-  const res = await api.post("/posts", data, {
+  const res = await api.post("/admin/posts", data, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
   });
   return res.data;

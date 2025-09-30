@@ -5,7 +5,7 @@ export function saveAdminToken(token: string) {
 
 export function getAdminToken(): string | null {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("admin_token");
+    return localStorage.getItem("token");
 }
 
 export async function createRemotePost(payload: {
@@ -118,6 +118,40 @@ export async function createScheduledPost(payload: {
     }
     return res.json();
 }
+
+export async function publishAdminPostNow(
+    postId: string,
+    tokenOverride?: string
+): Promise<RemotePost> {
+    // 🔑 Token fetch
+    const token =
+        tokenOverride ??
+        getAdminToken() ??
+        (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+
+    if (!token) throw new Error("Admin token missing. Please login as admin.");
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/admin/posts/${postId}/publish`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to publish post: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    if (!data.success) throw new Error(`Failed to publish post: ${JSON.stringify(data.error)}`);
+
+    return data.post as RemotePost;
+}
+
+// CATEGORIES 
 export type RemoteCategory = {
     _id: string;
     name: string;
@@ -146,7 +180,49 @@ export async function fetchCategories(tokenOverride?: string): Promise<RemoteCat
     return [];
 }
 
+export async function updateCategory(id: string, payload: { name?: string; description?: string; imageFile?: File }) {
+    const token = getAdminToken();
+    if (!token) throw new Error("Admin token missing. Please login as admin.");
 
+    const form = new FormData();
+    if (payload.name) form.append("name", payload.name);
+    if (payload.description) form.append("description", payload.description);
+    if (payload.imageFile) form.append("image", payload.imageFile);
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/categories/${id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to update category: ${res.status} ${text}`);
+    }
+
+    return res.json();
+}
+
+export async function deleteCategory(id: string) {
+    const token = getAdminToken();
+    if (!token) throw new Error("Admin token missing. Please login as admin.");
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/categories/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to delete category: ${res.status} ${text}`);
+    }
+
+    return res.json();
+}
+
+// USER
 export type RemoteUser = {
     _id: string;
     fullName?: string;
@@ -207,6 +283,57 @@ export async function fetchAdminUsers(
 
     return { users: [], total: 0, page: params.page ?? 1, limit: params.limit ?? 10, totalPages: 1 };
 }
+export async function updateAdminUser(
+    userId: string,
+    input: Partial<RemoteUser>,
+    tokenOverride?: string
+): Promise<RemoteUser> {
+    const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+    if (!token) throw new Error("Admin token missing. Please login as admin.");
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(input),
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to update user: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    if (!data.success) throw new Error(`Failed to update user: ${JSON.stringify(data.error)}`);
+
+    return data.user as RemoteUser;
+}
+export async function deleteAdminUser(
+    userId: string,
+    tokenOverride?: string
+): Promise<void> {
+    const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+    if (!token) throw new Error("Admin token missing. Please login as admin.");
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to delete user: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    if (!data.success) throw new Error(`Failed to delete user: ${JSON.stringify(data.error)}`);
+}
+
+// SCHEDULE POST 
 
 export type RemotePost = {
     _id: string;
@@ -269,6 +396,60 @@ export async function fetchAdminPosts(
     }
 
     return { posts: [], total: 0, page: params.page ?? 1, limit: params.limit ?? 10, totalPages: 1 };
+}
+
+// --- Admin: Update Post ---
+interface AdminUpdateResponse {
+    success: boolean;
+    post: RemotePost;
+}
+
+export async function adminUpdatePostById(
+    postId: string,
+    body: Partial<Omit<RemotePost, "_id" | "createdAt" | "updatedAt">>,
+    tokenOverride?: string
+): Promise<RemotePost> {
+    const token = tokenOverride ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+    if (!token) throw new Error("Admin token missing. Please login as admin.");
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/admin/posts/${postId}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to update post: ${res.status} ${text}`);
+    }
+
+    const data: AdminUpdateResponse = await res.json();
+    return data.post;
+}
+
+// --- Admin: Delete Post ---
+interface AdminDeleteResponse {
+    success: boolean;
+}
+
+export async function adminDeletePostById(postId: string, tokenOverride?: string): Promise<boolean> {
+    const token = tokenOverride ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+    if (!token) throw new Error("Admin token missing. Please login as admin.");
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/admin/posts/${postId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to delete post: ${res.status} ${text}`);
+    }
+
+    const data: AdminDeleteResponse = await res.json();
+    return data.success;
 }
 
 export async function fetchAdminScheduledPosts(
@@ -345,5 +526,4 @@ export async function fetchAdminMeProfile(tokenOverride?: string): Promise<Admin
     }
     throw new Error("Invalid profile response");
 }
-
 

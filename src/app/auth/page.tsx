@@ -5,8 +5,6 @@ import Loader from "@/components/Loader";
 import { useRouter } from "next/navigation";
 import { signupUser, loginUser } from "@/lib/api";
 
-
-
 export default function AuthPage() {
     const router = useRouter();
     const [isSignUp, setIsSignUp] = useState(true);
@@ -16,13 +14,21 @@ export default function AuthPage() {
         email: "",
         mobile: "",
         password: "",
+        rememberMe: false,
+        otp: "",
+        newPassword: "",
+        confirmPassword: "",
     });
     const [message, setMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    // Step for forgot password flow
+    const [step, setStep] = useState<"signin" | "forgotEmail" | "otp" | "resetPassword">("signin");
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value, type, checked } = e.target;
+        setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -32,7 +38,7 @@ export default function AuthPage() {
 
         try {
             if (isSignUp) {
-                // ✅ Backend signup call
+                // ✅ Your signup API call
                 const res = await signupUser({
                     fullName: `${formData.firstName} ${formData.lastName}`.trim(),
                     email: formData.email,
@@ -46,22 +52,33 @@ export default function AuthPage() {
 
                 setMessage("Sign Up successful!");
                 router.push("/DashBoard");
-                return;
             } else {
-                // ✅ Backend login call
-                const res = await loginUser({
-                    email: formData.email,
-                    password: formData.password,
-                });
+                // Sign In flow OR Forgot Password flow
+                if (step === "signin") {
+                    // ✅ Your login API call
+                    const res = await loginUser({ email: formData.email, password: formData.password });
 
-                localStorage.setItem("token", res.token);
-                localStorage.setItem("refreshToken", res.refreshToken);
-                localStorage.setItem("userProfile", JSON.stringify(res.user));
-                localStorage.setItem("role", res.user.role);
+                    localStorage.setItem("token", res.token);
+                    localStorage.setItem("refreshToken", res.refreshToken);
+                    localStorage.setItem("userProfile", JSON.stringify(res.user));
+                    localStorage.setItem("role", res.user.role);
 
-                setMessage(`Signed in as ${res.user.role}`);
-                router.push("/DashBoard");
-                return;
+                    setMessage("Sign In successful!");
+                    router.push("/DashBoard");
+                } else if (step === "forgotEmail") {
+                    // Send OTP to email API
+                    setMessage("OTP sent to your email!");
+                    setStep("otp");
+                } else if (step === "otp") {
+                    // Verify OTP API
+                    setMessage("OTP verified!");
+                    setStep("resetPassword");
+                } else if (step === "resetPassword") {
+                    // Reset password API
+                    setMessage("Password reset successful!");
+                    setStep("signin");
+                    setFormData({ ...formData, password: "", newPassword: "", confirmPassword: "", otp: "" });
+                }
             }
         } catch (err: unknown) {
             if (err instanceof Error) setMessage(err.message);
@@ -74,14 +91,22 @@ export default function AuthPage() {
     if (loading) return <Loader />;
 
     return (
-        <>
-            <div className="flex items-center justify-center bg-gradient-to-b from-cs-light-site-background-start to-cs-light-site-background-end py-10">
-                <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-                    <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">
-                        {isSignUp ? "Sign Up" : "Sign In"}
-                    </h1>
+        <div className="flex items-center justify-center bg-gradient-to-b from-cs-light-site-background-start to-cs-light-site-background-end py-10">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+                <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">
+                    {isSignUp
+                        ? "Sign Up"
+                        : step === "signin"
+                            ? "Sign In"
+                            : step === "forgotEmail"
+                                ? "Forgot Password"
+                                : step === "otp"
+                                    ? "Verify OTP"
+                                    : "Reset Password"}
+                </h1>
 
-                    {/* Toggle Switch */}
+                {/* Toggle Switch */}
+                {(step === "signin" || isSignUp) && (
                     <div className="relative w-full max-w-md mx-auto mb-6 border border-gray-300 bg-white rounded-full p-1">
                         <div
                             className="absolute top-1 rounded-full transition-all duration-300"
@@ -89,148 +114,280 @@ export default function AuthPage() {
                                 left: isSignUp ? "0.25rem" : "50%",
                                 height: "calc(100% - 0.5rem)",
                                 width: "50%",
-                                background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)"
+                                background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)",
                             }}
                         ></div>
-
                         <div className="flex relative z-10">
                             <button
                                 onClick={() => {
                                     setIsSignUp(true);
+                                    setStep("signin");
                                     setMessage("");
-                                    setFormData({ firstName: "", lastName: "", email: "", mobile: "", password: "" });
+                                    setFormData({
+                                        firstName: "",
+                                        lastName: "",
+                                        email: "",
+                                        mobile: "",
+                                        password: "",
+                                        rememberMe: false,
+                                        otp: "",
+                                        newPassword: "",
+                                        confirmPassword: "",
+                                    });
                                 }}
-                                className={`w-1/2 py-2 rounded-full font-semibold text-center transition-colors duration-300 ${isSignUp ? "text-white" : "text-[#5559d1]"}`}
+                                className={`w-1/2 py-2 rounded-full font-semibold text-center transition-colors duration-300 ${isSignUp ? "text-white" : "text-[#5559d1]"
+                                    }`}
                             >
                                 Sign Up
                             </button>
                             <button
                                 onClick={() => {
                                     setIsSignUp(false);
+                                    setStep("signin");
                                     setMessage("");
-                                    setFormData({ firstName: "", lastName: "", email: "", mobile: "", password: "" });
+                                    setFormData({
+                                        firstName: "",
+                                        lastName: "",
+                                        email: "",
+                                        mobile: "",
+                                        password: "",
+                                        rememberMe: false,
+                                        otp: "",
+                                        newPassword: "",
+                                        confirmPassword: "",
+                                    });
                                 }}
-                                className={`w-1/2 py-2 rounded-full font-semibold text-center transition-colors duration-300 ${!isSignUp ? "text-white" : "text-[#5559d1]"}`}
+                                className={`w-1/2 py-2 rounded-full font-semibold text-center transition-colors duration-300 ${!isSignUp ? "text-white" : "text-[#5559d1]"
+                                    }`}
                             >
                                 Sign In
                             </button>
                         </div>
                     </div>
+                )}
 
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                        {isSignUp && (
-                            <>
-                                <div className="flex gap-4 w-full">
-                                    <div className="flex-1 flex flex-col">
-                                        <label className="text-gray-700 font-medium">
-                                            First Name <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="firstName"
-                                            value={formData.firstName}
-                                            onChange={handleChange}
-                                            required
-                                            className="input-theme mt-1 w-full"
-                                        />
-                                    </div>
-                                    <div className="flex-1 flex flex-col">
-                                        <label className="text-gray-700 font-medium">
-                                            Last Name <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="lastName"
-                                            value={formData.lastName}
-                                            onChange={handleChange}
-                                            required
-                                            className="input-theme mt-1 w-full"
-                                        />
-                                    </div>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    {/* Sign Up Form */}
+                    {isSignUp && (
+                        <>
+                            <div className="flex gap-4 w-full">
+                                <div className="flex-1 flex flex-col">
+                                    <label className="text-gray-700 font-medium">
+                                        First Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        required
+                                        className="input-theme mt-1 w-full"
+                                    />
                                 </div>
-                            </>
-                        )}
+                                <div className="flex-1 flex flex-col">
+                                    <label className="text-gray-700 font-medium">
+                                        Last Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        required
+                                        className="input-theme mt-1 w-full"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-col">
+                                <label className="text-gray-700 font-medium">
+                                    Email <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    className="input-theme mt-1"
+                                />
+                            </div>
+                            <div className="flex flex-col relative">
+                                <label className="text-gray-700 font-medium">
+                                    Password <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="input-theme mt-1 pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-12 -translate-y-1/2 text-gray-500"
+                                >
+                                    {showPassword ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.14.196-2.23.55-3.25M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
+                            <button type="submit" className="sign-up-btn btn w-full mt-2">
+                                Sign Up
+                            </button>
+                        </>
+                    )}
 
-                        <div className="flex flex-col">
-                            <label className="text-gray-700 font-medium">
-                                Email <span className="text-red-500">*</span>
-                            </label>
+                    {/* Sign In Form */}
+                    {!isSignUp && step === "signin" && (
+                        <>
+                            <div className="flex flex-col">
+                                <label className="text-gray-700 font-medium">
+                                    Email <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                    className="input-theme mt-1"
+                                />
+                            </div>
+                            <div className="flex flex-col relative">
+                                <label className="text-gray-700 font-medium">
+                                    Password <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="input-theme mt-1 pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-12 -translate-y-1/2 text-gray-500"
+                                >
+                                    {showPassword ? (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.14.196-2.23.55-3.25M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <label className="flex items-center gap-2 text-gray-700">
+                                    <input
+                                        type="checkbox"
+                                        name="rememberMe"
+                                        checked={formData.rememberMe}
+                                        onChange={handleChange}
+                                    />{" "}
+                                    Remember Me
+                                </label>
+                                <button
+                                    type="button"
+                                    className="text-blue-600 underline"
+                                    onClick={() => setStep("forgotEmail")}
+                                >
+                                    Forgot Password?
+                                </button>
+                            </div>
+                            <button type="submit" className="sign-up-btn btn w-full mt-2">
+                                Sign In
+                            </button>
+                        </>
+                    )}
+
+                    {/* Forgot Password Email */}
+                    {step === "forgotEmail" && (
+                        <>
                             <input
                                 type="email"
                                 name="email"
                                 value={formData.email}
                                 onChange={handleChange}
+                                placeholder="Enter your email"
                                 required
                                 className="input-theme mt-1"
                             />
-                        </div>
-
-                        {/* Password with show/hide */}
-                        <div className="flex flex-col relative">
-                            <label className="text-gray-700 font-medium">
-                                Password <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                                className="input-theme mt-1 pr-10"
-                            />
+                            <button type="submit" className="sign-up-btn btn w-full mt-2">
+                                Send OTP
+                            </button>
                             <button
                                 type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-12 -translate-y-1/2 text-gray-500"
+                                className="underline mt-2"
+                                onClick={() => setStep("signin")}
                             >
-                                {showPassword ? (
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.14.196-2.23.55-3.25M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                )}
+                                Back to Sign In
                             </button>
-                        </div>
-
-                        <button
-                            type="submit"
-                            className="sign-up-btn btn w-full mt-2"
-                        >
-                            {isSignUp ? "Sign Up" : "Sign In"}
-                        </button>
-
-                        {/* Google Sign In */}
-                        <button
-                            type="button"
-                            className="w-full mt-2 border border-gray-300 rounded-lg py-2 flex items-center justify-center gap-2 hover:bg-gray-100 transition"
-                            onClick={() => alert("Google Sign In clicked")}
-                        >
-                            {/* Google SVG */}
-                            <svg width="20" height="20" viewBox="0 0 533.5 544.3">
-                                <path fill="#4285F4" d="M533.5 278.4c0-17.7-1.4-35-4-51.8H272v98h146.9c-6.3 34.3-25.1 63.3-53.6 82.7v68h86.6c50.8-46.8 80.6-115.8 80.6-197z" />
-                                <path fill="#34A853" d="M272 544.3c72.6 0 133.5-24 178-65.2l-86.6-68c-24 16-54.6 25.5-91.4 25.5-70.3 0-129.8-47.5-151.1-111.2h-89.7v69.8C78.7 481.5 169.2 544.3 272 544.3z" />
-                                <path fill="#FBBC05" d="M120.9 332.4c-8.7-25.3-8.7-52.7 0-78h-89.7v-69.8c-36.7 72.2-36.7 156.7 0 228.9l89.7-81.1z" />
-                                <path fill="#EA4335" d="M272 107.7c37.7 0 71.4 13 98 34.6l73.6-73.6C405.5 28.1 344.6 4 272 4 169.2 4 78.7 66.8 31.1 159.1l89.7 69.8C142.2 155.2 201.7 107.7 272 107.7z" />
-                            </svg>
-                            Continue with Google
-                        </button>
-                    </form>
-
-                    {message && (
-                        <p className="mt-4 text-center text-green-600">{message}</p>
+                        </>
                     )}
-                </div>
+
+                    {/* OTP */}
+                    {step === "otp" && (
+                        <>
+                            <input
+                                type="text"
+                                name="otp"
+                                value={formData.otp}
+                                onChange={handleChange}
+                                placeholder="Enter OTP"
+                                required
+                                className="input-theme mt-1"
+                            />
+                            <button type="submit" className="sign-up-btn btn w-full mt-2">
+                                Verify OTP
+                            </button>
+                        </>
+                    )}
+
+                    {/* Reset Password */}
+                    {step === "resetPassword" && (
+                        <>
+                            <input
+                                type="password"
+                                name="newPassword"
+                                value={formData.newPassword}
+                                onChange={handleChange}
+                                placeholder="New Password"
+                                required
+                                className="input-theme mt-1"
+                            />
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                placeholder="Confirm Password"
+                                required
+                                className="input-theme mt-1"
+                            />
+                            <button type="submit" className="sign-up-btn btn w-full mt-2">
+                                Reset Password
+                            </button>
+                        </>
+                    )}
+                </form>
+
+                {message && <p className="mt-4 text-center text-green-600">{message}</p>}
             </div>
-        </>
+        </div>
     );
 }
-
-
-
-
-
-

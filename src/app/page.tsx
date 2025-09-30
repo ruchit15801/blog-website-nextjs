@@ -62,31 +62,6 @@ export default function Home() {
       <main>
         <Hero />
 
-        {/* Explore Trending Topics (Category chips) */}
-        <section className="max-w-7xl mx-auto px-4 mt-8">
-          <h2 className="text-xl font-bold mb-3">Explore Trending Topics</h2>
-          <div className="flex flex-wrap gap-2">
-            <button onClick={() => { setSelectedCat(null); setPage(1); }} className={`btn btn-secondary ${selectedCat === null ? "ring-2" : ""}`}>All</button>
-            {catOptions.map(c => {
-              const icon = c.icon || "";
-              const isUrl = /^https?:\/\//i.test(icon) || icon.endsWith(".svg") || icon.endsWith(".png");
-              return (
-                <button key={c._id} onClick={() => { setSelectedCat(c._id); setPage(1); }} className={`btn btn-secondary ${selectedCat === c._id ? "ring-2" : ""}`}>
-                  {icon ? (
-                    isUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={icon} alt="" width={18} height={18} className="inline-block mr-1 align-[-2px]" />
-                    ) : (
-                      <span className="inline-block mr-1" style={{ fontSize: 18, lineHeight: 1 }}>{icon}</span>
-                    )
-                  ) : null}
-                  {c.name}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
         {/* Featured/Trending/Recent from API */}
         <ArticlesSection
           featuredPosts={featured}

@@ -5,185 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
-import { fetchAdminScheduledPosts, type RemotePost } from "@/lib/adminClient";
-
-const posts = [
-    {
-        id: 1,
-        title: "How Tech Shapes the Future of Work in 2024",
-        date: "October 16, 2024",
-        author: "Ethan Caldwell",
-        excerpt: "In today’s ever-evolving world, storytelling has become a powerful tool for connection. Revision provides a unique platform for individuals to…",
-        image: "/images/a1.webp",
-        tag: ["Business", "News"],
-        readTime: 6,
-    },
-    {
-        id: 2,
-        title: "The Future of Work: Tech and Remote Trends",
-        date: "October 18, 2024",
-        author: "Jane Doe",
-        excerpt: "Find out why 2024 is predicted to be a pivotal year for sports technology and its impact on the industry.",
-        image: "/images/a2.webp",
-        tag: ["Sport", 'Travel'],
-        readTime: 3,
-    },
-    {
-        id: 3,
-        title: "Remote Work Trends in the Digital Age",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: "Discover the cutting-edge tech gadgets making travel smarter and more convenient in 2024.",
-        image: "/images/a3.webp",
-        tag: ["News", 'Trends'],
-        readTime: 5,
-    },
-    {
-        id: 4,
-        title: "Business Travel Tools for the Digital Age",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: " Learn how startups are leveraging data to fuel growth and scale in today’s competitive landscape.",
-        image: "/images/a4.webp",
-        tag: "Business",
-        readTime: 7,
-    },
-    {
-        id: 5,
-        title: "Key Sports Trends for 2024: From AI to Virtual Reality",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: "Dive into the key sports trends like AI and virtual reality set to redefine the sports industry in 2024.",
-        image: "/images/a5.webp",
-        tag: "Sport",
-        readTime: 4,
-    },
-    {
-        id: 6,
-        title: "The Impact of Automation on Business Management Efficiency",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: "Learn how automation is boosting business management efficiency and driving growth in various sectors.",
-        image: "/images/a6.webp",
-        tag: "Technology",
-        readTime: 6,
-    },
-    {
-        id: 7,
-        title: "Startups Disrupting the Sports Industry with Innovative Tech",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: " Discover how startups are leveraging technology to disrupt and innovate within the sports industry.",
-        image: "/images/a7.webp",
-        tag: "Sport",
-        readTime: 3,
-    },
-    {
-        id: 8,
-        title: "Travel Trends in 2024: Virtual Tours and Immersive Experiences",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: "Explore the rise of virtual tours and immersive experiences shaping the future of travel in 2024.",
-        image: "/images/a8.webp",
-        tag: "News",
-        readTime: 5,
-    },
-    {
-        id: 9,
-        title: "Why Data Security is a Priority for Business Management in 2024",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: "Understand why data security is a growing concern for business management in today's digital world.",
-        image: "/images/a9.webp",
-        tag: "Trends",
-        readTime: 7,
-    },
-    {
-        id: 10,
-        title: "Startups and AI: How Artificial Intelligence Drives Innovation",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: "See how startups are harnessing the power of AI to foster innovation and reshape industries.",
-        image: "/images/a10.webp",
-        tag: "Startups",
-        readTime: 4,
-    },
-    {
-        id: 11,
-        title: "Top Business Management Software Solutions for 2024",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: "Learn about the top management software solutions driving efficiency and growth in businesses.",
-        image: "/images/a11.webp",
-        tag: "Management",
-        readTime: 6,
-    },
-    {
-        id: 12,
-        title: "How 5G Technology Will Impact the Travel Industry in 2024",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt: "Discover how 5G technology is set to revolutionize connectivity and enhance travel experiences.",
-        image: "/images/a12.webp",
-        tag: "Technology",
-        readTime: 3,
-    },
-    {
-        id: 13,
-        title: "Sample Article Title 1",
-        date: "October 16, 2024",
-        author: "Ethan Caldwell",
-        excerpt:
-            "This is a short preview of the article content. Add a captivating summary here.",
-        image: "/images/a1.webp",
-        tag: "Management",
-        readTime: 5,
-    },
-    {
-        id: 14,
-        title: "Second Article Title",
-        date: "October 18, 2024",
-        author: "Jane Doe",
-        excerpt:
-            "Another article with its own short preview. Keep it catchy.",
-        image: "/images/a2.webp",
-        tag: "Sport",
-        readTime: 6,
-    },
-    {
-        id: 15,
-        title: "Third Amazing Article",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt:
-            "Yet another interesting article summary goes here.",
-        image: "/images/a3.webp",
-        tag: ["Business", "News"],
-        readTime: 3,
-    },
-    {
-        id: 16,
-        title: "Third Amazing Article",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt:
-            "Yet another interesting article summary goes here.",
-        image: "/images/a4.webp",
-        tag: ["Startups", "Technology"],
-        readTime: 5,
-    },
-    {
-        id: 17,
-        title: "Third Amazing Article",
-        date: "October 20, 2024",
-        author: "John Smith",
-        excerpt:
-            "Yet another interesting article summary goes here.",
-        image: "/images/a5.webp",
-        tag: ['News', 'Sport'],
-        readTime: 4,
-    },
-];
+import { fetchAdminScheduledPosts, publishAdminPostNow, type RemotePost } from "@/lib/adminClient";
 
 export default function SchedulePosts() {
     const perPage = 6;
@@ -207,20 +29,18 @@ export default function SchedulePosts() {
 
     // --- Filter + Sort ---
     const baseList = useMemo(() => {
-        if (livePosts.length) {
-            return livePosts.map((p: RemotePost) => ({
-                id: p._id,
-                title: p.title,
-                date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
-                author: typeof p.author === "string" ? p.author : (p.author?.fullName || ""),
-                excerpt: "",
-                image: p.bannerImageUrl || "/images/a1.webp",
-                tag: p.tags || [],
-                readTime: p.readingTimeMinutes || 0,
-            }));
-        }
-        return posts;
+        return livePosts.map(p => ({
+            id: p._id, // <-- MongoDB ObjectId
+            title: p.title,
+            date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
+            author: typeof p.author === "string" ? p.author : p.author?.fullName || "",
+            excerpt: "",
+            image: p.bannerImageUrl || "/images/a1.webp",
+            tag: p.tags || [],
+            readTime: p.readingTimeMinutes || 0,
+        }));
     }, [livePosts]);
+
 
     const filtered = useMemo(() => {
         const f = baseList.filter(p =>
@@ -233,6 +53,28 @@ export default function SchedulePosts() {
         );
         return f;
     }, [search, sortOrder, baseList]);
+
+    // --- Component ke andar ---
+    const handlePublishNow = async (postId: string, postTitle: string) => {
+        if (!confirm(`Publish "${postTitle}" now?`)) return;
+
+        try {
+            setLoading(true);
+            const updatedPost = await publishAdminPostNow(postId); // ObjectId string
+
+            // Update local state
+            setLivePosts(prev =>
+                prev.map(lp => (lp._id === postId ? updatedPost : lp))
+            );
+
+            alert(`Post "${postTitle}" published successfully!`);
+        } catch (err) {
+            alert(err instanceof Error ? err.message : String(err));
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     // --- Pagination ---
     const totalPages = Math.ceil(filtered.length / perPage);
@@ -319,15 +161,17 @@ export default function SchedulePosts() {
                                     <button onClick={() => alert(`Edit ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">
                                         Edit
                                     </button>
-                                    <button onClick={() => alert(`Publish ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">
-                                        Publish
+                                    <button
+                                        onClick={() => handlePublishNow(p.id, p.title)}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-green-600"
+                                    >
+                                        Publish Now
                                     </button>
                                     <button onClick={() => alert(`Delete ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">
                                         Delete
                                     </button>
                                 </div>
                             </details>
-
                         </div>
 
                         <div className="py-4 flex flex-col gap-2">

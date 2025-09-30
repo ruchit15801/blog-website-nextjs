@@ -13,6 +13,7 @@ export default function AdminLayout() {
     const [subtitle, setSubtitle] = useState("");
     const [categoryId,] = useState("");
     const [categoryName, setCategoryName] = useState("");
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     // const [categories, setCategories] = useState<RemoteCategory[]>([]);
     const [categories, setCategories] = useState<CategoryType[]>(() => {
         if (typeof window !== "undefined") {
@@ -77,9 +78,17 @@ export default function AdminLayout() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]);
 
+    // const exec = (cmd: string, value?: string) => {
+    //     document.execCommand(cmd, false, value);
+    //     editorRef.current?.focus();
+    // };
+
     const exec = (cmd: string, value?: string) => {
+        const sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0) return;
+        editorRef.current?.focus();  
         document.execCommand(cmd, false, value);
-        editorRef.current?.focus();
+        console.log(cmd, "executed");
     };
 
     const [contentHtml, setContentHtml] = useState("");
@@ -217,41 +226,75 @@ export default function AdminLayout() {
                             {/* Category */}
                             <div className="space-y-1 relative">
                                 <label className="text-sm font-semibold">Category</label>
-                                <button type="button" className="btn btn-secondary" onClick={loadCategories} style={{ marginLeft: 8 }}>Refresh</button>
-                                <input
-                                    value={catSearch}
-                                    onChange={(e) => setCatSearch(e.target.value)}
-                                    placeholder="Search categories..."
-                                    className="w-full mt-1 px-3 h-10 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                />
-                                <select
-                                    value={categoryName}
-                                    onChange={(e) => setCategoryName(e.target.value)}
-                                    onFocus={() => { if (!categories.length && token) { loadCategories(); } }}
-                                    className="w-full mt-1 h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none pr-8"
-                                >
-                                    <option value="">Select a category</option>
-                                    {categories
-                                        .filter(c => c.name.toLowerCase().includes(catSearch.toLowerCase()))
-                                        .map((c) => (
-                                            <option key={c.name} value={c.name}>
-                                                {c.name}
-                                            </option>
-                                        ))}
-                                </select>
-                                <div className="absolute inset-y-0 top-5 right-3 flex items-center pointer-events-none">
-                                    <svg
-                                        className="w-4 h-4 text-gray-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth={2}
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                    </svg>
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={loadCategories}
+                                    style={{ marginLeft: 8 }}>
+                                    Refresh
+                                </button>
+
+                                {/* Custom dropdown */}
+                                <div className="relative w-full mt-1">
+                                    <button
+                                        type="button"
+                                        className="w-full h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 text-left flex justify-between items-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        onClick={() => setDropdownOpen(!dropdownOpen)}>
+                                        {categoryName || "Select a category"}
+                                        <svg
+                                            className="w-4 h-4 text-gray-400"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                            viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    {/* Dropdown list */}
+                                    {dropdownOpen && (
+                                        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                            <input
+                                                value={catSearch}
+                                                onChange={(e) => setCatSearch(e.target.value)}
+                                                placeholder="Search categories..."
+                                                className="w-full px-3 h-10 rounded-t-lg border-b border-gray-300 focus:outline-none"
+                                            />
+                                            {categories
+                                                .filter((c) =>
+                                                    c.name.toLowerCase().includes(catSearch.toLowerCase())
+                                                )
+                                                .map((c) => (
+                                                    <div
+                                                        key={c.name}
+                                                        className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        onClick={() => {
+                                                            setCategoryName(c.name);
+                                                            setDropdownOpen(false);
+                                                            setCatSearch("");
+                                                        }}>
+                                                        {c.name}
+                                                    </div>
+                                                ))}
+                                            {categories.filter((c) =>
+                                                c.name.toLowerCase().includes(catSearch.toLowerCase())
+                                            ).length === 0 && (
+                                                    <div className="px-3 py-2 text-gray-400">No categories found</div>
+                                                )}
+                                        </div>
+                                    )}
                                 </div>
-                                {catError && <p className="text-xs" style={{ color: "#ef4444" }}>{catError}</p>}
-                                {catsLoading && <div className="pt-1"><Loader inline label="Loading categories" /></div>}
+
+                                {catError && (
+                                    <p className="text-xs" style={{ color: "#ef4444" }}>
+                                        {catError}
+                                    </p>
+                                )}
+                                {catsLoading && (
+                                    <div className="pt-1">
+                                        <Loader inline label="Loading categories" />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Tags */}
@@ -334,7 +377,6 @@ export default function AdminLayout() {
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value as "draft" | "published")}
                                     className="w-full mt-1 h-11 px-3 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none pr-8">
-                                    <option value="draft">Draft</option>
                                     <option value="published">Published</option>
                                 </select>
                                 <div className="absolute inset-y-0 top-5 right-3 flex items-center pointer-events-none">
