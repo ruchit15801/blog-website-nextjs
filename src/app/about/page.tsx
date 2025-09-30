@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Facebook, Twitter, Instagram, Linkedin, MapPin, Mail } from "lucide-react";
 
 export default function AboutPage() {
     return (
@@ -103,6 +104,29 @@ export default function AboutPage() {
                     <p className="text-gray-700 mt-6" style={{ lineHeight: 1.7 }}>
                         Think of BlogCafeAI as your digital café – where conversations never end, ideas are served hot, and creativity has no boundaries.
                     </p>
+                </section>
+
+                {/* SOCIAL + LOCATION */}
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+                    <div className="bg-white rounded-2xl shadow p-6">
+                        <h3 className="text-xl font-bold mb-3" style={{ color: '#29294b' }}>Connect with us</h3>
+                        <p className="text-gray-700 mb-4">Follow BlogCafeAI on social and stay updated.</p>
+                        <div className="flex flex-wrap gap-3">
+                            <Link href="https://facebook.com" target="_blank" className="btn btn-secondary flex items-center gap-2"><Facebook size={16} /> Facebook</Link>
+                            <Link href="https://twitter.com" target="_blank" className="btn btn-secondary flex items-center gap-2"><Twitter size={16} /> Twitter/X</Link>
+                            <Link href="https://instagram.com" target="_blank" className="btn btn-secondary flex items-center gap-2"><Instagram size={16} /> Instagram</Link>
+                            <Link href="https://linkedin.com" target="_blank" className="btn btn-secondary flex items-center gap-2"><Linkedin size={16} /> LinkedIn</Link>
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-2xl shadow p-6">
+                        <h3 className="text-xl font-bold mb-3" style={{ color: '#29294b' }}>Our Location</h3>
+                        <p className="text-gray-700">BlogCafeAI HQ (Remote-first)</p>
+                        <p className="text-gray-700">Ahmedabad, Gujarat, India</p>
+                        <div className="mt-3 flex flex-col gap-2 text-gray-700">
+                            <div className="flex items-center gap-2"><MapPin size={16} /> <span>Available worldwide</span></div>
+                            <div className="flex items-center gap-2"><Mail size={16} /> <span>support@blogcafeai.com</span></div>
+                        </div>
+                    </div>
                 </section>
 
                 {/* CONTACT STRIP */}

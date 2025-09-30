@@ -17,7 +17,8 @@ export default function ArticlesSection({
 }) {
     // Main articles grid uses recent posts
     const articles = useMemo(() => {
-        return (recentPosts || []).map((p) => {
+        const list = Array.isArray(recentPosts) ? recentPosts : [];
+        return list.map((p) => {
             const fallbackEmail = (typeof (p as unknown as { author?: { email?: string } }).author?.email === "string")
                 ? (p as unknown as { author?: { email?: string } }).author!.email!.split("@")[0]
                 : "";

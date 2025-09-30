@@ -26,17 +26,37 @@ export type HomeAuthor = {
   avatarUrl?: string;
 };
 
+// Top Tags
+export type TopTag = {
+  name: string;
+  totalPosts?: number;
+  totalViews?: number;
+};
+
 export async function getHomeOverview() {
   const url = `${HOME_API_BASE_URL}/home`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Home overview failed: ${res.status}`);
   const data = await res.json();
-  return {
-    featuredPosts: (data.featuredPosts || []) as HomePost[],
-    trendingPosts: (data.trendingPosts || []) as HomePost[],
-    recentPosts: (data.recentPosts || []) as HomePost[],
-    topAuthors: (data.topAuthors || []) as HomeAuthor[],
-  };
+
+  const topViewed = (data.topViewedPosts || []) as HomePost[];
+  const topLiked = (data.topLikedPosts || []) as HomePost[];
+  const topCommented = (data.topCommentedPosts || []) as HomePost[];
+  const recent = Array.isArray(data.recentPosts)
+    ? (data.recentPosts as HomePost[])
+    : ((data.recentPosts?.data || []) as HomePost[]);
+  const authors = Array.isArray(data.topAuthors)
+    ? (data.topAuthors as HomeAuthor[])
+    : [];
+
+  // Map to UI expectations
+  const featuredPosts = topViewed; // use top viewed as featured
+  const trendingPosts = topLiked.length ? topLiked : (topCommented.length ? topCommented : topViewed);
+  const recentPosts = recent;
+  type RawAuthor = { authorId?: string; _id?: string; fullName?: string; avatarUrl?: string };
+  const topAuthors = (authors as RawAuthor[]).map((a) => ({ _id: a.authorId || a._id || "", fullName: a.fullName, avatarUrl: a.avatarUrl })) as HomeAuthor[];
+
+  return { featuredPosts, trendingPosts, recentPosts, topAuthors };
 }
 
 export type ListAllPostsParams = {
@@ -56,7 +76,7 @@ export async function listAllHomePosts(params: ListAllPostsParams = {}) {
   if (!res.ok) throw new Error(`Home posts failed: ${res.status}`);
   const data = await res.json();
   const list = (data.data || data.posts || data.result || []) as HomePost[];
-  const meta = (data.meta || data) as { total?: number; page?: number; limit?: number; totalPages?: number };
+  const meta = (data.meta || data) as Partial<{ total: number; page: number; limit: number; totalPages: number }>;
   const total = meta.total ?? list.length;
   const page = meta.page ?? (params.page ?? 1);
   const inferredLimit = params.limit ?? (list.length || 12);
@@ -99,6 +119,18 @@ export async function listTopTrendingAuthors(limit = 5) {
   const entries = (json.data || []) as Array<{ author: { _id: string; fullName?: string; email?: string } }>;
   const authors: HomeAuthor[] = entries.map(e => ({ _id: e.author._id, fullName: e.author.fullName }));
   return { authors, meta: json.meta } as { authors: HomeAuthor[]; meta?: { limit?: number } };
+}
+
+// New: Top Tags for homepage hero chips
+export async function listTopTags(limit = 12) {
+  const url = new URL(`${HOME_API_BASE_URL}/home/top-tags`);
+  if (limit) url.searchParams.set("limit", String(limit));
+  const res = await fetch(url.toString(), { cache: "no-store" });
+  if (!res.ok) throw new Error(`Top tags failed: ${res.status}`);
+  const json = await res.json();
+  const entries = (json.data || json.tags || []) as Array<{ name: string; totalPosts?: number; totalViews?: number }>;
+  const tags: TopTag[] = entries.map(t => ({ name: t.name, totalPosts: t.totalPosts, totalViews: t.totalViews }));
+  return { tags, meta: json.meta } as { tags: TopTag[]; meta?: { limit?: number } };
 }
 
 // Signup

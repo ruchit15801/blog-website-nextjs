@@ -43,13 +43,13 @@ export default function RootLayout({
       </head>
       <body>
         <div className="min-h-screen flex flex-col">
-          {loading && (
+          {loading ? (
             <div className="loader-overlay">
               <div className="loader-ring">
                 <span className="loader-dot"></span>
               </div>
             </div>
-          )}
+          ) : null}
           {!pathname.startsWith("/DashBoard") && <Navbar />}
           <main className="flex-1">{children}</main>
           {!pathname.startsWith("/DashBoard") && <Footer />}
