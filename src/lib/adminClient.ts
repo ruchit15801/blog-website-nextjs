@@ -321,6 +321,7 @@ export type AdminMeProfile = {
     avatar?: string;
     avatarUrl?: string;
     role?: string;
+    createdAt?: string;
     city?: string;
     pincode?: string;
     phone?: string;

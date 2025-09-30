@@ -62,15 +62,7 @@ export default function UserProfileWithCategories() {
 
     const handleProfileSave = () => { setEditingProfile(false); };
 
-    const handleAddCategory = () => {
-        if (!newCategory.trim()) return;
-        setCategories(prev => [...prev, { id: Date.now(), name: newCategory }]);
-        setNewCategory("");
-    };
-
-    const handleDeleteCategory = (id: number) => {
-        setCategories(prev => prev.filter(cat => cat.id !== id));
-    };
+    // removed unused category handlers
 
     const handleLogout = () => { logoutAndRedirect(); };
 
