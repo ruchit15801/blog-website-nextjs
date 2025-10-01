@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
-import { fetchAdminScheduledPosts, publishAdminPostNow, type RemotePost } from "@/lib/adminClient";
+import { adminDeletePostById, fetchAdminScheduledPosts, publishAdminPostNow, type RemotePost } from "@/lib/adminClient";
+import { useRouter } from "next/navigation";
 
 export default function SchedulePosts() {
     const perPage = 6;
@@ -15,6 +16,7 @@ export default function SchedulePosts() {
     const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         let active = true;
@@ -27,10 +29,9 @@ export default function SchedulePosts() {
         return () => { active = false; };
     }, [page, perPage, search]);
 
-    // --- Filter + Sort ---
     const baseList = useMemo(() => {
         return livePosts.map(p => ({
-            id: p._id, // <-- MongoDB ObjectId
+            id: p._id,
             title: p.title,
             date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
             author: typeof p.author === "string" ? p.author : p.author?.fullName || "",
@@ -40,7 +41,6 @@ export default function SchedulePosts() {
             readTime: p.readingTimeMinutes || 0,
         }));
     }, [livePosts]);
-
 
     const filtered = useMemo(() => {
         const f = baseList.filter(p =>
@@ -54,15 +54,17 @@ export default function SchedulePosts() {
         return f;
     }, [search, sortOrder, baseList]);
 
-    // --- Component ke andar ---
+    const handleEdit = (post: RemotePost) => {
+        router.push(`/DashBoard/Create_schedule_post?id=${post._id}`);
+    };
+
     const handlePublishNow = async (postId: string, postTitle: string) => {
         if (!confirm(`Publish "${postTitle}" now?`)) return;
 
         try {
             setLoading(true);
-            const updatedPost = await publishAdminPostNow(postId); // ObjectId string
+            const updatedPost = await publishAdminPostNow(postId);
 
-            // Update local state
             setLivePosts(prev =>
                 prev.map(lp => (lp._id === postId ? updatedPost : lp))
             );
@@ -75,6 +77,19 @@ export default function SchedulePosts() {
         }
     };
 
+    const handleDelete = async (postId: string) => {
+        const confirmed = window.confirm("Are you sure you want to delete this post?");
+        if (!confirmed) return;
+
+        try {
+            await adminDeletePostById(postId);
+            alert("Post deleted successfully!");
+            setLivePosts(prev => prev.filter(p => p._id !== postId));
+        } catch (err) {
+            console.error(err);
+            alert("Failed to delete post");
+        }
+    };
 
     // --- Pagination ---
     const totalPages = Math.ceil(filtered.length / perPage);
@@ -158,16 +173,28 @@ export default function SchedulePosts() {
                                 </summary>
 
                                 <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-md z-10">
-                                    <button onClick={() => alert(`Edit ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">
+                                    {/* <button onClick={() => alert(`Edit ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">
+                                        Edit
+                                    </button> */}
+
+                                    <button
+                                        onClick={() => {
+                                            const originalPost = livePosts.find(lp => lp._id === p.id);
+                                            if (!originalPost) return alert("Post not found!");
+                                            handleEdit(originalPost);
+                                        }}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                                    >
                                         Edit
                                     </button>
+
                                     <button
                                         onClick={() => handlePublishNow(p.id, p.title)}
                                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-green-600"
                                     >
                                         Publish Now
                                     </button>
-                                    <button onClick={() => alert(`Delete ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">
+                                    <button onClick={() => handleDelete(p.id)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">
                                         Delete
                                     </button>
                                 </div>
