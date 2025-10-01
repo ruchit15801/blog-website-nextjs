@@ -586,7 +586,7 @@ export default function ArticleDetail({ params }: { params: Promise<{ id: string
 
                                 {/* 5️⃣ Creating */}
                                 <div className="aside-shadow rounded-xl shadow p-6 space-y-4">
-                                    <h3 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase text-lg font-semibold mb-4" >Creating</h3>
+                                    <h3 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase text-lg font-semibold mb-4" >Top Viewed</h3>
                                     {[
                                         { title: "Heartfelt Reflections", desc: "A deep dive into emotional experiences and personal growth, sharing valuable insights on life's most meaningful moments." },
                                         { title: "Latest Tech Gadgets", desc: "Explore the newest and most innovative technology products hitting the market, from smart devices to cutting-edge tools." },

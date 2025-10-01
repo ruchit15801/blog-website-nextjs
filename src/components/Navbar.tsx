@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Search } from "lucide-react";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -64,21 +63,6 @@ export default function Navbar() {
 
                 {/* === RIGHT : Actions === */}
                 <div className="navbar-actions flex items-center gap-2">
-                    {/* Search */}
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            className="pl-10 pr-4 py-1.5 rounded-full border transition-colors duration-300 text-gray-800 bg-white-100 border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-500"
-                        />
-                        <Search
-                            size={18}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                        />
-                    </div>
-
-                    {/* Theme toggle removed (light-only) */}
-
                     {/* Sign Up */}
                     <Link
                         href="/auth"

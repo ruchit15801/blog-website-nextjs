@@ -322,7 +322,7 @@ export default function ClassicList() {
                                         {/* Excerpt */}
                                         <p className="text-gray-600 text-sm" style={{ fontWeight: 400, fontSize: '1rem', lineHeight: 1.55, color: '#696981', maxWidth: '640px' }}>{a.excerpt}</p>
 
-                                        <button className="discover mx-auto ms-0" style={{cursor : 'pointer'}}>Discover More</button>
+                                        <button className="discover mx-auto ms-0" style={{ cursor: 'pointer' }}>Discover More</button>
                                     </div>
                                 </article>
                             </Link>
@@ -553,7 +553,7 @@ export default function ClassicList() {
 
                         {/* 5️⃣ Creating */}
                         <div className="aside-shadow rounded-xl shadow p-6 space-y-4">
-                            <h3 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase text-lg font-semibold mb-4" >Creating</h3>
+                            <h3 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase text-lg font-semibold mb-4" >Top Viewed</h3>
                             {[
                                 { title: "Heartfelt Reflections", desc: "A deep dive into emotional experiences and personal growth, sharing valuable insights on life's most meaningful moments." },
                                 { title: "Latest Tech Gadgets", desc: "Explore the newest and most innovative technology products hitting the market, from smart devices to cutting-edge tools." },
