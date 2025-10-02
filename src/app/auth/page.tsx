@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Loader from "@/components/Loader";
 import { useRouter } from "next/navigation";
-import { signupUser, loginUser } from "@/lib/api";
+import { signupUser, loginUser, forgotPasswordAPI } from "@/lib/api";
 
 export default function AuthPage() {
     const router = useRouter();
@@ -25,6 +25,7 @@ export default function AuthPage() {
 
     // Step for forgot password flow
     const [step, setStep] = useState<"signin" | "forgotEmail" | "otp" | "resetPassword">("signin");
+    const [resetToken, setResetToken] = useState("");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -38,7 +39,6 @@ export default function AuthPage() {
 
         try {
             if (isSignUp) {
-                // ✅ Your signup API call
                 const res = await signupUser({
                     fullName: `${formData.firstName} ${formData.lastName}`.trim(),
                     email: formData.email,
@@ -53,28 +53,41 @@ export default function AuthPage() {
                 setMessage("Sign Up successful!");
                 router.push("/DashBoard");
             } else {
-                // Sign In flow OR Forgot Password flow
                 if (step === "signin") {
-                    // ✅ Your login API call
-                    const res = await loginUser({ email: formData.email, password: formData.password });
+                    if (step === "signin") {
+                        const res = await loginUser({ email: formData.email, password: formData.password });
 
-                    localStorage.setItem("token", res.token);
-                    localStorage.setItem("refreshToken", res.refreshToken);
-                    localStorage.setItem("userProfile", JSON.stringify(res.user));
-                    localStorage.setItem("role", res.user.role);
+                        localStorage.setItem("token", res.token);
+                        localStorage.setItem("refreshToken", res.refreshToken);
+                        localStorage.setItem("userProfile", JSON.stringify(res.user));
+                        localStorage.setItem("role", res.user.role);
 
-                    setMessage("Sign In successful!");
-                    router.push("/DashBoard");
+                        setMessage("Sign In successful!");
+                        router.push("/DashBoard");
+                    } else if (step === "forgotEmail") {
+                        setMessage("OTP sent to your email!");
+                        setStep("otp");
+                    } else if (step === "otp") {
+                        setMessage("OTP verified!");
+                        setStep("resetPassword");
+                    } else if (step === "resetPassword") {
+                        setMessage("Password reset successful!");
+                        setStep("signin");
+                        setFormData({ ...formData, password: "", newPassword: "", confirmPassword: "", otp: "" });
+                    }
                 } else if (step === "forgotEmail") {
-                    // Send OTP to email API
-                    setMessage("OTP sent to your email!");
-                    setStep("otp");
+                    const res = await forgotPasswordAPI(formData.email);
+                    if (res.success) {
+                        setResetToken(res.token);
+                        setMessage("OTP sent to your email!");
+                        setStep("otp");
+                    } else {
+                        setMessage(res.message || "Failed to send OTP");
+                    }
                 } else if (step === "otp") {
-                    // Verify OTP API
                     setMessage("OTP verified!");
                     setStep("resetPassword");
                 } else if (step === "resetPassword") {
-                    // Reset password API
                     setMessage("Password reset successful!");
                     setStep("signin");
                     setFormData({ ...formData, password: "", newPassword: "", confirmPassword: "", otp: "" });

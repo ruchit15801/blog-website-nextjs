@@ -8,7 +8,7 @@ import { fetchAdminPosts, type RemotePost, adminDeletePostById } from "@/lib/adm
 import { useRouter } from "next/navigation";
 
 export default function AllPosts() {
-    const [currentPage, setCurrentPage] = useState(1);  
+    const [currentPage, setCurrentPage] = useState(1);
     const perPage = 6;
     const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
     const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ export default function AllPosts() {
             author: typeof p.author === "string" ? p.author : (p.author?.fullName || ""),
             excerpt: "",
             image: p.bannerImageUrl || "/images/a1.webp",
-            tag: p.tags || [], 
+            tag: p.tags || [],
             readTime: p.readingTimeMinutes || 0,
             full: p,
         }));
@@ -71,12 +71,12 @@ export default function AllPosts() {
 
     // --- Handlers ---
     const handleEdit = (post: RemotePost) => {
-        router.push(`/DashBoard/Create_post?id=${post._id}`); 
+        router.push(`/DashBoard/Create_post?id=${post._id}`);
     };
 
     const handleDelete = async (postId: string) => {
         const confirmed = window.confirm("Are you sure you want to delete this post?");
-        if (!confirmed) return; 
+        if (!confirmed) return;
 
         try {
             await adminDeletePostById(postId);
@@ -96,6 +96,7 @@ export default function AllPosts() {
 
                 <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
                     <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Search posts..."
@@ -103,7 +104,6 @@ export default function AllPosts() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
-                        <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                     </div>
 
                     <select
@@ -132,7 +132,7 @@ export default function AllPosts() {
                             </div>
                         ) : (
                             paginatedArticles.map((a) => (
-                                <article key={a.id} onClick={() => router.push(`/DashBoard/Post/${a.id}/`)} className="flex flex-col overflow-hidden group cursor-pointer relative">
+                                <article key={a.id} onClick={() => router.push(`/DashBoard/Post/${a.id}/`)} className="flex flex-col overflow-hidden group cursor-pointer relative bg-white pt-4 px-4 rounded-2xl">
                                     {/* --- Post Image + Menu --- */}
                                     <div className="relative w-full h-56">
                                         <Image
@@ -155,7 +155,7 @@ export default function AllPosts() {
                                         </div>
 
                                         {/* Hover Menu */}
-                                        <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition"  onClick={(e) => e.stopPropagation()} >
+                                        <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition" onClick={(e) => e.stopPropagation()} >
                                             <summary className="list-none cursor-pointer p-2 bg-black/30 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
                                                 <MoreHorizontal className="w-4 h-4" />
                                             </summary>

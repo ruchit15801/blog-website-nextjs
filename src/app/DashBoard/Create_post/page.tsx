@@ -124,11 +124,6 @@ export default function AdminLayout() {
             if (Array.isArray(post.imageUrls)) setImagePreviews(post.imageUrls);
 
             prefilledRef.current = true;
-
-            // Optionally: convert URLs to File objects if you want users to remove/re-upload
-            // if (post.bannerImageUrl) setBannerFile(await urlToFile(post.bannerImageUrl, "banner.png", "image/png"));
-            // const files = await Promise.all((post.imageUrls || []).map((url, i) => urlToFile(url, `image-${i}.png`, "image/png")));
-            // setImageFiles(files.filter(Boolean) as File[]);
         } catch (err) {
             console.error("Failed to load post:", err);
         }

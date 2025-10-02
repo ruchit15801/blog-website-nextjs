@@ -143,7 +143,7 @@ export default function SchedulePosts() {
                     <div className="col-span-full text-center py-16 text-red-500">{error}</div>
                 )}
                 {!loading && !error && paginated.map((p) => (
-                    <article key={p.id} className="relative group flex flex-col overflow-hidden transition">
+                    <article key={p.id} onClick={() => router.push(`/DashBoard/Post/${p.id}/`)} className="relative group flex flex-col overflow-hidden transition bg-white px-4 pt-4 rounded-2xl">
                         <div className="relative w-full h-56">
                             <Image src={p.image} alt={p.title} fill className="object-cover rounded-2xl" />
 

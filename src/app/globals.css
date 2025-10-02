@@ -160,7 +160,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Inputs */
-.dashboard-skin :where(input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"], textarea) {
+.dashboard-skin :where(input[type="email"], input[type="password"], input[type="datetime-local"], textarea) {
   border: 1px solid #e5e7eb;
   background: #f9fafb;
   border-radius: 10px;

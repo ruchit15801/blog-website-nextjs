@@ -255,6 +255,7 @@ export default function UsersPage() {
                   value={editUser.fullName || ""}
                   onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })}
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+                  style={{background : '#f9fafb' , border : '1px solid #e5e7eb' , borderRadius : '10px' , padding : '10px 12px'}}
                   required
                 />
               </div>
