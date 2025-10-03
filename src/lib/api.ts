@@ -160,16 +160,25 @@ export const loginUser = async (data: { email: string; password: string }) => {
   return response.data;
 };
 
-// Forgot Password
+// lib/api.ts
 export const forgotPasswordAPI = async (email: string) => {
-  const res = await api.post("/auth/forgot", { email });
-  return res.data; // { success: true, message: "Reset link sent" }
+  const res = await api.post("/auth/otp/forgot", { email }); // <--- correct OTP route
+  return res.data;
 };
 
-// Reset Password
-export const resetPasswordAPI = async (token: string, password: string) => {
-  const res = await api.post("/auth/reset", { token, password });
-  return res.data; // { success: true, message: "Password updated" }
+export const resendOtpAPI = async (email: string) => {
+  const res = await api.post("/auth/otp/resend", { email });
+  return res.data;
+};
+
+export const verifyOtpAPI = async (email: string, otp: string) => {
+  const res = await api.post("/auth/otp/verify", { email, otp });
+  return res.data;
+};
+
+export const changePasswordAPI = async (email: string, otp: string, newPassword: string) => {
+  const res = await api.post("/auth/otp/change", { email, otp, newPassword });
+  return res.data;
 };
 
 

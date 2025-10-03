@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { loginUser, signupUser, getMe, createPost as createPostApi, forgotPasswordAPI, resetPasswordAPI } from "../../lib/api";
+import { loginUser, signupUser, getMe, createPost as createPostApi, forgotPasswordAPI} from "../../lib/api";
 import axios from "axios";
 
 // --- Types ---
@@ -107,20 +107,6 @@ export const forgotPassword = createAsyncThunk(
     }
 );
 
-// Reset password
-export const resetPassword = createAsyncThunk(
-    "auth/resetPassword",
-    async ({ token, password }: { token: string; password: string }, { rejectWithValue }) => {
-        try {
-            const res = await resetPasswordAPI(token, password);
-            return res;
-        } catch (err: unknown) {
-            if (err instanceof Error) return rejectWithValue(err.message);
-            return rejectWithValue("Something went wrong");
-        }
-    }
-);
-
 export const fetchMe = createAsyncThunk<
     { user: User },
     { token: string },
@@ -215,21 +201,6 @@ const authSlice = createSlice({
             .addCase(forgotPassword.rejected, (state, action) => {
                 state.forgotLoading = false;
                 state.forgotError = action.payload as string;
-            })
-
-            // Reset Password
-            .addCase(resetPassword.pending, (state) => {
-                state.resetLoading = true;
-                state.resetMessage = null;
-                state.resetError = null;
-            })
-            .addCase(resetPassword.fulfilled, (state, action: PayloadAction<{ message: string }>) => {
-                state.resetLoading = false;
-                state.resetMessage = action.payload.message;
-            })
-            .addCase(resetPassword.rejected, (state, action) => {
-                state.resetLoading = false;
-                state.resetError = action.payload as string;
             })
 
             // FetchMe

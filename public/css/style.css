@@ -343,3 +343,9 @@
   line-height: 1.55;
   margin-bottom: 6px;
 }
+
+.Breadcrumb{
+  color: #514dcc;
+  font-weight: 700;
+  font-size: 14px;
+}

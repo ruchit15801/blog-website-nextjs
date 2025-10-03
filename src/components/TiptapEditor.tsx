@@ -7,63 +7,163 @@ import Link from "@tiptap/extension-link";
 import { useEffect, useState } from "react";
 
 export default function TiptapEditor() {
+  const [contentHtml, setContentHtml] = useState("<p>Type your content here...</p>");
+  const [showPreview, setShowPreview] = useState(true);
+  const [message, setMessage] = useState("");
+  const [wordCount, setWordCount] = useState(0);
 
-    const [contentHtml, setContentHtml] = useState("<p>Type your content here...</p>");
+  const editor = useEditor({
+    extensions: [StarterKit, Underline, Link.configure({ openOnClick: false })],
+    content: contentHtml,
+    editorProps: {
+      attributes: {
+        class:
+          "min-h-[400px] mt-3 rounded-2xl p-6 border-2 border-gray-300 bg-gradient-to-br from-white via-blue-50 to-purple-50 shadow-inner focus:outline-none overflow-auto transition-all duration-300 hover:shadow-lg",
+      },
+    },
+    immediatelyRender: false,
+  });
 
-    const editor = useEditor({
-        extensions: [StarterKit, Underline, Link.configure({ openOnClick: false })],
-        content: contentHtml,
-        editorProps: {
-            attributes: { class: "min-h-[250px] p-3 focus:outline-none" },
-        },
-        immediatelyRender: false,
-    });
+  useEffect(() => {
+    if (!editor) return;
 
-    useEffect(() => {
-        if (!editor) return;
+    const update = () => {
+      setContentHtml(editor.getHTML());
+      setWordCount(editor.getText().trim().split(/\s+/).filter(Boolean).length);
+    };
 
-        const update = () => setContentHtml(editor.getHTML());
-        editor.on("update", update);
+    editor.on("update", update);
+    return () => {
+      editor.off("update", update);
+    };
+  }, [editor]);
 
-        // Cleanup
-        return () => {
-            editor.off("update", update);
-        };
-    }, [editor]);
+  if (!editor) return null;
 
+  return (
+    <div className="space-y-3 bg-white rounded-2xl shadow p-6 card-hover">
+      <label className="text-sm font-semibold text-gray-700">
+        Content (HTML) *
+      </label>
 
-    if (!editor) return null;
+      {/* Toolbar */}
+      <div className="top-0 z-20 mt-1 flex flex-wrap gap-2 bg-gradient-to-r from-purple-100 to-blue-50 p-2 rounded-xl border border-gray-200 mb-2 shadow-md">
+        <button
+          type="button"
+          className={`px-2 py-1 rounded ${
+            editor.isActive("bold") ? "bg-purple-300" : "bg-purple-200"
+          }`}
+          onClick={() => editor.chain().focus().toggleBold().run()}
+        >
+          Bold
+        </button>
+        <button
+          type="button"
+          className={`px-2 py-1 rounded ${
+            editor.isActive("italic") ? "bg-purple-300" : "bg-purple-200"
+          }`}
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+        >
+          Italic
+        </button>
+        <button
+          type="button"
+          className={`px-2 py-1 rounded ${
+            editor.isActive("underline") ? "bg-purple-300" : "bg-purple-200"
+          }`}
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+        >
+          Underline
+        </button>
+        <button
+          type="button"
+          className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition"
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+        >
+          • List
+        </button>
+        <button
+          type="button"
+          className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition"
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        >
+          1. List
+        </button>
+        <button
+          type="button"
+          className="px-2 py-1 bg-purple-200 rounded"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        >
+          H2
+        </button>
+        <button
+          type="button"
+          className="px-2 py-1 bg-purple-200 rounded"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        >
+          H3
+        </button>
+        <button
+          type="button"
+          className="px-2 py-1 bg-purple-200 rounded"
+          onClick={() => editor.chain().focus().setParagraph().run()}
+        >
+          P
+        </button>
+        <button
+          type="button"
+          className="px-2 py-1 bg-purple-200 rounded"
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        >
+          Quote
+        </button>
+        <button
+          type="button"
+          className="px-2 py-1 bg-purple-200 rounded"
+          onClick={() => {
+            const url = prompt("Enter URL", "https://") || "";
+            if (url) editor.chain().focus().setLink({ href: url }).run();
+          }}
+        >
+          Link
+        </button>
+        <button
+          type="button"
+          className="px-2 py-1 bg-red-400 hover:bg-red-500 text-xs font-medium rounded text-white"
+          onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
+        >
+          Clear
+        </button>
 
-    return (
-        <div className="space-y-4 bg-white rounded-xl shadow p-4">
-            {/* Toolbar */}
-            <div className="flex flex-wrap gap-2 border p-2 rounded mb-2">
-                <button onClick={() => editor.chain().focus().toggleBold().run()} className={`px-2 py-1 rounded ${editor.isActive("bold") ? "bg-purple-300" : "bg-gray-200"}`}>Bold</button>
-                <button onClick={() => editor.chain().focus().toggleItalic().run()} className={`px-2 py-1 rounded ${editor.isActive("italic") ? "bg-purple-300" : "bg-gray-200"}`}>Italic</button>
-                <button onClick={() => editor.chain().focus().toggleUnderline().run()} className={`px-2 py-1 rounded ${editor.isActive("underline") ? "bg-purple-300" : "bg-gray-200"}`}>Underline</button>
-                <button onClick={() => editor.chain().focus().toggleBulletList().run()} className="px-2 py-1 bg-gray-200 rounded">• List</button>
-                <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className="px-2 py-1 bg-gray-200 rounded">1. List</button>
-                <button onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className="px-2 py-1 bg-gray-200 rounded">H2</button>
-                <button onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className="px-2 py-1 bg-gray-200 rounded">H3</button>
-                <button onClick={() => editor.chain().focus().setParagraph().run()} className="px-2 py-1 bg-gray-200 rounded">P</button>
-                <button onClick={() => editor.chain().focus().toggleBlockquote().run()} className="px-2 py-1 bg-gray-200 rounded">Quote</button>
-                <button onClick={() => {
-                    const url = prompt("Enter URL") || "";
-                    editor.chain().focus().setLink({ href: url }).run();
-                }} className="px-2 py-1 bg-gray-200 rounded">Link</button>
-                <button onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} className="px-2 py-1 bg-red-400 text-white rounded">Clear</button>
-            </div>
+        <span className="ml-auto text-xs text-gray-500">{wordCount} words</span>
+      </div>
 
-            {/* Editable Area */}
-            <div className="border rounded-lg min-h-[250px] p-3">
-                <EditorContent editor={editor} />
-            </div>
+      {/* Editable area */}
+      <div>
+        <EditorContent editor={editor} />
+      </div>
 
-            {/* Live Preview */}
-            <div className="border rounded-lg p-3 bg-gray-50">
-                <div className="text-sm text-gray-500 mb-2">Live Preview</div>
-                {contentHtml && <div dangerouslySetInnerHTML={{ __html: contentHtml }} />}
-            </div>
+      {/* Live Preview */}
+      {showPreview && (
+        <div className="rounded-xl border border-gray-300 p-4 bg-white shadow-md mt-3">
+          <div className="text-sm text-gray-500 mb-2">Live Preview</div>
+          <div
+            className="prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: contentHtml }}
+          />
         </div>
-    );
+      )}
+
+      {/* Message */}
+      {message && (
+        <div
+          className={`text-sm ${
+            message.startsWith("Post created") ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {message}
+        </div>
+      )}
+    </div>
+  );
 }
