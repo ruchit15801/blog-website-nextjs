@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Clock, ExternalLink, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -238,16 +238,16 @@ export default function ArticlesSection({
                             </div>
                         </div>
                         <p className="text-gray-600 text-sm mb-4 mx-auto" style={{ marginTop: '12px', lineHeight: '1.55', color: '#696981', fontSize: '17px' }}>
-                            Discover insights from our leading contributors and explore trending stories curated just for you.
+                            Meet the brilliant minds shaping our blog. These top authors share stories that cross borders, touch emotions, and challenge the ordinary. Each article they create carries the power to entertain, enlighten, and engage—making their words a must-read for every curious soul.
                         </p>
                         {/* Location */}
-                        <h4 className="flex items-center text-sm mb-4 gap-1">
+                        {/* <h4 className="flex items-center text-sm mb-4 gap-1">
                             <MapPin style={{ color: '#5955d1', fontSize: '1.5rem', width: '24px', height: '24px' }} />
                             <span style={{ color: '#29294b', fontSize: '16px', fontWeight: 400, marginTop: '8px', marginBottom: '0px', lineHeight: '1.55' }}>Paris, France</span>
-                        </h4>
+                        </h4> */}
 
                         {/* Social Icons */}
-                        <div className="flex gap-4" style={{ color: '#29294b' }}>
+                        {/* <div className="flex gap-4" style={{ color: '#29294b' }}>
                             <a href="#" aria-label="Twitter" className="hover:text-blue-600">
                                 <svg width={24} height={24} viewBox="0 0 24 24">
                                     <path d="M13.982 10.622 20.54 3h-1.554l-5.693 6.618L8.745 3H3.5l6.876 10.007L3.5 21h1.554l6.012-6.989L15.868 21h5.245l-7.131-10.378Zm-2.128 2.474-.697-.997-5.543-7.93H8l4.474 6.4.697.996 5.815 8.318h-2.387l-4.745-6.787Z" />
@@ -268,7 +268,7 @@ export default function ArticlesSection({
                                     <path d="M19.7,3H4.3C3.582,3,3,3.582,3,4.3v15.4C3,20.418,3.582,21,4.3,21h15.4c0.718,0,1.3-0.582,1.3-1.3V4.3 C21,3.582,20.418,3,19.7,3z M8.339,18.338H5.667v-8.59h2.672V18.338z M7.004,8.574c-0.857,0-1.549-0.694-1.549-1.548 c0-0.855,0.691-1.548,1.549-1.548c0.854,0,1.547,0.694,1.547,1.548C8.551,7.881,7.858,8.574,7.004,8.574z M18.339,18.338h-2.669 v-4.177c0-0.996-0.017-2.278-1.387-2.278c-1.389,0-1.601,1.086-1.601,2.206v4.249h-2.667v-8.59h2.559v1.174h0.037 c0.356-0.675,1.227-1.387,2.526-1.387c2.703,0,3.203,1.779,3.203,4.092V18.338z" />
                                 </svg>
                             </a>
-                        </div>
+                        </div> */}
                     </div>
 
                     {/* 2️⃣ Featured Posts (Slider) */}
@@ -335,30 +335,32 @@ export default function ArticlesSection({
                         </div>
                     </div>
 
-                    {/* 4️⃣ Technologies (derived from trending posts tags) */}
+                    {/* 4️⃣ Trending Tags (chips only) */}
                     <div className="aside-shadow rounded-xl shadow py-6 ps-6 pe-10">
                         <h3
                             className="text-lg font-semibold mb-4 uppercase"
                             style={{ fontSize: ".75rem", fontWeight: 800, color: "#696981" }}
                         >
-                            Technologies
+                            Trending Tags
                         </h3>
-                        {Array.from(new Set((trendingPosts || []).flatMap(p => (Array.isArray(p.tags) ? p.tags : [] as string[])))).slice(0, 6).map((tag) => (
-                            <div key={tag} className="flex gap-4 items-center justify-center mb-4 last:mb-0">
-                                <Image src="/images/aside_tech.webp" alt={tag} width={50} height={50} className="rounded-xl object-cover" />
-                                <div>
-                                    <h3 className="text-lg font-semibold" style={{ color: "#29294b", fontWeight: 700, letterSpacing: "-0.04em" }}>{tag}</h3>
-                                    <p className="text-sm text-gray-500" style={{ fontSize: "14px", color: "#696981", lineHeight: "1.55" }}>
-                                        Popular topic from trending posts
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
+                        <div className="trending-buttons-container">
+                            {Array.from(new Set((trendingPosts || []).flatMap(p => (Array.isArray(p.tags) ? p.tags : [] as string[]))))
+                                .slice(0, 5)
+                                .map((tag, idx) => (
+                                    <button
+                                        key={`${tag}-${idx}`}
+                                        className="trending-btn hover-float"
+                                        aria-label={`Tag ${tag}`}
+                                    >
+                                        <span># {tag}</span>
+                                    </button>
+                                ))}
+                        </div>
                     </div>
 
                     {/* 5️⃣ Creating (from recent post titles) */}
                     <div className="aside-shadow rounded-xl shadow p-6 space-y-4">
-                        <h3 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase text-lg font-semibold mb-4" >Creating</h3>
+                        <h3 style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981', marginBottom: '1.25rem' }} className="uppercase text-lg font-semibold mb-4" >Trending Blogs</h3>
                         {(recentPosts || []).slice(0, 3).map((p) => (
                             <div key={p._id}>
                                 <a href={`/articles/${p._id}`} className="flex items-center gap-2 font-medium text-blue-600 hover:underline" style={{ color: '#5955d1', fontWeight: 700, fontSize: '18px', lineHeight: 1.2 }}>
