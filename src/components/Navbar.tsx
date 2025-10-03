@@ -51,14 +51,14 @@ export default function Navbar() {
                             Contact Us
                         </Link>
                     </li>
-                    <li className="pt-2">
+                    {/* <li className="pt-2">
                         <Link
                             href="/admin/new-post"
                             className={`nav-link ${pathname === "/admin/new-post" ? "active" : ""} hover:bg-gray-100 rounded-l px-2 py-2`}
                         >
                             New Post
                         </Link>
-                    </li>
+                    </li> */}
                 </ul>
 
 
