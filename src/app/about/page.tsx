@@ -1,4 +1,5 @@
 import Image from "next/image";
+import aboutImg from "@/../public/images/a10.webp";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Linkedin, MapPin, Mail } from "lucide-react";
 
@@ -13,8 +14,8 @@ export default function AboutPage() {
 
                 {/* HERO */}
                 <section className="relative overflow-hidden rounded-3xl mb-10" style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/0" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center px-6 sm:px-10 py-12">
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/0 pointer-events-none" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center px-6 sm:px-10 py-12 relative z-10">
                         <div className="space-y-4">
                             <h1 className="text-white font-extrabold" style={{ fontSize: '2.75rem', lineHeight: 1.1, letterSpacing: '-.04em' }}>
                                 Welcome to BlogCafeAI
@@ -27,8 +28,17 @@ export default function AboutPage() {
                                 <Link href="/contact" className="btn btn-secondary">Contact Us</Link>
                             </div>
                         </div>
-                        <div className="relative hidden md:block" style={{ height: 280 }}>
-                            <Image src="/images/aside_about.webp" alt="About" fill className="object-cover rounded-2xl shadow-lg" />
+                        <div className="relative hidden md:block aspect-[16/9]">
+                            <Image
+                                src={aboutImg}
+                                alt="About"
+                                fill
+                                priority
+                                quality={90}
+                                placeholder="blur"
+                                sizes="(min-width: 1280px) 720px, (min-width: 768px) 640px, 100vw"
+                                className="object-cover rounded-2xl shadow-lg"
+                            />
                         </div>
                     </div>
                 </section>

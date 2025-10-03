@@ -26,15 +26,6 @@ export default function Navbar() {
                             Home
                         </Link>
                     </li>
-
-                    <li className="pt-2">
-                        <Link
-                            href="/about"
-                            className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 rounded-l px-2 py-2`}
-                        >
-                            About
-                        </Link>
-                    </li>
                     <li className="pt-2">
                         <Link
                             href="/all-posts"
@@ -43,6 +34,15 @@ export default function Navbar() {
                             All Posts
                         </Link>
                     </li>
+                    <li className="pt-2">
+                        <Link
+                            href="/about"
+                            className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 rounded-l px-2 py-2`}
+                        >
+                            About
+                        </Link>
+                    </li>
+
                     <li className="pt-2">
                         <Link
                             href="/contact"
