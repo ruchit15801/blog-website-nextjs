@@ -15,8 +15,7 @@ export default function ContactPage() {
                         Feel Free to Contact Me
                     </h3>
                     <p className="mx-auto" style={{ maxWidth: '520px', fontSize: '16px', lineHeight: 1.55, color: '#696981' }}>
-                        Lorem ipsum dolor sit amet consectetur. Facilisis eu sit commodo sit.
-                        Phasellus elit sit sit dolor risus faucibus vel aliquam. Fames mattis.
+                        We’d love to hear from you! Whether you have questions, feedback, or ideas to share, our team is always ready to connect. Every message matters to us because this space grows stronger with your voice.
                     </p>
                 </div>
 
