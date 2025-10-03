@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Clock, Search } from "lucide-react";
+import { Clock, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, type HomePost, type TrendingCategory, type HomeAuthor } from "@/lib/api";
 
 type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
@@ -48,7 +48,25 @@ export default function AllPostsPage() {
         return posts.filter(p => (p.title || "").toLowerCase().includes(q));
     }, [posts, search]);
 
-    const totalPages = Math.max(1, Math.ceil((filtered.length || total) / limit));
+    const effectiveTotal = search.trim() ? filtered.length : total;
+    const totalPages = Math.max(1, Math.ceil(effectiveTotal / limit));
+
+    const visiblePages = useMemo(() => {
+        const pages: number[] = [];
+        const maxShown = 7; // including first/last and gaps
+        if (totalPages <= maxShown) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+            return pages;
+        }
+        const start = Math.max(2, page - 1);
+        const end = Math.min(totalPages - 1, page + 1);
+        pages.push(1);
+        if (start > 2) pages.push(-1); // gap
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (end < totalPages - 1) pages.push(-2); // gap
+        pages.push(totalPages);
+        return pages;
+    }, [page, totalPages]);
 
     return (
         <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -156,12 +174,71 @@ export default function AllPostsPage() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                    <div className="flex justify-center mt-10 gap-2">
-                        <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className={`px-3 py-1 rounded-md ${page === 1 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-[#5559d1] shadow-sm"}`}>Prev</button>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((pnum) => (
-                            <button key={pnum} onClick={() => setPage(pnum)} className={`px-3 py-1 rounded-md font-medium transition-colors ${page === pnum ? "bg-[#5559d1] text-white shadow-md" : "bg-white text-[#5559d1] hover:bg-[#5559d1] hover:text-white shadow-sm"}`}>{pnum}</button>
-                        ))}
-                        <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className={`px-3 py-1 rounded-md ${page === totalPages ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-[#5559d1] shadow-sm"}`}>Next</button>
+                    <div className="flex flex-col items-center mt-10 gap-2">
+                        <div className="text-xs font-semibold tracking-wide" style={{ color: '#696981' }}>Page {page} of {totalPages}</div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setPage(1)}
+                                disabled={page === 1}
+                                className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
+                                aria-label="First page"
+                                title="First"
+                                style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
+                            >
+                                <ChevronsLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
+                            </button>
+                            <button
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                                className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
+                                aria-label="Previous page"
+                                title="Prev"
+                                style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
+                            >
+                                <ChevronLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
+                            </button>
+                            {visiblePages.map((pnum, idx) => (
+                                pnum < 0 ? (
+                                    <span key={`gap-${idx}`} className="px-2 text-gray-400">…</span>
+                                ) : (
+                                    <button
+                                        key={pnum}
+                                        onClick={() => setPage(pnum)}
+                                        className={`px-3 py-1 rounded-full text-sm font-semibold transition ${page === pnum ? "text-white" : ""}`}
+                                        style={page === pnum ? {
+                                            background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)',
+                                            boxShadow: '0 10px 24px -12px rgba(114,114,255,.45)'
+                                        } : {
+                                            background: '#fff',
+                                            color: '#5559d1',
+                                            boxShadow: '0 5px 20px rgba(114,114,255,.12)'
+                                        }}
+                                    >
+                                        {pnum}
+                                    </button>
+                                )
+                            ))}
+                            <button
+                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={page === totalPages}
+                                className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
+                                aria-label="Next page"
+                                title="Next"
+                                style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
+                            >
+                                <ChevronRight className="w-4 h-4" style={{ color: '#5559d1' }} />
+                            </button>
+                            <button
+                                onClick={() => setPage(totalPages)}
+                                disabled={page === totalPages}
+                                className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
+                                aria-label="Last page"
+                                title="Last"
+                                style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
+                            >
+                                <ChevronsRight className="w-4 h-4" style={{ color: '#5559d1' }} />
+                            </button>
+                        </div>
                     </div>
                 )}
             </section>
