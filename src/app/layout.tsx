@@ -5,6 +5,7 @@ import "../../public/css/style.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { usePathname } from "next/navigation";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -39,6 +40,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <Script
+          id="adsense"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <meta name="google-adsense-account" content="ca-pub-8481647724806223"></meta>
       </head>
       <body>
