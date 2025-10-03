@@ -128,9 +128,20 @@ export default function AllPostsPage() {
                                             <span>on {date}</span>
                                         </div>
                                         <h2 className="text-lg font-bold" style={{ color: '#29294b' }}>{p.title}</h2>
-                                        <div className="flex flex-wrap gap-1 mt-1">
-                                            {Array.isArray(p.tags) && p.tags.map((t) => (
-                                                <span key={t} className="bg-gray-200 text-gray-800 text-xs font-semibold px-2 py-1 rounded-md uppercase">{t}</span>
+                                        <div className="flex flex-wrap gap-2 mt-1">
+                                            {Array.isArray(p.tags) && p.tags.slice(0, 3).map((t) => (
+                                                <span
+                                                    key={t}
+                                                    className="text-xs font-semibold px-3 py-1 rounded-full hover-float"
+                                                    style={{
+                                                        background: '#fff',
+                                                        color: '#29294b',
+                                                        boxShadow: '0px 5px 20px 0px rgba(114,114,255,.12)',
+                                                        letterSpacing: '.05em'
+                                                    }}
+                                                >
+                                                    #{" "}{t}
+                                                </span>
                                             ))}
                                         </div>
                                     </div>

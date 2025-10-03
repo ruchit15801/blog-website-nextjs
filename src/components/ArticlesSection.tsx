@@ -9,11 +9,15 @@ export default function ArticlesSection({
     recentPosts,
     trendingPosts,
     topAuthors,
+    pagination,
+    onPageChange,
 }: {
     featuredPosts: HomePost[];
     recentPosts: HomePost[];
     trendingPosts: HomePost[];
     topAuthors: HomeAuthor[];
+    pagination?: { total: number; page: number; limit: number; totalPages: number };
+    onPageChange?: (page: number) => void;
 }) {
     // Main articles grid uses recent posts
     const articles = useMemo(() => {
@@ -64,16 +68,17 @@ export default function ArticlesSection({
     }, [featuredPosts]);
 
     const [index, setIndex] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(pagination?.page || 1);
     const perPage = 12;
     const prev = () => setIndex((i) => (i - 1 + slider.length) % slider.length);
     const next = () => setIndex((i) => (i + 1) % slider.length);
-    const totalPages = Math.ceil(articles.length / perPage);
+    const totalPages = pagination?.totalPages ?? Math.ceil(articles.length / perPage);
     const start = (currentPage - 1) * perPage;
-    const paginatedArticles = articles.slice(start, start + perPage);
+    const paginatedArticles = pagination ? articles : articles.slice(start, start + perPage);
     const goToPage = (page: number) => {
         if (page < 1 || page > totalPages) return;
-        setCurrentPage(page);
+        if (onPageChange) onPageChange(page);
+        else setCurrentPage(page);
     };
 
     return (

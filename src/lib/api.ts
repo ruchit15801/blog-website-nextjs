@@ -33,18 +33,20 @@ export type TopTag = {
   totalViews?: number;
 };
 
-export async function getHomeOverview() {
-  const url = `${HOME_API_BASE_URL}/home`;
-  const res = await fetch(url, { cache: "no-store" });
+export async function getHomeOverview(page: number = 1, limit: number = 12) {
+  const url = new URL(`${HOME_API_BASE_URL}/home`);
+  if (page) url.searchParams.set("page", String(page));
+  if (limit) url.searchParams.set("limit", String(limit));
+  const res = await fetch(url.toString(), { cache: "no-store" });
   if (!res.ok) throw new Error(`Home overview failed: ${res.status}`);
   const data = await res.json();
 
   const topViewed = (data.topViewedPosts || []) as HomePost[];
   const topLiked = (data.topLikedPosts || []) as HomePost[];
   const topCommented = (data.topCommentedPosts || []) as HomePost[];
-  const recent = Array.isArray(data.recentPosts)
-    ? (data.recentPosts as HomePost[])
-    : ((data.recentPosts?.data || []) as HomePost[]);
+  const recentData = Array.isArray(data.recentPosts)
+    ? { data: (data.recentPosts as HomePost[]), pagination: undefined }
+    : { data: ((data.recentPosts?.data || []) as HomePost[]), pagination: data.recentPosts?.pagination };
   const authors = Array.isArray(data.topAuthors)
     ? (data.topAuthors as HomeAuthor[])
     : [];
@@ -52,11 +54,12 @@ export async function getHomeOverview() {
   // Map to UI expectations
   const featuredPosts = topViewed; // use top viewed as featured
   const trendingPosts = topLiked.length ? topLiked : (topCommented.length ? topCommented : topViewed);
-  const recentPosts = recent;
+  const recentPosts = recentData.data;
+  const recentPagination = recentData.pagination as undefined | { total: number; page: number; limit: number; totalPages: number };
   type RawAuthor = { authorId?: string; _id?: string; fullName?: string; avatarUrl?: string };
   const topAuthors = (authors as RawAuthor[]).map((a) => ({ _id: a.authorId || a._id || "", fullName: a.fullName, avatarUrl: a.avatarUrl })) as HomeAuthor[];
 
-  return { featuredPosts, trendingPosts, recentPosts, topAuthors };
+  return { featuredPosts, trendingPosts, recentPosts, topAuthors, recentPagination };
 }
 
 export type ListAllPostsParams = {

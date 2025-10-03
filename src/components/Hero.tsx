@@ -112,7 +112,7 @@ export default function Hero() {
                         color: "#29294b",
                     }}
                 >
-                    Heartfelt{" "}
+                    Whispers of{" "}
                     <span
                         className="text-gradient"
                         style={{
@@ -122,17 +122,16 @@ export default function Hero() {
                             display: "inline-block",
                         }}
                     >
-                        Reflections
+                        Life
                     </span>
-                    : Stories of Love, Loss, and Growth
+                    : Tales that Touch the Soul
                 </h1>
 
                 <p
                     className="text-lg sm:text-xl max-w-2xl mx-auto"
                     style={{ color: "#696981" }}
                 >
-                    Revision Welcomes to ultimate source for fresh perspectives! Explore
-                    curated content to enlighten, entertain and engage global readers.
+                    Discover stories woven with emotion, wisdom, and wonder crafted to inspire, heal, and connect hearts across the world.
                 </p>
             </section>
 

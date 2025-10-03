@@ -9,6 +9,7 @@ export default function Home() {
   const [featured, setFeatured] = useState<HomePost[]>([]);
   const [trending, setTrending] = useState<HomePost[]>([]);
   const [recent, setRecent] = useState<HomePost[]>([]);
+  const [recentMeta, setRecentMeta] = useState<{ total: number; page: number; limit: number; totalPages: number } | undefined>(undefined);
   const [authors, setAuthors] = useState<{ _id: string; fullName?: string; avatarUrl?: string }[]>([]);
   const [catOptions, setCatOptions] = useState<TrendingCategory[]>([]);
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
@@ -22,19 +23,20 @@ export default function Home() {
 
   useEffect(() => {
     let active = true;
-    getHomeOverview().then((d) => {
+    getHomeOverview(page, limit).then((d) => {
       if (!active) return;
       setFeatured(d.featuredPosts);
       setTrending(d.trendingPosts);
       setRecent(d.recentPosts);
       setAuthors(d.topAuthors);
+      setRecentMeta(d.recentPagination);
     }).catch(() => { });
     listTrendingByCategory().then((d) => {
       if (!active) return;
       setCatOptions(d.categories);
     }).catch(() => { });
     return () => { active = false; };
-  }, []);
+  }, [page, limit]);
 
   useEffect(() => {
     let active = true;
@@ -68,6 +70,9 @@ export default function Home() {
           trendingPosts={trending}
           recentPosts={recent}
           topAuthors={authors}
+          // Pass recent pagination and a page setter to drive server pagination
+          pagination={recentMeta}
+          onPageChange={(p: number) => setPage(p)}
         />
 
         {/* All Posts section removed per request */}
