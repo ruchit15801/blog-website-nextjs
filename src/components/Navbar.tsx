@@ -12,7 +12,8 @@ export default function Navbar() {
             <nav className="navbar-container">
                 {/* === LEFT : Logo === */}
                 <Link href="/" className="navbar-logo">
-                    <Image src="/images/logo.png" alt="Logo" width={130} height={130} priority />
+                    {/* <Image src="/images/logo.png" alt="BlogCafeAI" width={130} height={130} priority /> */}
+                    <span className="navbar-title" style={{ color: '#29294b', letterSpacing: '-.02em' }}>BlogCafeAI</span>
                 </Link>
 
 

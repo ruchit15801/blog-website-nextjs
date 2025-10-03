@@ -37,11 +37,12 @@ export default function Footer() {
           {/* ===== LEFT SIDE ===== */}
           <div className="footer-item-inner-items">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/images/logo.png" alt="Logo" width={130} height={130} priority />
+              {/* <Image src="/images/logo.png" alt="Logo" width={130} height={130} priority /> */}
+              <span className="navbar-title" style={{ color: '#29294b', letterSpacing: '-.02em' }}>BlogCafeAI</span>
             </div>
 
             <p className="mb-4 opacity-80">
-              Welcome to ultimate source for fresh perspectives! Explore curated content to enlighten, entertain and engage global readers.
+              We believe stories are bridges. Through heartfelt reflections and powerful narratives, we connect people, cultures, and ideas delivering a world of perspectives to enlighten minds and enrich souls everywhere.
             </p>
 
             <div className="social-icon flex gap-4 my-2">
