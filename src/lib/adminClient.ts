@@ -5,7 +5,7 @@ export function saveAdminToken(token: string) {
 
 export function getAdminToken(): string | null {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("token");
+    return localStorage.getItem("admin_token");
 }
 
 export async function createRemotePost(payload: {
@@ -339,10 +339,15 @@ export type RemotePost = {
     _id: string;
     title: string;
     author?: { _id: string; fullName?: string; email?: string } | string;
-    userId?: string; // fallback if API returns flat user id
+    subtitle?: string;  
+    contentHtml: string;
+    categoryId?: string;
+    category?: { _id: string; name: string };
+    userId?: string; 
     status?: string;
     publishedAt?: string | null;
     createdAt?: string;
+    imageUrls?: string;
     // Optional fields seen in UI usage
     bannerImageUrl?: string;
     tags?: string[];
@@ -414,7 +419,7 @@ export async function adminUpdatePostById(
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const res = await fetch(`${base}/admin/posts/${postId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(body),
     });
@@ -527,3 +532,11 @@ export async function fetchAdminMeProfile(tokenOverride?: string): Promise<Admin
     throw new Error("Invalid profile response");
 }
 
+export async function fetchPostById(id: string, token: string) {
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/admin/posts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Failed to fetch post');
+    return res.json();
+}

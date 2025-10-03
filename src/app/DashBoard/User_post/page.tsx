@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
 import { fetchAdminPosts, fetchAdminUsers, type RemotePost, type RemoteUser } from "@/lib/adminClient";
+import { useRouter } from "next/navigation"; 
 
 type UiPost = {
     id: string;
@@ -18,6 +19,7 @@ type UiPost = {
 };
 
 export default function UserPosts() {
+    const router = useRouter();
     const [search, setSearch] = useState("");
     const [selectedUser, setSelectedUser] = useState<string>("all");
     const [page, setPage] = useState(1);
@@ -128,7 +130,7 @@ export default function UserPosts() {
                     <div className="col-span-full text-center text-red-500 py-10">{error}</div>
                 )}
                 {!loading && !error && items.map((p) => (
-                    <article key={p.id} className="relative group flex flex-col overflow-hidden rounded-2xl transition">
+                    <article key={p.id} onClick={() => router.push(`/DashBoard/Post/${p.id}/`)} className="relative group flex flex-col overflow-hidden rounded-2xl transition bg-white px-4 pt-4 rounded-2xl">
                         <div className="relative w-full h-56">
                             <Image src={p.image} alt={p.title} fill className="object-cover rounded-2xl" />
                             {/* Tags */}
