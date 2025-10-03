@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, Clock, ExternalLink } from "lucide-react";
+import Pagination from "./Pagination";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -162,57 +163,10 @@ export default function ArticlesSection({
                         </Link>
                     ))}
                 </div>
-                {/* Pagination */}
-                <div className="flex justify-center mt-10">
-                    <nav
-                        className="flex items-center text-sm"
-                        aria-label="Pagination"
-                        style={{
-                            color: "var(--cs-color-primary)",
-                            backgroundColor: "var(--cs-layout-background)",
-                            boxShadow: "0px 5px 20px 0px rgba(var(--cs-color-box-shadow-rgb), .15)",
-                            borderRadius: "var(--cs-layout-elements-border-radius)",
-                            padding: ".5rem .75rem",
-                            margin: "0 .75rem",
-                        }}
-                    >
-                        {/* Prev button only when currentPage > 1 */}
-                        {currentPage > 1 && (
-                            <button
-                                onClick={() => goToPage(currentPage - 1)}
-                                className="flex items-center justify-center px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
-                                style={{ color: "#29294b" }}
-                            >
-                                <ChevronLeft className="w-4 h-4" />
-                            </button>
-                        )}
-
-                        {/* Page Numbers */}
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <button
-                                key={page}
-                                onClick={() => goToPage(page)}
-                                className={`mx-1 px-3 py-1 rounded-md transition-colors ${currentPage === page
-                                    ? "bg-[#29294b] text-white"
-                                    : "hover:bg-gray-100 text-[#29294b]"
-                                    }`}
-                            >
-                                {page}
-                            </button>
-                        ))}
-
-                        {/* Next button only when currentPage < totalPages */}
-                        {currentPage < totalPages && (
-                            <button
-                                onClick={() => goToPage(currentPage + 1)}
-                                className="flex items-center justify-center px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
-                                style={{ color: "#29294b" }}
-                            >
-                                <ChevronRight className="w-4 h-4" />
-                            </button>
-                        )}
-                    </nav>
-                </div>
+                {/* Pagination - unified UI */}
+                {totalPages > 1 && (
+                    <Pagination page={currentPage} totalPages={totalPages} onChange={goToPage} />
+                )}
             </div>
             {/* ===== Sidebar / Aside ===== */}
             <aside className="lg:col-span-1">
