@@ -150,7 +150,7 @@ export default function SchedulePosts() {
                             {/* Tags */}
                             <div className="absolute top-3 left-3 flex flex-wrap gap-1">
                                 {Array.isArray(p.tag)
-                                    ? p.tag.slice(0, 3).map((t, i) => (
+                                    ? p.tag.slice(0, 2).map((t, i) => (
                                         <span
                                             key={i}
                                             className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase"
