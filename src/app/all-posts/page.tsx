@@ -25,7 +25,7 @@ export default function AllPostsPage() {
     useEffect(() => {
         let active = true;
         listTopTrendingCategories(9).then((d) => { if (!active) return; setCategories(d.categories); }).catch(() => { });
-        listTopTrendingAuthors(8).then((d) => { if (!active) return; setAuthors((d.authors || []).map((a: HomeAuthor) => ({ _id: a._id, fullName: a.fullName }))); }).catch(() => { });
+        listTopTrendingAuthors(8).then((d) => { if (!active) return; setAuthors((d.authors || []).map((a: HomeAuthor & { avatarUrl?: string }) => ({ _id: a._id, fullName: a.fullName, avatarUrl: a.avatarUrl }))); }).catch(() => { });
         return () => { active = false; };
     }, []);
 
