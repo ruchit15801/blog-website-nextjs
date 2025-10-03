@@ -145,7 +145,7 @@ export default function AllPosts() {
                                         {/* Tags */}
                                         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                                             {Array.isArray(a.tag)
-                                                ? a.tag.map((t, i) => (
+                                                ? a.tag.slice(0, 3).map((t, i) => (
                                                     <span key={i} className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">
                                                         {t}
                                                     </span>

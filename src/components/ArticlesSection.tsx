@@ -99,7 +99,7 @@ export default function ArticlesSection({
                                     {/* Top-Left Tag */}
                                     <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                                         {Array.isArray(a.tag) ? (
-                                            a.tag.map((t: string, i: number) => (
+                                            a.tag.slice(0, 3).map((t: string, i: number) => (
                                                 <span
                                                     key={i}
                                                     className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase"
