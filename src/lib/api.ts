@@ -223,3 +223,18 @@ export const createCategory = async (
   });
   return res.data;
 };
+
+// Contact form
+export async function submitContact(payload: { name: string; email: string; message: string }) {
+  const url = `${HOME_API_BASE_URL}/home/contact`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json?.message || `Contact failed: ${res.status}`);
+  }
+  return res.json().catch(() => ({}));
+}
