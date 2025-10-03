@@ -1,14 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { fetchCategories } from "@/lib/adminClient";
+import { listTrendingByCategory, type TrendingCategory } from "@/lib/api";
 
-type RemoteCategory = {
-    _id: string;
-    name: string;
-    description?: string;
-    imageUrl?: string;
-};
+type RemoteCategory = TrendingCategory;
 
 export default function Hero() {
     const [categories, setCategories] = useState<RemoteCategory[]>([]);
@@ -17,10 +12,10 @@ export default function Hero() {
     useEffect(() => {
         async function loadCategories() {
             try {
-                const data = await fetchCategories();
-                setCategories(data);
+                const { categories } = await listTrendingByCategory();
+                setCategories(categories);
             } catch (err) {
-                console.error("Failed to fetch categories", err);
+                console.error("Failed to fetch trending categories", err);
             } finally {
                 setLoading(false);
             }

@@ -88,15 +88,18 @@ export async function listAllHomePosts(params: ListAllPostsParams = {}) {
   return { posts: list, total, page, limit, totalPages };
 }
 
-export type TrendingCategory = { _id: string; name: string; icon?: string };
+export type TrendingCategory = { _id: string; name: string; icon?: string; imageUrl?: string };
 
 export async function listTrendingByCategory() {
   const url = `${HOME_API_BASE_URL}/home/trending-by-category`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Trending by category failed: ${res.status}`);
-  const data = await res.json();
-  const categories = (data.data || []) as TrendingCategory[];
-  const meta = data.meta as { categoriesLimit?: number; postsPerCategory?: number } | undefined;
+  const json = await res.json();
+  type ApiEntry = { category?: { _id?: string; name?: string; imageUrl?: string } };
+  const categories: TrendingCategory[] = ((json.data || []) as ApiEntry[])
+    .map((e) => ({ _id: e.category?._id || "", name: e.category?.name || "", imageUrl: e.category?.imageUrl }))
+    .filter((c) => c._id && c.name);
+  const meta = json.meta as { categoriesLimit?: number; postsPerCategory?: number } | undefined;
   return { categories, meta };
 }
 
