@@ -18,8 +18,6 @@ type UserProfileType = {
 export default function UserProfileWithCategories() {
     const [profile, setProfile] = useState<UserProfileType>(() => ({ fullName: "", email: "", role: "", createdAt: "", avatar: "" }));
 
-    const [editingProfile, setEditingProfile] = useState(false);
-
     // Update localStorage whenever profile changes
     useEffect(() => {
         localStorage.setItem("userProfile", JSON.stringify({ fullName: profile.fullName, email: profile.email, avatar: profile.avatar, role: profile.role }));
@@ -55,15 +53,7 @@ export default function UserProfileWithCategories() {
         reader.readAsDataURL(file);
     };
 
-    const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setProfile(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleProfileSave = () => { setEditingProfile(false); };
-
     // removed unused category handlers
-
     const handleLogout = () => { logoutAndRedirect(); };
 
     return (

@@ -12,7 +12,9 @@ export default function Home() {
   const [recentMeta, setRecentMeta] = useState<{ total: number; page: number; limit: number; totalPages: number } | undefined>(undefined);
   const [authors, setAuthors] = useState<{ _id: string; fullName?: string; avatarUrl?: string }[]>([]);
   const [catOptions, setCatOptions] = useState<TrendingCategory[]>([]);
+  console.log(catOptions);
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
+  console.log(setSelectedCat);
   const [search] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(12);

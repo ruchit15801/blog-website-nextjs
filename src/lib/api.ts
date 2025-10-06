@@ -163,9 +163,9 @@ export const loginUser = async (data: { email: string; password: string }) => {
   return response.data;
 };
 
-// lib/api.ts
+// ---------- Password Reset / OTP APIs ----------
 export const forgotPasswordAPI = async (email: string) => {
-  const res = await api.post("/auth/otp/forgot", { email }); // <--- correct OTP route
+  const res = await api.post("/auth/otp/forgot", { email });
   return res.data;
 };
 
@@ -181,6 +181,11 @@ export const verifyOtpAPI = async (email: string, otp: string) => {
 
 export const changePasswordAPI = async (email: string, otp: string, newPassword: string) => {
   const res = await api.post("/auth/otp/change", { email, otp, newPassword });
+  return res.data;
+};
+
+export const resetPasswordAPI = async (email: string, otp: string, newPassword: string) => {
+  const res = await api.post("/auth/reset", { email, otp, newPassword });
   return res.data;
 };
 

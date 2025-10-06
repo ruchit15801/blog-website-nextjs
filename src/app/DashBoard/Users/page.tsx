@@ -2,59 +2,65 @@
 
 import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
-import { Pencil, Trash, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Pencil, Trash, Search, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
 import { fetchAdminUsers, RemoteUser, updateAdminUser, deleteAdminUser } from "@/lib/adminClient";
 
 export default function UsersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [items, setItems] = useState<RemoteUser[]>([]);
+  const [users, setUsers] = useState<RemoteUser[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all"); 
+  const [isFilterDropdownOpen, setFilterDropdownOpen] = useState(false);
+  const [isLimitDropdownOpen, setLimitDropdownOpen] = useState(false);
 
-  // --- Edit Modal ---
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState<"all" | "low" | "mid" | "high">("all");
+
+  // Modal & Edit
   const [showModal, setShowModal] = useState(false);
   const [editUser, setEditUser] = useState<RemoteUser | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  const loadUsers = () => {
+  const loadUsers = useCallback(() => {
     setLoading(true);
     setError(null);
+
     fetchAdminUsers({ page, limit, q: searchTerm || undefined })
       .then((res) => {
-        setItems(res.users || []);
+        setUsers(res.users || []);
         setTotal(res.total || 0);
         setTotalPages(res.totalPages || 1);
         setLimit(res.limit || limit);
       })
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
-  };
+  }, [page, limit, searchTerm]);
 
   useEffect(() => {
     loadUsers();
-  }, [page, limit, searchTerm]);
+  }, [loadUsers]);
 
-  const filteredUsers = useMemo(() => items.filter((u) => {
-    const matchSearch =
-      (u.fullName || u.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (u.email || "").toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const matchSearch =
+        (user.fullName || user.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user.email || "").toLowerCase().includes(searchTerm.toLowerCase());
 
-    let matchFilter = true;
-    const totalPosts = u.totalPosts ?? 0;
-    if (filter === "low") matchFilter = totalPosts < 10;
-    else if (filter === "mid") matchFilter = totalPosts >= 10 && totalPosts <= 50;
-    else if (filter === "high") matchFilter = totalPosts > 50;
+      let matchFilter = true;
+      const totalPosts = user.totalPosts ?? 0;
+      if (filter === "low") matchFilter = totalPosts < 10;
+      else if (filter === "mid") matchFilter = totalPosts >= 10 && totalPosts <= 50;
+      else if (filter === "high") matchFilter = totalPosts > 50;
 
-    return matchSearch && matchFilter;
-  }), [items, searchTerm, filter]);
+      return matchSearch && matchFilter;
+    });
+  }, [users, searchTerm, filter]);
 
   const canPrev = page > 1;
   const canNext = page < totalPages;
@@ -65,22 +71,23 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (userId: string) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      try {
-        setLoading(true);
-        await deleteAdminUser(userId);
-        loadUsers();
-      } catch (err) {
-        alert(err instanceof Error ? err.message : String(err));
-      } finally {
-        setLoading(false);
-      }
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      setLoading(true);
+      await deleteAdminUser(userId);
+      loadUsers();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleUpdateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editUser) return;
+
     try {
       setUpdating(true);
       const { _id, fullName, role } = editUser;
@@ -88,7 +95,6 @@ export default function UsersPage() {
       loadUsers();
       setShowModal(false);
       setEditUser(null);
-
     } catch (err) {
       alert(err instanceof Error ? err.message : String(err));
     } finally {
@@ -98,7 +104,7 @@ export default function UsersPage() {
 
   return (
     <DashboardLayout>
-      {/* ---- Heading + Search + Filter ---- */}
+      {/* Heading + Search + Filters */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Users</h1>
@@ -106,40 +112,114 @@ export default function UsersPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          {/* Search */}
+          <div className="custom-search">
+            <Search />
             <input
               type="text"
               placeholder="Search name or email"
-              className="pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5559d1] text-sm"
               value={searchTerm}
-              onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
             />
           </div>
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-          >
-            <option value="all">All Posts</option>
-            <option value="low">Total Posts &lt; 10</option>
-            <option value="mid">Total Posts 10–50</option>
-            <option value="high">Total Posts &gt; 50</option>
-          </select>
-          <select
-            value={limit}
-            onChange={(e) => { setPage(1); setLimit(Number(e.target.value)); }}
-            className="border border-gray-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-          >
-            <option value={5}>5 / page</option>
-            <option value={10}>10 / page</option>
-            <option value={20}>20 / page</option>
-            <option value={50}>50 / page</option>
-          </select>
+
+          {/* Filter */}
+          <div className="custom-dropdown">
+            <button
+              onClick={() => setFilterDropdownOpen(!isFilterDropdownOpen)}
+              className="flex items-center justify-between w-full"
+            >
+              {filter === "all"
+                ? "All Posts"
+                : filter === "low"
+                  ? "Total Posts < 10"
+                  : filter === "mid"
+                    ? "Total Posts 10–50"
+                    : "Total Posts > 50"}
+              <ChevronDown
+                className={`w-4 h-4 ml-2 transition-transform ${isFilterDropdownOpen ? "rotate-180" : ""
+                  }`}
+              />
+            </button>
+            {isFilterDropdownOpen && (
+              <div className="options">
+                <div
+                  className={`option ${filter === "all" ? "selected" : ""}`}
+                  onClick={() => {
+                    setFilter("all");
+                    setFilterDropdownOpen(false);
+                  }}
+                >
+                  All Posts
+                </div>
+                <div
+                  className={`option ${filter === "low" ? "selected" : ""}`}
+                  onClick={() => {
+                    setFilter("low");
+                    setFilterDropdownOpen(false);
+                  }}
+                >
+                  Total Posts &lt; 10
+                </div>
+                <div
+                  className={`option ${filter === "mid" ? "selected" : ""}`}
+                  onClick={() => {
+                    setFilter("mid");
+                    setFilterDropdownOpen(false);
+                  }}
+                >
+                  Total Posts 10–50
+                </div>
+                <div
+                  className={`option ${filter === "high" ? "selected" : ""}`}
+                  onClick={() => {
+                    setFilter("high");
+                    setFilterDropdownOpen(false);
+                  }}
+                >
+                  Total Posts &gt; 50
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Page Size */}
+          <div className="custom-dropdown">
+            <button
+              onClick={() => setLimitDropdownOpen(!isLimitDropdownOpen)}
+              className="flex items-center justify-between w-full"
+            >
+              {limit} / page
+              <ChevronDown
+                className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""
+                  }`}
+              />
+            </button>
+            {isLimitDropdownOpen && (
+              <div className="options">
+                {[5, 10, 20, 50].map((l) => (
+                  <div
+                    key={l}
+                    className={`option ${limit === l ? "selected" : ""}`}
+                    onClick={() => {
+                      setLimit(l);
+                      setPage(1);
+                      setLimitDropdownOpen(false);
+                    }}
+                  >
+                    {l} / page
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* ---- Table ---- */}
+      {/* Users Table */}
       <div className="overflow-x-auto rounded-xl shadow border border-gray-200">
         <table className="table-auto w-full text-left text-sm">
           <thead style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }} className="text-white">
@@ -157,109 +237,138 @@ export default function UsersPage() {
           <tbody>
             {loading && (
               <tr>
-                <td className="px-4 py-6 text-center" colSpan={7}><Loader inline label="Loading users" /></td>
+                <td colSpan={7} className="px-4 py-6 text-center">
+                  <Loader inline label="Loading users" />
+                </td>
               </tr>
             )}
+
             {error && !loading && (
               <tr>
-                <td className="px-4 py-6 text-center text-red-600" colSpan={7}>{error}</td>
+                <td colSpan={7} className="px-4 py-6 text-center text-red-600">
+                  {error}
+                </td>
               </tr>
             )}
+
             {!loading && !error && filteredUsers.length === 0 && (
               <tr>
-                <td className="px-4 py-6 text-center text-gray-600" colSpan={7}>No users found.</td>
+                <td colSpan={7} className="px-4 py-6 text-center text-gray-600">
+                  No users found.
+                </td>
               </tr>
             )}
-            {!loading && !error && filteredUsers.map((user, index) => (
-              <tr
-                key={user._id || user.email || String(index)}
-                className="border-b border-gray-200 hover:bg-gray-50 transition"
-              >
-                <td className="px-4 py-3 font-medium text-gray-800">{index + 1 + (page - 1) * limit}</td>
 
-                <td className="px-4 py-3">
-                  <div className="w-10 h-10 relative rounded-full overflow-hidden">
-                    <Image
-                      src={user.avatarUrl || user.avatar || "/images/default-avatar.png"}
-                      alt={(user.fullName || user.name || "User") as string}
-                      width={40}
-                      height={40}
-                      className="object-cover rounded-full"
-                    />
-                  </div>
-                </td>
+            {!loading &&
+              !error &&
+              filteredUsers.map((user, index) => (
+                <tr
+                  key={user._id || user.email || String(index)}
+                  className="border-b border-gray-200 hover:bg-gray-50 transition"
+                >
+                  <td className="px-4 py-3 font-medium text-gray-800">
+                    {index + 1 + (page - 1) * limit}
+                  </td>
 
-                <td className="px-4 py-3 text-gray-800">{user.fullName || user.name}</td>
-                <td className="px-4 py-3 text-gray-600">{user.email}</td>
-                <td className="px-4 py-3 text-gray-800">{user.totalPosts ?? 0}</td>
-                <td className="px-4 py-3 text-gray-800">{user.scheduledPosts ?? 0}</td>
+                  <td className="px-4 py-3">
+                    <div className="w-10 h-10 relative rounded-full overflow-hidden">
+                      <Image
+                        src={user.avatarUrl || user.avatar || "/images/default-avatar.png"}
+                        alt={user.fullName || user.name || "User"}
+                        width={40}
+                        height={40}
+                        className="object-cover rounded-full"
+                      />
+                    </div>
+                  </td>
 
-                <td className="px-4 py-3 text-center flex justify-center gap-2">
-                  <button
-                    onClick={() => handleEdit(user)}
-                    className="inline-flex items-center justify-center p-2 rounded-full text-white hover:bg-[#4447b3] transition-colors"
-                    style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
-                  >
-                    <Pencil className="w-5 h-5" />
-                  </button>
+                  <td className="px-4 py-3 text-gray-800">{user.fullName || user.name}</td>
+                  <td className="px-4 py-3 text-gray-600">{user.email}</td>
+                  <td className="px-4 py-3 text-gray-800">{user.totalPosts ?? 0}</td>
+                  <td className="px-4 py-3 text-gray-800">{user.scheduledPosts ?? 0}</td>
 
-                  <button
-                    onClick={() => handleDelete(user._id)}
-                    className="inline-flex items-center justify-center p-2 rounded-full text-white hover:bg-red-700 transition-colors"
-                    style={{ background: "linear-gradient(180deg, #ff5a5f 0%, #c12a2a 100%)" }}
-                  >
-                    <Trash className="w-5 h-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  <td className="px-4 py-3 text-center flex justify-center gap-2">
+                    <button
+                      onClick={() => handleEdit(user)}
+                      className="inline-flex items-center justify-center p-2 rounded-full text-white hover:bg-[#4447b3] transition-colors"
+                      style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
+                      <Pencil className="w-5 h-5" />
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(user._id)}
+                      className="inline-flex items-center justify-center p-2 rounded-full text-white hover:bg-red-700 transition-colors"
+                      style={{ background: "linear-gradient(180deg, #ff5a5f 0%, #c12a2a 100%)" }}>
+                      <Trash className="w-5 h-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
 
-      {/* ---- Pagination ---- */}
+      {/* Pagination */}
       <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-gray-600">
-          Showing {filteredUsers.length ? (page - 1) * limit + 1 : 0}–{(page - 1) * limit + filteredUsers.length} of {total}
+          Showing {filteredUsers.length ? (page - 1) * limit + 1 : 0}–
+          {(page - 1) * limit + filteredUsers.length} of {total}
         </div>
+
         <div className="flex items-center gap-2">
           <button
             disabled={!canPrev}
             onClick={() => canPrev && setPage((p) => p - 1)}
-            className={`inline-flex items-center gap-1 px-3 py-2 rounded border ${canPrev ? "bg-white hover:bg-gray-50" : "bg-gray-100 text-gray-400"}`}
-          >
+            className={`inline-flex items-center gap-1 px-3 py-2 rounded border ${canPrev ? "bg-white hover:bg-gray-50" : "bg-gray-100 text-gray-400"
+              }`}>
             <ChevronLeft className="w-4 h-4" /> Prev
           </button>
-          <span className="text-sm text-gray-700 px-2">Page {page} / {totalPages}</span>
+
+          <span className="text-sm text-gray-700 px-2">
+            Page {page} / {totalPages}
+          </span>
+
           <button
             disabled={!canNext}
             onClick={() => canNext && setPage((p) => p + 1)}
-            className={`inline-flex items-center gap-1 px-3 py-2 rounded border ${canNext ? "bg-white hover:bg-gray-50" : "bg-gray-100 text-gray-400"}`}
-          >
+            className={`inline-flex items-center gap-1 px-3 py-2 rounded border ${canNext ? "bg-white hover:bg-gray-50" : "bg-gray-100 text-gray-400"
+              }`}>
             Next <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* ---- Edit Modal ---- */}
+      {/* Edit Modal */}
       {showModal && editUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowModal(false)} />
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowModal(false)}
+          />
           <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
             <h2 className="text-xl font-semibold mb-4">Edit User</h2>
             <form className="flex flex-col gap-4" onSubmit={handleUpdateSubmit}>
+              {/* Full Name */}
               <div className="flex flex-col gap-2">
                 <label className="font-medium">Full Name</label>
                 <input
                   type="text"
                   value={editUser.fullName || ""}
-                  onChange={(e) => setEditUser({ ...editUser, fullName: e.target.value })}
+                  onChange={(e) =>
+                    setEditUser({ ...editUser, fullName: e.target.value })
+                  }
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                  style={{background : '#f9fafb' , border : '1px solid #e5e7eb' , borderRadius : '10px' , padding : '10px 12px'}}
+                  style={{
+                    background: "#f9fafb",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "10px",
+                    padding: "10px 12px",
+                  }}
                   required
                 />
               </div>
 
+              {/* Email */}
               <div className="flex flex-col gap-2">
                 <label className="font-medium">Email</label>
                 <input
@@ -270,11 +379,14 @@ export default function UsersPage() {
                 />
               </div>
 
+              {/* Role */}
               <div className="flex flex-col gap-2">
                 <label className="font-medium">Role</label>
                 <select
                   value={editUser.role || "user"}
-                  onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
+                  onChange={(e) =>
+                    setEditUser({ ...editUser, role: e.target.value })
+                  }
                   className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
                 >
                   <option value="user">User</option>
@@ -282,8 +394,15 @@ export default function UsersPage() {
                 </select>
               </div>
 
+              {/* Actions */}
               <div className="flex justify-end gap-2 mt-4">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg border">Cancel</button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 rounded-lg border"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
                   disabled={updating}

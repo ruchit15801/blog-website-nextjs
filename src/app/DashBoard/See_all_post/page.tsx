@@ -1,6 +1,6 @@
 "use client";
 import DashboardLayout from "../DashBoardLayout";
-import { MoreHorizontal, Search } from "lucide-react";
+import { Check, ChevronDown, MoreHorizontal, Search } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
@@ -17,7 +17,7 @@ export default function AllPosts() {
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
     const isSearchActive = searchQuery.trim() !== "";
-
+    const [open, setOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -95,25 +95,41 @@ export default function AllPosts() {
                 <h1 className="text-3xl font-bold text-gray-800">All Posts</h1>
 
                 <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-                    <div className="relative w-full md:w-64">
-                        <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                    <div className="custom-search">
+                        <Search />
                         <input
                             type="text"
                             placeholder="Search posts..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                     </div>
 
-                    <select
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value as "latest" | "oldest")}
-                        className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                        <option value="latest">Latest Posts</option>
-                        <option value="oldest">Oldest Posts</option>
-                    </select>
+                    <div className="custom-dropdown">
+                        <button onClick={() => setOpen(!open)}>
+                            {sortOrder === "latest" ? "Latest Posts" : "Oldest Posts"}
+                            <ChevronDown className="w-4 h-4"/>
+                        </button>
+                        {open && (
+                            <div className="options">
+                                <div
+                                    className={`option ${sortOrder === "latest" ? "selected" : ""}`}
+                                    onClick={() => { setSortOrder("latest"); setOpen(false); }}
+                                >
+                                    Latest Posts
+                                    {sortOrder === "latest" && <Check />}
+                                </div>
+                                <div
+                                    className={`option ${sortOrder === "oldest" ? "selected" : ""}`}
+                                    onClick={() => { setSortOrder("oldest"); setOpen(false); }}
+                                >
+                                    Oldest Posts
+                                    {sortOrder === "oldest" && <Check />}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                 </div>
             </div>
 

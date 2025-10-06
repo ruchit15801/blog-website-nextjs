@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     adminUpdatePostById,
     createScheduledPost,
@@ -57,7 +57,7 @@ export default function CreateSchedulePost() {
     }, []);
 
     // Load categories
-    async function loadCategories() {
+    const loadCategories = useCallback(async () => {
         setCatError(null);
         if (!token) return;
         setCatsLoading(true);
@@ -70,11 +70,13 @@ export default function CreateSchedulePost() {
         } finally {
             setCatsLoading(false);
         }
-    }
+    }, [token]); // include token as dependency
 
+    // Now use it in useEffect
     useEffect(() => {
         if (token && token.length > 10) loadCategories();
-    }, [token]);
+    }, [token, loadCategories]); // include loadCategories
+
 
     // When categories load, pre-fill categoryName if editing
     useEffect(() => {
@@ -124,7 +126,7 @@ export default function CreateSchedulePost() {
         };
 
         loadPost();
-    }, [token, postId]);
+    }, [token, postId, categories]);
 
     // After both categories and post are loaded
     useEffect(() => {

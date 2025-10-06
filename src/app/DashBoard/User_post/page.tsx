@@ -1,6 +1,6 @@
 "use client";
 import DashboardLayout from "../DashBoardLayout";
-import { MoreHorizontal, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { MoreHorizontal, Search, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
@@ -30,6 +30,8 @@ export default function UserPosts() {
     const [, setTotal] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [userOptions, setUserOptions] = useState<RemoteUser[]>([]);
+    const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
+    const [isLimitDropdownOpen, setLimitDropdownOpen] = useState(false);
 
     useEffect(() => {
         let active = true;
@@ -85,39 +87,73 @@ export default function UserPosts() {
 
                 <div className="flex flex-wrap gap-3 items-center">
                     {/* Search */}
-                    <div className="relative w-full md:w-64">
+                    <div className="custom-search flex-1 min-w-[12rem] md:w-64">
+                        <Search />
                         <input
                             type="text"
                             placeholder="Search posts..."
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                            className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
                         />
-                        <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                     </div>
 
                     {/* User Filter */}
-                    <select
-                        value={selectedUser}
-                        onChange={(e) => { setSelectedUser(e.target.value); setPage(1); }}
-                        className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                    >
-                        <option value="all">All Users</option>
-                        {userOptions.map((u: RemoteUser) => (
-                            <option key={u._id} value={u._id}>{u.fullName || u.name || u.email}</option>
-                        ))}
-                    </select>
+                    <div className="custom-dropdown w-48 relative">
+                        <button
+                            onClick={() => setUserDropdownOpen(!isUserDropdownOpen)}
+                            className="flex items-center justify-between w-full"
+                        >
+                            {userOptions.find(u => u._id === selectedUser)?.fullName || "All Users"}
+                            <ChevronDown
+                                className={`w-4 h-4 ml-2 transition-transform ${isUserDropdownOpen ? "rotate-180" : ""}`}
+                            />
+                        </button>
+                        {isUserDropdownOpen && (
+                            <div className="options">
+                                <div
+                                    className={`option ${selectedUser === "all" ? "selected" : ""}`}
+                                    onClick={() => { setSelectedUser("all"); setUserDropdownOpen(false); }}
+                                >
+                                    All Users
+                                </div>
+                                {userOptions.map((u: RemoteUser) => (
+                                    <div
+                                        key={u._id}
+                                        className={`option ${selectedUser === u._id ? "selected" : ""}`}
+                                        onClick={() => { setSelectedUser(u._id); setUserDropdownOpen(false); }}
+                                    >
+                                        {u.fullName || u.name || u.email}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
-                    {/* Page size */}
-                    <select
-                        value={limit}
-                        onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
-                        className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                    >
-                        <option value={6}>6 / page</option>
-                        <option value={12}>12 / page</option>
-                        <option value={24}>24 / page</option>
-                    </select>
+                    {/* Page Size */}
+                    <div className="custom-dropdown w-32 relative">
+                        <button
+                            onClick={() => setLimitDropdownOpen(!isLimitDropdownOpen)}
+                            className="flex items-center justify-between w-full"
+                        >
+                            {limit} / page
+                            <ChevronDown
+                                className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""}`}
+                            />
+                        </button>
+                        {isLimitDropdownOpen && (
+                            <div className="options">
+                                {[6, 12, 24].map((l) => (
+                                    <div
+                                        key={l}
+                                        className={`option ${limit === l ? "selected" : ""}`}
+                                        onClick={() => { setLimit(l); setLimitDropdownOpen(false); }}
+                                    >
+                                        {l} / page
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -144,7 +180,7 @@ export default function UserPosts() {
                                 </div>
                             )}
                             {/* 3-dot menu */}
-                            <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
+                            <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition" onClick={(e) => e.stopPropagation()}>
                                 <summary className="list-none cursor-pointer p-2 bg-black/20 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
                                     <MoreHorizontal className="w-3 h-3" />
                                 </summary>

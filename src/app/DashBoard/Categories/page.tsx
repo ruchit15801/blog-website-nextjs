@@ -164,14 +164,14 @@ export default function Categories() {
     const handleEdit = (cat: CategoryType) => {
         setForm(cat);
         setEditId(cat.id);
-        setShowCreate(true); 
+        setShowCreate(true);
     };
 
     const handleDelete = async (id: string | number) => {
         if (confirm("Are you sure you want to delete this category?")) {
             try {
                 const adminToken = getAdminToken();
-                console.log("admin token is :-",adminToken)
+                console.log("admin token is :-", adminToken)
                 if (!adminToken) {
                     alert("Admin token missing. Please login as admin.");
                     return;
@@ -199,19 +199,21 @@ export default function Categories() {
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 className="text-3xl font-bold text-gray-800">Categories</h1>
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="relative w-full md:w-64">
+                    <div className="custom-search w-full md:w-64">
+                        <Search />
                         <input
                             type="text"
                             placeholder="Search categories..."
                             value={search}
-                            onChange={e => { setSearch(e.target.value); setPage(1); }}
-                            className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setPage(1);
+                            }}
                         />
-                        <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                     </div>
                     <button
                         onClick={() => setShowCreate(true)}
-                        className="px-4 py-2 rounded-lg text-white transition font-medium"
+                        className="px-4 py-3 rounded-lg text-white transition font-medium"
                         style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
                     >
                         Create Category
@@ -242,11 +244,11 @@ export default function Categories() {
                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="flex flex-col gap-2 flex-1">
                                     <label className="font-medium">Category Name</label>
-                                    <input type="text" value={form.name} onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"  style={{background : '#f9fafb' , border : '1px solid #e5e7eb' , borderRadius : '10px' , padding : '10px 12px'}}/>
+                                    <input type="text" value={form.name} onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px' }} />
                                 </div>
                                 <div className="flex flex-col gap-2 flex-1">
                                     <label className="font-medium">Slug</label>
-                                    <input type="text" value={form.shortName} onChange={(e) => setForm(p => ({ ...p, shortName: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"  style={{background : '#f9fafb' , border : '1px solid #e5e7eb' , borderRadius : '10px' , padding : '10px 12px'}} />
+                                    <input type="text" value={form.shortName} onChange={(e) => setForm(p => ({ ...p, shortName: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px' }} />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">

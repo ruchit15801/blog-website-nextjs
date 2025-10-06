@@ -71,10 +71,10 @@ export default function PostPage({
 
     return (
         <DashboardLayout>
-            <div className="mx-auto max-w-7xl space-y-8">
+            <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
                 {/* Banner */}
                 {post.bannerImageUrl && (
-                    <div className="relative w-full h-160 rounded-2xl overflow-hidden mb-10">
+                    <div className="relative w-full h-160 sm:h-80 md:h-96 lg:h-[28rem] rounded-2xl overflow-hidden mb-10">
                         <Image src={post.bannerImageUrl} alt={post.title} fill className="object-cover" />
                     </div>
                 )}
@@ -83,8 +83,8 @@ export default function PostPage({
                 <div className="flex justify-center">
                     <div className="flex flex-col lg:flex-row gap-8 w-full max-w-2xl mx-auto">
                         {/* Sidebar (10%) */}
-                        <div style={{ position: 'sticky', top: '80px', alignSelf: 'start' }}>
-                            <div className="flex flex-col items-center gap-6">
+                        <div className="w-full sm:w-1/4 lg:w-1/5 flex-shrink-0" style={{ position: 'sticky', top: '80px', alignSelf: 'start' }}>
+                            <div className="flex gap-6  sm:flex-col sm:items-center justify-around sm:justify-start">
                                 {/* Reading Time Circle */}
                                 <div className="relative flex items-center justify-center text-center font-bold rounded-full" style={{ width: '96px', height: '96px' }}>
                                     <div className="flex items-center justify-center" style={{
@@ -96,7 +96,7 @@ export default function PostPage({
                                         background: '#fff',
                                         borderRadius: '9999px'
                                     }}>
-                                        <span className="px-2" style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                                        <span className="px-2 text-sm font-bold" style={{ fontSize: '0.85rem', fontWeight: 700 }}>
                                             {post.readingTimeMinutes || 0} min read
                                         </span>
                                     </div>
@@ -121,12 +121,12 @@ export default function PostPage({
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 flex flex-col gap-6">
+                        <div className="w-full sm:w-3/4 lg:w-4/5 flex flex-col gap-6">
                             {post.subtitle && (
-                                <h2 className="text-2xl font-semibold text-gray-700">{post.subtitle}</h2>
+                                <h2 className="text-xl sm:text-2xl font-semibold text-gray-700">{post.subtitle}</h2>
                             )}
                             <div
-                                className="prose max-w-none"
+                                className="prose max-w-none prose-sm sm:prose lg:prose-lg"
                                 dangerouslySetInnerHTML={{ __html: post.contentHtml }}
                             />
                         </div>

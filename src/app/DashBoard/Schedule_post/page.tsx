@@ -1,6 +1,6 @@
 "use client";
 import DashboardLayout from "../DashBoardLayout";
-import { MoreHorizontal, Search } from "lucide-react";
+import { ChevronDown, MoreHorizontal, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -16,6 +16,7 @@ export default function SchedulePosts() {
     const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -107,30 +108,47 @@ export default function SchedulePosts() {
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 className="text-3xl font-bold text-gray-800">Scheduled Posts</h1>
 
-                <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
                     {/* Search */}
-                    <div className="relative w-full md:w-64">
+                    <div className="custom-search">
+                        <Search />
                         <input
                             type="text"
                             placeholder="Search posts..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
                         />
-                        <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
                     </div>
 
                     {/* Sort */}
-                    <select
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value as "latest" | "oldest")}
-                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]">
-                        <option value="latest">Latest</option>
-                        <option value="oldest">Oldest</option>
-                    </select>
+                    <div className="custom-dropdown">
+                        <button
+                            onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
+                            className="flex items-center gap-2">
+                            {sortOrder === "latest" ? "Latest" : "Oldest"}
+                            <ChevronDown className={`w-4 h-4 transition-transform ${sortDropdownOpen ? "rotate-180" : ""}`}/>
+                        </button>
 
-                    <Link href="/DashBoard/Create_schedule_post" className="Create_Schedule px-4 py-2 rounded-lg transition">Create Schedule Post</Link>
+                        {sortDropdownOpen && (
+                            <div className="options">
+                                <div
+                                    className={`option ${sortOrder === "latest" ? "selected" : ""}`}
+                                    onClick={() => {
+                                        setSortOrder("latest");
+                                        setSortDropdownOpen(false);
+                                    }}> Latest </div>
+                                <div
+                                    className={`option ${sortOrder === "oldest" ? "selected" : ""}`}
+                                    onClick={() => {
+                                        setSortOrder("oldest");
+                                        setSortDropdownOpen(false);
+                                    }}> Oldest </div>
+                            </div>
+                        )}
+                    </div>
 
+                    {/* Create Schedule Button */}
+                    <Link href="/DashBoard/Create_schedule_post" className="Create_Schedule px-4 rounded-lg transition" style={{padding : '11px 10px'}}>Create Schedule Post</Link>
                 </div>
             </div>
 
@@ -166,7 +184,7 @@ export default function SchedulePosts() {
                             </div>
 
                             {/* 3-dot menu (hover only) */}
-                            <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
+                            <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition" onClick={(e) => e.stopPropagation()}>
                                 <summary
                                     className="list-none cursor-pointer p-2 bg-black/20 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
                                     <MoreHorizontal className="w-3 h-3" />
