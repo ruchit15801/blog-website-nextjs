@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import TiptapEditor from "@/components/TiptapEditor";
 import {
     adminUpdatePostById,
     createScheduledPost,
@@ -46,9 +47,7 @@ export default function CreateSchedulePost() {
     const [contentHtml, setContentHtml] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    const wordCount = useMemo(() =>
-        contentHtml.replace(/<[^>]*>/g, " ").trim().split(/\s+/).filter(Boolean).length
-        , [contentHtml]);
+    // word count handled by TiptapEditor
 
     // Load admin token
     useEffect(() => {
@@ -166,10 +165,9 @@ export default function CreateSchedulePost() {
     }, [categories, postId, token]);
 
 
-    const exec = (cmd: string, value?: string) => {
-        document.execCommand(cmd, false, value);
-        editorRef.current?.focus();
-    };
+    // Legacy placeholder kept for UI compatibility
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const exec = (_cmd: string, _value?: string) => { /* handled by TiptapEditor */ };
 
     const addTag = (value: string) => {
         const v = value.trim();
@@ -353,28 +351,24 @@ export default function CreateSchedulePost() {
 
                     {/* Right side: Content */}
                     <div className="space-y-3">
-                        <label className="text-sm font-semibold text-gray-700">Content (HTML) *</label>
-                        <div className="top-0 z-20 mt-1 flex flex-wrap gap-2 bg-gradient-to-r from-purple-100 to-blue-50 p-2 rounded-xl border border-gray-200 mb-2 shadow-md">
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("bold")}>Bold</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("italic")}>Italic</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("underline")}>Underline</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("insertUnorderedList")}>• List</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("insertOrderedList")}>1. List</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("formatBlock", "h2")}>H2</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("formatBlock", "h3")}>H3</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("formatBlock", "p")}>P</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("formatBlock", "blockquote")}>Quote</button>
-                            <button type="button" className="px-2 py-1 bg-purple-200 hover:bg-purple-300 text-xs font-medium rounded transition" onClick={() => exec("createLink", prompt("Enter URL", "https://") || "")}>Link</button>
-                            <button type="button" className="px-2 py-1 bg-red-400 hover:bg-red-500 text-xs font-medium rounded transition text-white" onClick={() => exec("removeFormat")}>Clear</button>
-                            <span className="ml-auto text-xs text-gray-500">{wordCount} words</span>
-                        </div>
-                        <div ref={editorRef} className="min-h-[400px] mt-3 rounded-2xl p-6 border-2 border-gray-300 bg-gradient-to-br from-white via-blue-50 to-purple-50 shadow-inner focus-within:ring-4 focus-within:ring-purple-300 focus:outline-none overflow-auto" contentEditable suppressContentEditableWarning onInput={(e) => setContentHtml((e.target as HTMLDivElement).innerHTML)} />
-                        {showPreview && (
-                            <div className="rounded-xl border border-gray-300 p-4 bg-white shadow-md mt-3">
-                                <div className="text-sm text-gray-500 mb-2">Live Preview</div>
-                                <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml }} />
-                            </div>
-                        )}
+                        <label className="text-sm font-semibold text-gray-700">Text Editor (HTML) *</label>
+                        <TiptapEditor
+                            initialHtml={contentHtml || "<p></p>"}
+                            onChange={(html) => {
+                                setContentHtml(html);
+                                if (editorRef.current) editorRef.current.innerHTML = html;
+                            }}
+                            showPreview={showPreview}
+                        />
+                        {/* Synced HTML textarea */}
+                        {/* <div className="mt-3 space-y-1">
+                            <label className="text-xs font-medium text-gray-600">Content (HTML) - synced</label>
+                            <textarea
+                                value={contentHtml}
+                                onChange={(e) => setContentHtml(e.target.value)}
+                                className="w-full min-h-[140px] rounded-xl border border-gray-300 p-3 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                        </div> */}
                         {message && (<div className={`text-sm ${message.startsWith("Scheduled post") ? "text-green-600" : "text-red-500"}`}>{message}</div>)}
                     </div>
                 </form>
