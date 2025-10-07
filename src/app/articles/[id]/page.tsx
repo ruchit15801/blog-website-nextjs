@@ -223,23 +223,26 @@ export default function ArticlePage() {
                                 ) {
                                     skipIndexes.add(index + 1);
                                     return (
-                                        <div key={index} className="flex gap-4 my-4">
-                                            <div className="relative w-1/2 h-48 md:h-56 rounded-2xl overflow-hidden shadow-lg">
+                                        <div key={index} className="flex gap-4 my-6">
+                                            <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
                                                 <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
+                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
                                             </div>
-                                            <div className="relative w-1/2 h-48 md:h-56 rounded-2xl overflow-hidden shadow-lg">
+                                            <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
                                                 <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
+                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
                                             </div>
                                         </div>
                                     );
                                 }
 
-                                const height = block.size === "small" ? "h-48 md:h-56" : "h-64 md:h-80";
-                                const width = block.size === "small" ? "md:w-2/3 lg:w-1/2" : "md:w-3/4 lg:w-2/3";
+                                const height = block.size === "small" ? "h-72 md:h-80" : "h-80 md:h-[28rem]";
+                                const width = block.size === "small" ? "md:w-4/5 lg:w-2/3" : "md:w-4/5";
                                 return (
-                                    <div key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-4 shadow-lg`}>
+                                    <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom`}>
                                         <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
-                                    </div>
+                                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                    </figure>
                                 );
                             }
 
