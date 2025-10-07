@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Loader from "@/components/Loader";
@@ -28,6 +28,8 @@ export default function ArticlePage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const token = getAdminToken();
+    const contentRef = useRef<HTMLDivElement | null>(null);
+    const [progress, setProgress] = useState(0); // reading progress percent
 
     const params = useParams();
     const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
@@ -54,6 +56,27 @@ export default function ArticlePage() {
 
         loadPost();
     }, [postId, token]);
+
+    // Reading progress based on content scroll
+    useEffect(() => {
+        function handleScroll() {
+            const el = contentRef.current;
+            if (!el) { setProgress(0); return; }
+            const rect = el.getBoundingClientRect();
+            const viewportH = window.innerHeight || document.documentElement.clientHeight;
+            const total = rect.height - viewportH * 0.6; // start progress after header area
+            const scrolled = Math.min(Math.max(0, 0 - rect.top + viewportH * 0.2), Math.max(1, total));
+            const pct = Math.round((scrolled / Math.max(1, total)) * 100);
+            setProgress(Math.max(0, Math.min(100, pct)));
+        }
+        handleScroll();
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", handleScroll);
+        };
+    }, []);
 
     if (loading) return <Loader inline label="Loading post..." />;
     if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
@@ -136,7 +159,7 @@ export default function ArticlePage() {
     return (
         <div className="mx-auto max-w-7xl space-y-8 px-8">
             {/* Header */}
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-3">
                 <div className="text-sm text-gray-500 py-6" style={{ color: '#696981', fontWeight: 400 }}>
                     <span className="cursor-pointer hover:underline">All Posts</span> &gt;{" "}
                     <span className="cursor-pointer hover:underline">{post.category || "Uncategorized"}</span> &gt;{" "}
@@ -145,10 +168,12 @@ export default function ArticlePage() {
                 <div className="text-gray-500 text-sm">
                     <span className="Breadcrumb text-md">{post.author?.fullName || "Unknown Author"}</span> on {formattedDate}
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-800 py-4" style={{ color: '#29294b' }}>{post.title}</h1>
-                <p className="text-gray-600 ms-88" style={{ fontSize: '16px', maxWidth: '550px', fontWeight: '400', color: '#696981' }}>
-                    Revision Welcome to ultimate source for fresh perspectives! Explore curated content to enlighten, entertain and engage global readers.
-                </p>
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-800 py-2 tracking-tight" style={{ color: '#29294b' }}>{post.title}</h1>
+                {post.subtitle && (
+                    <p className="text-gray-600 mx-auto" style={{ fontSize: '18px', maxWidth: '720px', fontWeight: 400, color: '#696981', lineHeight: 1.65 }}>
+                        {post.subtitle}
+                    </p>
+                )}
             </div>
 
             {/* Banner */}
@@ -164,18 +189,17 @@ export default function ArticlePage() {
                     {/* Sidebar */}
                     <div style={{ position: 'sticky', top: '60px', alignSelf: 'start' }}>
                         <div className="flex flex-col items-center gap-6">
-                            <div className="relative flex items-center justify-center text-center font-bold rounded-full" style={{ width: '96px', height: '96px' }}>
-                                <div className="flex items-center justify-center" style={{
-                                    width: '70px',
-                                    height: '70px',
-                                    boxShadow: '0px 5px 20px 0px rgba(114, 114, 255, 0.15)',
-                                    transition: '.25s',
-                                    color: '#29294b',
-                                    background: '#fff',
-                                    borderRadius: '9999px'
-                                }}>
-                                    <span className='px-1' style={{ fontSize: '0.85rem', fontWeight: 700 }}>
-                                        {post.readingTimeMinutes || 0} min read
+                            <div className="relative flex items-center justify-center text-center font-bold" style={{ width: 96, height: 96 }} aria-label="Reading progress">
+                                <div
+                                    className="absolute inset-0 rounded-full"
+                                    style={{
+                                        background: `conic-gradient(#5955d1 ${progress}%, #e5e7eb ${progress}% 100%)`,
+                                        filter: 'drop-shadow(0 4px 12px rgba(114,114,255,.25))'
+                                    }}
+                                />
+                                <div className="relative flex items-center justify-center rounded-full bg-white" style={{ width: 70, height: 70, color: '#29294b' }}>
+                                    <span className='px-1' style={{ fontSize: '0.8rem', fontWeight: 700 }}>
+                                        {post.readingTimeMinutes || 0} min
                                     </span>
                                 </div>
                             </div>
@@ -197,17 +221,14 @@ export default function ArticlePage() {
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 flex flex-col">
-                        {post.subtitle && (
-                            <h2 className="text-2xl font-semibold text-gray-700 mb-5">{post.subtitle}</h2>
-                        )}
+                    <div ref={contentRef} className="flex-1 flex flex-col">
 
                         {contentBlocks.map((block, index) => {
                             if (skipIndexes.has(index)) return null;
 
                             if (typeof block === "string") {
                                 return (
-                                    <div key={index} className="prose_content prose max-w-none mb-1"
+                                    <div key={index} className="prose_content prose max-w-none mb-4 leading-relaxed tracking-[.005em]"
                                         dangerouslySetInnerHTML={{ __html: block }} />
                                 );
                             }
