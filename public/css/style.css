@@ -178,7 +178,10 @@
 .trending-btn:hover {
   box-shadow: 0px 5px 25px 0px rgba(114, 114, 255, 0.24);
 }
-
+.prose_content{
+  line-height: 1.55;
+  letter-spacing: .02em;
+}
 /* Apply new hover utilities */
 .feature-posts .group, .full-list article, .home-page-sub-menu a, .footer-item-inner-items p,
 .navbar-container a, .aside-shadow, .comment_form label {

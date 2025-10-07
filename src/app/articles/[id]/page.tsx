@@ -97,16 +97,16 @@ export default function ArticlePage() {
 
             {/* Banner */}
             {post.bannerImageUrl && (
-                <div className="relative w-full h-150 rounded-2xl overflow-hidden mb-10">
+                <div className="relative w-full h-150 rounded-2xl overflow-hidden">
                     <Image src={post.bannerImageUrl} alt={post.title} fill className="object-cover" />
                 </div>
             )}
 
             {/* Main Layout: Left 60% | Right 40% */}
             <div className="flex justify-center">
-                <div className="flex flex-col lg:flex-row gap-8 w-full max-w-2xl mx-auto">
+                <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl mx-auto">
                     {/* Sidebar */}
-                    <div style={{ position: 'sticky', top: '80px', alignSelf: 'start' }}>
+                    <div style={{ position: 'sticky', top: '60px', alignSelf: 'start' }}>
                         <div className="flex flex-col items-center gap-6">
                             {/* Reading Time Circle */}
                             <div className="relative flex items-center justify-center text-center font-bold rounded-full" style={{ width: '96px', height: '96px' }}>
@@ -144,12 +144,12 @@ export default function ArticlePage() {
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 flex flex-col gap-6">
+                    <div className="flex-1 flex flex-col gap-6 mt-5">
                         {post.subtitle && (
                             <h2 className="text-2xl font-semibold text-gray-700">{post.subtitle}</h2>
                         )}
                         <div
-                            className="prose max-w-none"
+                            className="prose_content prose max-w-none"
                             dangerouslySetInnerHTML={{ __html: post.contentHtml }}
                         />
                     </div>

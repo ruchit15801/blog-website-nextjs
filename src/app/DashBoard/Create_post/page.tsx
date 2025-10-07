@@ -132,10 +132,12 @@ export default function AdminLayout() {
 
 
     useEffect(() => {
-        if (postId && token) loadPostData();
-    }, [postId, token, loadPostData]);
+        if (postId && token && categories.length > 0 && !prefilledRef.current) {
+            loadPostData();
+        }
+    }, [postId, token, categories, loadPostData]);
 
-    // Legacy placeholder kept for UI compatibility
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const exec = (_cmd: string, _value?: string) => { /* handled by TiptapEditor */ };
 
@@ -167,7 +169,7 @@ export default function AdminLayout() {
             const postData = {
                 title,
                 subtitle,
-                contentHtml: editorRef.current?.innerHTML ?? "",
+                contentHtml,
                 bannerFile,
                 images,
                 imageFiles,

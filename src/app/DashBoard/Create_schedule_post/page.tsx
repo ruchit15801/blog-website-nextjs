@@ -201,7 +201,7 @@ export default function CreateSchedulePost() {
             const postData = {
                 title,
                 subtitle,
-                contentHtml: editorRef.current?.innerHTML ?? "",
+                contentHtml,
                 publishedAt: new Date(scheduleDate).toISOString(),
                 bannerFile: bannerFile ?? undefined,
                 images: "",
