@@ -19,6 +19,7 @@ type RemotePost = {
     tags?: string[];
     author?: { fullName: string };
     publishedAt?: string;
+    createdAt?: string;
     readingTimeMinutes?: string;
 };
 
@@ -72,7 +73,7 @@ export default function ArticlePage() {
             day: "numeric",
         });
     };
-    const formattedDate = formatDate(post.publishedAt);
+    const formattedDate = formatDate(post.publishedAt || post.createdAt);
 
     const getContentWithImages = () => {
         const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" }> = [];
@@ -111,7 +112,7 @@ export default function ArticlePage() {
                                 });
                                 usedImages++;
                             }
-                            wordCount = 0; 
+                            wordCount = 0;
                         }
                     }
                 }
