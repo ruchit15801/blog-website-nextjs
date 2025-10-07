@@ -374,7 +374,7 @@ export async function fetchAdminPosts(
     if (params.page != null) url.searchParams.set("page", String(params.page));
     if (params.limit != null) url.searchParams.set("limit", String(params.limit));
     if (params.q) url.searchParams.set("q", params.q);
-    if (params.userid) url.searchParams.set("userid", params.userid);
+    if (params.userid) url.searchParams.set("userId", params.userid);
 
     const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
