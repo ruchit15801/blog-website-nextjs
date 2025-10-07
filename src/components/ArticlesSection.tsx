@@ -2,7 +2,7 @@ import { ChevronLeft, ChevronRight, Clock, ExternalLink } from "lucide-react";
 import Pagination from "./Pagination";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { HomeAuthor, HomePost } from "@/lib/api";
 
 export default function ArticlesSection({
@@ -76,10 +76,17 @@ export default function ArticlesSection({
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(pagination?.page || 1);
-    const perPage = 12;
+    const perPage = pagination?.limit ?? 12;
     const totalPages = pagination?.totalPages ?? Math.ceil(articles.length / perPage);
     const start = (currentPage - 1) * perPage;
     const paginatedArticles = pagination ? articles : articles.slice(start, start + perPage);
+
+    // Keep local page in sync with parent-provided pagination
+    useEffect(() => {
+        if (pagination?.page) {
+            setCurrentPage(pagination.page);
+        }
+    }, [pagination?.page]);
     const goToPage = (page: number) => {
         if (page < 1 || page > totalPages) return;
         if (onPageChange) onPageChange(page);
