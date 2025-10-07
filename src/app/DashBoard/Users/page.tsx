@@ -2,10 +2,12 @@
 
 import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
-import { Pencil, Trash, Search, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { Pencil, Trash, Search, ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
 import { fetchAdminUsers, RemoteUser, updateAdminUser, deleteAdminUser } from "@/lib/adminClient";
+import Pagination from "@/components/Pagination";
+import toast from "react-hot-toast";
 
 export default function UsersPage() {
   const [loading, setLoading] = useState(false);
@@ -62,9 +64,6 @@ export default function UsersPage() {
     });
   }, [users, searchTerm, filter]);
 
-  const canPrev = page > 1;
-  const canNext = page < totalPages;
-
   const handleEdit = (user: RemoteUser) => {
     setEditUser(user);
     setShowModal(true);
@@ -76,9 +75,10 @@ export default function UsersPage() {
     try {
       setLoading(true);
       await deleteAdminUser(userId);
+      toast.success("User deleted successfully!");
       loadUsers();
     } catch (err) {
-      alert(err instanceof Error ? err.message : String(err));
+      toast.error(err instanceof Error ? err.message : "Failed to delete user");
     } finally {
       setLoading(false);
     }
@@ -92,11 +92,12 @@ export default function UsersPage() {
       setUpdating(true);
       const { _id, fullName, role } = editUser;
       await updateAdminUser(_id, { fullName, role });
+      toast.success("User updated successfully!");
       loadUsers();
       setShowModal(false);
       setEditUser(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : String(err));
+      toast.error(err instanceof Error ? err.message : "Failed to update user");
     } finally {
       setUpdating(false);
     }
@@ -309,34 +310,14 @@ export default function UsersPage() {
       </div>
 
       {/* Pagination */}
-      <div className="mt-4 flex items-center justify-between">
-        <div className="text-sm text-gray-600">
-          Showing {filteredUsers.length ? (page - 1) * limit + 1 : 0}–
-          {(page - 1) * limit + filteredUsers.length} of {total}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            disabled={!canPrev}
-            onClick={() => canPrev && setPage((p) => p - 1)}
-            className={`inline-flex items-center gap-1 px-3 py-2 rounded border ${canPrev ? "bg-white hover:bg-gray-50" : "bg-gray-100 text-gray-400"
-              }`}>
-            <ChevronLeft className="w-4 h-4" /> Prev
-          </button>
-
-          <span className="text-sm text-gray-700 px-2">
-            Page {page} / {totalPages}
-          </span>
-
-          <button
-            disabled={!canNext}
-            onClick={() => canNext && setPage((p) => p + 1)}
-            className={`inline-flex items-center gap-1 px-3 py-2 rounded border ${canNext ? "bg-white hover:bg-gray-50" : "bg-gray-100 text-gray-400"
-              }`}>
-            Next <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
+      <div className="mt-4 lg:col-span-3">
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onChange={(p) => setPage(p)}
+        />
       </div>
+
 
       {/* Edit Modal */}
       {showModal && editUser && (
@@ -377,21 +358,6 @@ export default function UsersPage() {
                   disabled
                   className="border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed"
                 />
-              </div>
-
-              {/* Role */}
-              <div className="flex flex-col gap-2">
-                <label className="font-medium">Role</label>
-                <select
-                  value={editUser.role || "user"}
-                  onChange={(e) =>
-                    setEditUser({ ...editUser, role: e.target.value })
-                  }
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                >
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
               </div>
 
               {/* Actions */}

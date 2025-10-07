@@ -1,10 +1,12 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Loader from "@/components/Loader";
 import { fetchPostById, getAdminToken } from "@/lib/adminClient";
 import { TwitterIcon, FacebookIcon, InstagramIcon, LinkedinIcon } from "lucide-react";
+import toast from "react-hot-toast";
 
 type RemotePost = {
     _id: string;
@@ -39,8 +41,11 @@ export default function ArticlePage() {
                 const response = await fetchPostById(postId, token);
                 if (!response.success) throw new Error("Post not found");
                 setPost(response.post);
+                toast.success("Post loaded successfully!");
             } catch (err) {
-                setError(err instanceof Error ? err.message : String(err));
+                const msg = err instanceof Error ? err.message : String(err);
+                setError(msg);
+                toast.error(msg);
             } finally {
                 setLoading(false);
             }
@@ -51,45 +56,95 @@ export default function ArticlePage() {
 
     if (loading) return <Loader inline label="Loading post..." />;
     if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
-    if (!post) return <div className="text-gray-500 text-center py-10">Post not found</div>;
+    if (!post) {
+        return <div className="text-gray-500 text-center py-10">Post not found</div>;
+    }
 
     const formatDate = (dateStr?: string) => {
         if (!dateStr) return "Unknown Date";
-        // Split yyyy-mm-dd manually
-        const parts = dateStr.split("T")[0].split("-"); // ["2025", "10", "01"]
+        const parts = dateStr.split("T")[0].split("-");
         if (parts.length !== 3) return dateStr;
-
         const [year, month, day] = parts.map(Number);
         if (!year || !month || !day) return dateStr;
-        // Convert to local string
         return new Date(year, month - 1, day).toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
             day: "numeric",
         });
     };
-    // Usage
     const formattedDate = formatDate(post.publishedAt);
+
+    const getContentWithImages = () => {
+        const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" }> = [];
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(post.contentHtml, "text/html");
+        const children = Array.from(doc.body.children);
+
+        let usedImages = 0;
+        let wordCount = 0;
+
+        if (children.length === 0) {
+            const textContent = post.contentHtml.trim();
+            if (textContent) blocks.push(`<p>${textContent}</p>`);
+        } else {
+            children.forEach((child) => {
+                const text = child.textContent?.trim() || "";
+                const words = text.split(/\s+/).filter(Boolean);
+
+                if (words.length > 0) {
+                    let start = 0;
+                    while (start < words.length) {
+                        const chunk = words.slice(start, start + 15).join(" ");
+                        blocks.push(`<p>${chunk}</p>`);
+                        start += 15;
+                        wordCount += 15;
+
+                        if (post.imageUrls && usedImages < post.imageUrls.length && wordCount >= 100) {
+                            const remainingWords = words.length - start;
+                            const numImages = remainingWords > 30 ? 2 : 1;
+                            for (let i = 0; i < numImages; i++) {
+                                if (usedImages >= post.imageUrls.length) break;
+                                blocks.push({
+                                    type: "image",
+                                    url: post.imageUrls[usedImages],
+                                    size: numImages > 1 ? "small" : "large",
+                                });
+                                usedImages++;
+                            }
+                            wordCount = 0; 
+                        }
+                    }
+                }
+            });
+        }
+
+        // remaining images last me add
+        if (post.imageUrls && usedImages < post.imageUrls.length) {
+            for (let i = usedImages; i < post.imageUrls.length; i++) {
+                blocks.push({ type: "image", url: post.imageUrls[i], size: "large" });
+            }
+        }
+
+        return blocks;
+    };
+
+    const contentBlocks = getContentWithImages();
+
+    const skipIndexes = new Set<number>();
 
     return (
         <div className="mx-auto max-w-7xl space-y-8 px-8">
+            {/* Header */}
             <div className="text-center space-y-2">
-                {/* Breadcrumb / Navigation */}
                 <div className="text-sm text-gray-500 py-6" style={{ color: '#696981', fontWeight: 400 }}>
                     <span className="cursor-pointer hover:underline">All Posts</span> &gt;{" "}
                     <span className="cursor-pointer hover:underline">{post.category || "Uncategorized"}</span> &gt;{" "}
                     <span className="text-gray-700">{post.title}</span>
                 </div>
-
-                {/* Author + Date */}
                 <div className="text-gray-500 text-sm">
                     <span className="Breadcrumb text-md">{post.author?.fullName || "Unknown Author"}</span> on {formattedDate}
                 </div>
-
-                {/* Title */}
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-800 py-4" style={{ color: '#29294b' }}>{post.title}</h1>
-
-                {/* Intro Paragraph */}
                 <p className="text-gray-600 ms-88" style={{ fontSize: '16px', maxWidth: '550px', fontWeight: '400', color: '#696981' }}>
                     Revision Welcome to ultimate source for fresh perspectives! Explore curated content to enlighten, entertain and engage global readers.
                 </p>
@@ -102,13 +157,12 @@ export default function ArticlePage() {
                 </div>
             )}
 
-            {/* Main Layout: Left 60% | Right 40% */}
+            {/* Main Layout */}
             <div className="flex justify-center">
                 <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl mx-auto">
                     {/* Sidebar */}
                     <div style={{ position: 'sticky', top: '60px', alignSelf: 'start' }}>
                         <div className="flex flex-col items-center gap-6">
-                            {/* Reading Time Circle */}
                             <div className="relative flex items-center justify-center text-center font-bold rounded-full" style={{ width: '96px', height: '96px' }}>
                                 <div className="flex items-center justify-center" style={{
                                     width: '70px',
@@ -119,13 +173,11 @@ export default function ArticlePage() {
                                     background: '#fff',
                                     borderRadius: '9999px'
                                 }}>
-                                    <span style={{ fontSize: '0.85rem', fontWeight: 700}}>
+                                    <span className='px-1' style={{ fontSize: '0.85rem', fontWeight: 700 }}>
                                         {post.readingTimeMinutes || 0} min read
                                     </span>
                                 </div>
                             </div>
-
-                            {/* Social Icons */}
                             <div className="flex flex-col items-center gap-4 text-gray-800">
                                 <a href="#" aria-label="Twitter" className="hover:text-blue-600 transition-colors">
                                     <TwitterIcon />
@@ -144,14 +196,54 @@ export default function ArticlePage() {
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 flex flex-col gap-6 mt-5">
+                    <div className="flex-1 flex flex-col">
                         {post.subtitle && (
-                            <h2 className="text-2xl font-semibold text-gray-700">{post.subtitle}</h2>
+                            <h2 className="text-2xl font-semibold text-gray-700 mb-5">{post.subtitle}</h2>
                         )}
-                        <div
-                            className="prose_content prose max-w-none"
-                            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-                        />
+
+                        {contentBlocks.map((block, index) => {
+                            if (skipIndexes.has(index)) return null;
+
+                            if (typeof block === "string") {
+                                return (
+                                    <div key={index} className="prose_content prose max-w-none mb-1"
+                                        dangerouslySetInnerHTML={{ __html: block }} />
+                                );
+                            }
+
+                            if (block.type === "image") {
+                                const nextBlock = contentBlocks[index + 1];
+                                if (
+                                    nextBlock &&
+                                    typeof nextBlock !== "string" &&
+                                    nextBlock.type === "image" &&
+                                    block.size === "small" &&
+                                    nextBlock.size === "small"
+                                ) {
+                                    skipIndexes.add(index + 1);
+                                    return (
+                                        <div key={index} className="flex gap-4 my-4">
+                                            <div className="relative w-1/2 h-48 md:h-56 rounded-2xl overflow-hidden shadow-lg">
+                                                <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
+                                            </div>
+                                            <div className="relative w-1/2 h-48 md:h-56 rounded-2xl overflow-hidden shadow-lg">
+                                                <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
+                                            </div>
+                                        </div>
+                                    );
+                                }
+
+                                const height = block.size === "small" ? "h-48 md:h-56" : "h-64 md:h-80";
+                                const width = block.size === "small" ? "md:w-2/3 lg:w-1/2" : "md:w-3/4 lg:w-2/3";
+                                return (
+                                    <div key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-4 shadow-lg`}>
+                                        <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
+                                    </div>
+                                );
+                            }
+
+                            return null;
+                        })}
                     </div>
                 </div>
             </div>

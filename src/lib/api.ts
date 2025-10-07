@@ -209,6 +209,45 @@ export const createPost = async (
   return res.data;
 };
 
+export interface User_Post {
+  title: string;
+  slug: string;
+  summary: string;
+  bannerImageUrl: string;
+  publishedAt: string;
+  createdAt: string;
+  readingTimeMinutes: number;
+  tags: string[];
+  category?: { _id: string; name: string } | string;
+  author?: { _id: string; fullName?: string; name?: string; email?: string } | string;
+}
+
+export interface PaginatedPosts {
+  success: boolean;
+  data: User_Post[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+
+export async function fetchUserPosts(
+  userId: string,
+  token: string,
+  page = 1,
+  limit = 10
+): Promise<PaginatedPosts> {
+  const base = process.env.NEXT_PUBLIC_API_URL || "";
+  const res = await axios.get(`${base}/posts/`, {
+    params: { page, limit },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+}
+
+
+
 // Categories
 export type Category = {
   _id: string;
@@ -255,3 +294,69 @@ export async function submitContact(payload: { name: string; email: string; mess
   }
   return res.json().catch(() => ({}));
 }
+
+
+// Dashboaed
+
+export type UserDashboardData = {
+  myPosts: number;
+  scheduledPosts: number;
+  likes: number;
+  comments: number;
+};
+
+export const fetchUserDashboard = async (token: string): Promise<UserDashboardData> => {
+  const res = await api.get("/users/me/dashboard", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res || res.status !== 200) {
+    throw new Error(res?.data?.message || "Failed to fetch user dashboard");
+  }
+
+  return res.data.data as UserDashboardData;
+};
+
+
+// ----------------- Types -----------------
+export type MeProfile = {
+  _id: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string;
+  role?: string;
+  createdAt?: string;
+};
+
+// Payload for updating profile
+export type UpdateProfilePayload = {
+  fullName?: string;
+  avatar?: File;
+};
+
+// Get current user profile
+export const fetchMyProfile = async (token: string): Promise<MeProfile> => {
+  const res = await api.get("/users/me/profile", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res || res.status !== 200) throw new Error("Failed to fetch profile");
+  return res.data.data as MeProfile;
+};
+
+// Update current user profile
+export const updateMyProfile = async (
+  payload: UpdateProfilePayload,
+  token: string
+): Promise<MeProfile> => {
+  const formData = new FormData();
+  if (payload.fullName) formData.append("fullName", payload.fullName);
+  if (payload.avatar) formData.append("avatar", payload.avatar);
+
+  const res = await api.patch("/users/me/profile", formData, {
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
+  });
+
+  if (!res || res.status !== 200) throw new Error("Failed to update profile");
+  return res.data.data as MeProfile;
+};

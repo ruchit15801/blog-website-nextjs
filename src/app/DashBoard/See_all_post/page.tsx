@@ -6,6 +6,9 @@ import { useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
 import { fetchAdminPosts, type RemotePost, adminDeletePostById } from "@/lib/adminClient";
 import { useRouter } from "next/navigation";
+import Pagination from "@/components/Pagination";
+import toast from "react-hot-toast";
+import { fetchUserPosts } from "@/lib/api";
 
 export default function AllPosts() {
     const [currentPage, setCurrentPage] = useState(1);
@@ -64,10 +67,7 @@ export default function AllPosts() {
     const start = (currentPage - 1) * perPage;
     const paginatedArticles = filteredArticles.slice(start, start + perPage);
 
-    const goToPage = (page: number) => {
-        if (page < 1 || page > totalPages) return;
-        setCurrentPage(page);
-    };
+
 
     // --- Handlers ---
     const handleEdit = (post: RemotePost) => {
@@ -80,11 +80,11 @@ export default function AllPosts() {
 
         try {
             await adminDeletePostById(postId);
-            alert("Post deleted successfully!");
             setLivePosts(prev => prev.filter(p => p._id !== postId));
+            toast.success(`Post deleted successfully!`);
         } catch (err) {
             console.error(err);
-            alert("Failed to delete post");
+            toast.error("Failed to delete post");
         }
     };
 
@@ -108,7 +108,7 @@ export default function AllPosts() {
                     <div className="custom-dropdown">
                         <button onClick={() => setOpen(!open)}>
                             {sortOrder === "latest" ? "Latest Posts" : "Oldest Posts"}
-                            <ChevronDown className="w-4 h-4"/>
+                            <ChevronDown className="w-4 h-4" />
                         </button>
                         {open && (
                             <div className="options">
@@ -207,40 +207,14 @@ export default function AllPosts() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex justify-center mt-10 gap-2">
-                        <button
-                            onClick={() => goToPage(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className={`px-3 py-1 rounded-md transition-colors ${currentPage === 1
-                                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                : "bg-white text-[#5559d1] shadow-sm"
-                                }`}
-                        >
-                            Prev
-                        </button>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                            <button
-                                key={page}
-                                onClick={() => goToPage(page)}
-                                className={`px-3 py-1 rounded-md transition-colors font-medium ${currentPage === page
-                                    ? "bg-[#5559d1] text-white shadow-md"
-                                    : "bg-white text-[#5559d1] hover:bg-[#5559d1] hover:text-white shadow-sm"
-                                    }`}
-                            >
-                                {page}
-                            </button>
-                        ))}
-                        <button
-                            onClick={() => goToPage(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className={`px-3 py-1 rounded-md transition-colors ${currentPage === totalPages
-                                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                : "bg-white text-[#5559d1] shadow-sm"
-                                }`}
-                        >
-                            Next
-                        </button>
+                    <div className="lg:col-span-3 mt-10">
+                        <Pagination
+                            page={currentPage}
+                            totalPages={totalPages}
+                            onChange={(p) => setCurrentPage(p)}
+                        />
                     </div>
+
                 </div>
             </main>
         </DashboardLayout>

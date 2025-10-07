@@ -7,6 +7,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, BarChart3, Users, Calendar, FileText, Tag, Clipboard, Settings } from "lucide-react";
 import { getMe } from "@/lib/api";
+import toast from "react-hot-toast";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -18,9 +19,11 @@ interface UserType {
   fullName?: string;
   name?: string;
   email: string;
-  avatar?: string;
+  avatar?: string; 
+  avatarUrl?: string; 
   role?: "admin" | "user";
 }
+
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [role, setRole] = useState<"admin" | "user" | null>(null);
@@ -34,6 +37,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
+        toast.error("Token not found. Redirecting to login...");
         router.replace("/auth");
         return;
       }
@@ -45,14 +49,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         setUser({
           name: u.fullName || `${u.firstName || ""} ${u.lastName || ""}`.trim(),
           email: u.email,
-          avatar: u.avatar || "/images/default-avatar.png",
+          avatar: u.avatarUrl || u.avatar || "/images/default-avatar.png",
           role: u.role,
         });
 
         setRole(u.role || null);
       } catch (error) {
         console.error(error);
-        router.replace("/auth"); // agar token invalid ho
+        toast.error("Failed to fetch user. Redirecting to login...");
+        router.replace("/auth"); 
       } finally {
         setLoading(false);
       }

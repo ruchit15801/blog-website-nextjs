@@ -5,6 +5,7 @@ import Loader from "@/components/Loader";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { adminUpdatePostById, createRemotePost, fetchCategories, fetchPostById, getAdminToken, saveAdminToken } from "@/lib/adminClient";
 import DashboardLayout from "../DashBoardLayout";
+import toast from "react-hot-toast";
 
 type CategoryType = { _id: string; name: string };
 type PostType = {
@@ -85,7 +86,7 @@ export default function AdminLayout() {
             setCategories(list);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
-            setCatError(message || "Failed to load categories");
+            toast.error(message || "Failed to load categories");
         } finally {
             setCatsLoading(false);
         }
@@ -127,6 +128,7 @@ export default function AdminLayout() {
             prefilledRef.current = true;
         } catch (err) {
             console.error("Failed to load post:", err);
+            toast.error("Failed to load post data");
         }
     }, [postId, token, categories]);
 
@@ -155,8 +157,8 @@ export default function AdminLayout() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setMessage(null);
-        if (!token) return setMessage("Please enter admin token.");
-        if (!title.trim()) return setMessage("Title is required.");
+        if (!token) return toast.error("Please enter admin token.");
+        if (!title.trim()) return toast.error("Title is required.");
 
         try {
             setSubmitting(true);
@@ -180,16 +182,16 @@ export default function AdminLayout() {
 
             if (editPost?._id) {
                 await adminUpdatePostById(editPost._id, postData);
-                setMessage("Post updated successfully.");
+                toast.success("Post updated successfully.");
             } else {
                 await createRemotePost({ ...postData, status: "published" });
-                setMessage("Post created successfully.");
+                toast.success("Post created successfully.");
             }
 
             setTimeout(() => { window.location.href = "/DashBoard/See_all_post"; }, 600);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
-            setMessage(message || "Failed to save post");
+            toast.error(message || "Failed to save post");
         } finally {
             setSubmitting(false);
         }

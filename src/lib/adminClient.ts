@@ -339,11 +339,11 @@ export type RemotePost = {
     _id: string;
     title: string;
     author?: { _id: string; fullName?: string; email?: string } | string;
-    subtitle?: string;  
+    subtitle?: string;
     contentHtml: string;
     categoryId?: string;
     category?: { _id: string; name: string };
-    userId?: string; 
+    userId?: string;
     status?: string;
     publishedAt?: string | null;
     createdAt?: string;
@@ -532,6 +532,29 @@ export async function fetchAdminMeProfile(tokenOverride?: string): Promise<Admin
     throw new Error("Invalid profile response");
 }
 
+export type UpdateAdminProfilePayload = {
+    fullName?: string;
+    avatar?: File;
+};
+
+export async function updateAdminProfileAPI(payload: UpdateAdminProfilePayload, token?: string) {
+    const _token = token ?? getAdminToken();
+    if (!_token) throw new Error("Admin token missing. Please login as admin.");
+
+    const formData = new FormData();
+    if (payload.fullName) formData.append("fullName", payload.fullName);
+    if (payload.avatar) formData.append("avatar", payload.avatar);
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/admin/me/profile`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${_token}` },
+        body: formData,
+    });
+
+    if (!res.ok) throw new Error(`Failed to update profile: ${res.status}`);
+    return res.json();
+}
 export async function fetchPostById(id: string, token: string) {
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const res = await fetch(`${base}/admin/posts/${id}`, {
@@ -539,4 +562,45 @@ export async function fetchPostById(id: string, token: string) {
     });
     if (!res.ok) throw new Error('Failed to fetch post');
     return res.json();
+}
+
+
+// Dashboaed 
+export type AdminDashboardData = {
+    myPosts: number;
+    users: number;
+    scheduledPosts: number;
+    categories: number;
+    posts: number;
+    publishedPosts: number;
+};
+
+export async function fetchAdminDashboard(tokenOverride?: string): Promise<AdminDashboardData> {
+    const token =
+        tokenOverride ??
+        (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+
+    if (!token) throw new Error("Admin token missing. Please login as admin.");
+
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const res = await fetch(`${base}/admin/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to fetch dashboard: ${res.status} ${text}`);
+    }
+
+    const data: unknown = await res.json();
+
+    // Flexible parsing
+    if (data && typeof data === "object") {
+        const obj = data as Record<string, unknown>;
+        const dashboard = obj.data as AdminDashboardData;
+        if (dashboard) return dashboard;
+    }
+
+    throw new Error("Invalid dashboard response");
 }

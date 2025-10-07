@@ -6,6 +6,8 @@ import { useState, useMemo, useEffect } from "react";
 import Loader from "@/components/Loader";
 import { listCategories, createCategory, type Category } from "@/lib/api";
 import { deleteCategory, updateCategory, getAdminToken } from "@/lib/adminClient";
+import Pagination from "@/components/Pagination";
+import toast from "react-hot-toast";
 
 type CategoryType = {
     id: string | number;
@@ -93,14 +95,14 @@ export default function Categories() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!form.name || !form.shortName) {
-            alert("Name and Short Name are required");
+           toast.error("Name and Short Name are required");
             return;
         }
         try {
             setCreating(true);
             const userToken = localStorage.getItem("token");
             if (!userToken) {
-                alert("Please login first");
+                toast.error("Please login first");
                 return;
             }
 
@@ -110,7 +112,7 @@ export default function Categories() {
                 // Update category using admin token
                 const adminToken = getAdminToken();
                 if (!adminToken) {
-                    alert("Admin token missing. Please login as admin.");
+                    toast.error("Admin token missing. Please login as admin.");
                     return;
                 }
                 await updateCategory(String(editId), {
@@ -128,7 +130,7 @@ export default function Categories() {
                     description: c.description || "",
                     avatar: c.imageUrl
                 })));
-
+                toast.success("Category updated successfully!");
                 setEditId(null);
                 setShowCreate(false);
             } else {
@@ -149,13 +151,13 @@ export default function Categories() {
                     description: c.description || "",
                     avatar: c.imageUrl
                 })));
-
+                toast.success("Category created successfully!");
                 setShowCreate(false);
             }
 
             setForm({ id: 0, name: "", shortName: "", description: "", avatar: "" });
         } catch (err: unknown) {
-            alert(err instanceof Error ? err.message : String(err));
+           toast.error(err instanceof Error ? err.message : "Something went wrong");
         } finally {
             setCreating(false);
         }
@@ -165,21 +167,22 @@ export default function Categories() {
         setForm(cat);
         setEditId(cat.id);
         setShowCreate(true);
+        toast("Editing category...");
     };
 
     const handleDelete = async (id: string | number) => {
         if (confirm("Are you sure you want to delete this category?")) {
             try {
                 const adminToken = getAdminToken();
-                console.log("admin token is :-", adminToken)
                 if (!adminToken) {
-                    alert("Admin token missing. Please login as admin.");
+                    toast.error("Admin token missing. Please login as admin.");
                     return;
                 }
                 await deleteCategory(String(id));
                 setCategories(prev => prev.filter(cat => cat.id !== id));
+                toast.success("Category deleted successfully!");
             } catch (err) {
-                alert(err instanceof Error ? err.message : String(err));
+                toast.error(err instanceof Error ? err.message : "Failed to delete category");
             }
         }
     };
@@ -191,7 +194,6 @@ export default function Categories() {
 
     const totalPages = Math.ceil(filtered.length / perPage);
     const paginated = filtered.slice((page - 1) * perPage, page * perPage);
-    const goTo = (p: number) => { if (p >= 1 && p <= totalPages) setPage(p); };
 
     return (
         <DashboardLayout>
@@ -270,18 +272,15 @@ export default function Categories() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex justify-center mt-10 gap-2">
-                    <button onClick={() => goTo(page - 1)} disabled={page === 1} className={`px-3 py-1 rounded-md ${page === 1 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-[#5559d1] shadow-sm"}`}>
-                        Prev
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(pnum => (
-                        <button key={pnum} onClick={() => goTo(pnum)} className={`px-3 py-1 rounded-md font-medium transition-colors ${page === pnum ? "bg-[#5559d1] text-white shadow-md" : "bg-white text-[#5559d1] hover:bg-[#5559d1] hover:text-white shadow-sm"}`}>{pnum}</button>
-                    ))}
-                    <button onClick={() => goTo(page + 1)} disabled={page === totalPages} className={`px-3 py-1 rounded-md ${page === totalPages ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-[#5559d1] shadow-sm"}`}>
-                        Next
-                    </button>
+                <div className="mt-10">
+                    <Pagination
+                        page={page}
+                        totalPages={totalPages}
+                        onChange={(p) => setPage(p)}
+                    />
                 </div>
             )}
+
         </DashboardLayout>
     );
 }

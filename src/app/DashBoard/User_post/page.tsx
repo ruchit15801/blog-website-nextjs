@@ -1,11 +1,13 @@
 "use client";
 import DashboardLayout from "../DashBoardLayout";
-import { MoreHorizontal, Search, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { MoreHorizontal, Search, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
-import { fetchAdminPosts, fetchAdminUsers, type RemotePost, type RemoteUser } from "@/lib/adminClient";
+import { adminDeletePostById, fetchAdminPosts, fetchAdminUsers, type RemotePost, type RemoteUser } from "@/lib/adminClient";
 import { useRouter } from "next/navigation";
+import Pagination from "@/components/Pagination";
+import toast from "react-hot-toast";
 
 type UiPost = {
     id: string;
@@ -74,9 +76,18 @@ export default function UserPosts() {
         return () => { active = false; };
     }, [page, limit, search, selectedUser]);
 
-    const goTo = (p: number) => {
-        if (p < 1 || p > totalPages) return;
-        setPage(p);
+    const handleDelete = async (postId: string) => {
+        const confirmed = window.confirm("Are you sure you want to delete this post?");
+        if (!confirmed) return;
+
+        try {
+            await adminDeletePostById(postId);
+            setItems(prev => prev.filter(p => p.id !== postId));
+            toast.success(`Post deleted successfully!`);
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to delete post");
+        }
     };
 
     return (
@@ -185,9 +196,8 @@ export default function UserPosts() {
                                     <MoreHorizontal className="w-3 h-3" />
                                 </summary>
                                 <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-md z-10">
-                                    <button onClick={() => alert(`Edit ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Edit</button>
-                                    <button onClick={() => alert(`Publish ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Publish</button>
-                                    <button onClick={() => alert(`Delete ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">Delete</button>
+                                    <button onClick={() => router.push(`/DashBoard/Post/${p.id}/`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">View Post</button>
+                                    <button onClick={() => handleDelete(p.id)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">Delete</button>
                                 </div>
                             </details>
                         </div>
@@ -212,32 +222,15 @@ export default function UserPosts() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex justify-center mt-10 gap-2">
-                    <button
-                        onClick={() => goTo(page - 1)}
-                        disabled={page === 1}
-                        className={`px-3 py-1 rounded-md ${page === 1 ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-[#5559d1] shadow-sm"}`}
-                    >
-                        <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pnum) => (
-                        <button
-                            key={pnum}
-                            onClick={() => goTo(pnum)}
-                            className={`px-3 py-1 rounded-md font-medium transition-colors ${page === pnum ? "bg-[#5559d1] text-white shadow-md" : "bg-white text-[#5559d1] hover:bg-[#5559d1] hover:text-white shadow-sm"}`}
-                        >
-                            {pnum}
-                        </button>
-                    ))}
-                    <button
-                        onClick={() => goTo(page + 1)}
-                        disabled={page === totalPages}
-                        className={`px-3 py-1 rounded-md ${page === totalPages ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-white text-[#5559d1] shadow-sm"}`}
-                    >
-                        <ChevronRight className="w-4 h-4" />
-                    </button>
+                <div className="mt-10">
+                    <Pagination
+                        page={page}
+                        totalPages={totalPages}
+                        onChange={(p) => setPage(p)}
+                    />
                 </div>
             )}
+
         </DashboardLayout>
     );
 }

@@ -181,6 +181,8 @@
 .prose_content{
   line-height: 1.55;
   letter-spacing: .02em;
+  font-size: 18px;
+  font-weight: 400;
 }
 /* Apply new hover utilities */
 .feature-posts .group, .full-list article, .home-page-sub-menu a, .footer-item-inner-items p,

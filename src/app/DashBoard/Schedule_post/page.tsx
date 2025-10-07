@@ -7,6 +7,8 @@ import { useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
 import { adminDeletePostById, fetchAdminScheduledPosts, publishAdminPostNow, type RemotePost } from "@/lib/adminClient";
 import { useRouter } from "next/navigation";
+import Pagination from "@/components/Pagination";
+import toast from "react-hot-toast";
 
 export default function SchedulePosts() {
     const perPage = 6;
@@ -70,9 +72,9 @@ export default function SchedulePosts() {
                 prev.map(lp => (lp._id === postId ? updatedPost : lp))
             );
 
-            alert(`Post "${postTitle}" published successfully!`);
+            toast.success(`"${postTitle}" published successfully!`);
         } catch (err) {
-            alert(err instanceof Error ? err.message : String(err));
+            toast.error(err instanceof Error ? err.message : "Failed to publish post");
         } finally {
             setLoading(false);
         }
@@ -84,11 +86,11 @@ export default function SchedulePosts() {
 
         try {
             await adminDeletePostById(postId);
-            alert("Post deleted successfully!");
             setLivePosts(prev => prev.filter(p => p._id !== postId));
+            toast.success(`Post deleted successfully!`);
         } catch (err) {
             console.error(err);
-            alert("Failed to delete post");
+            toast.error("Failed to delete post");
         }
     };
 
@@ -96,11 +98,6 @@ export default function SchedulePosts() {
     const totalPages = Math.ceil(filtered.length / perPage);
     const start = (page - 1) * perPage;
     const paginated = filtered.slice(start, start + perPage);
-
-    const goTo = (p: number) => {
-        if (p < 1 || p > totalPages) return;
-        setPage(p);
-    };
 
     return (
         <DashboardLayout>
@@ -126,7 +123,7 @@ export default function SchedulePosts() {
                             onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
                             className="flex items-center gap-2">
                             {sortOrder === "latest" ? "Latest" : "Oldest"}
-                            <ChevronDown className={`w-4 h-4 transition-transform ${sortDropdownOpen ? "rotate-180" : ""}`}/>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${sortDropdownOpen ? "rotate-180" : ""}`} />
                         </button>
 
                         {sortDropdownOpen && (
@@ -148,7 +145,7 @@ export default function SchedulePosts() {
                     </div>
 
                     {/* Create Schedule Button */}
-                    <Link href="/DashBoard/Create_schedule_post" className="Create_Schedule px-4 rounded-lg transition" style={{padding : '11px 10px'}}>Create Schedule Post</Link>
+                    <Link href="/DashBoard/Create_schedule_post" className="Create_Schedule px-4 rounded-lg transition" style={{ padding: '11px 10px' }}>Create Schedule Post</Link>
                 </div>
             </div>
 
@@ -239,41 +236,15 @@ export default function SchedulePosts() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-                <div className="flex justify-center mt-10 gap-2">
-                    <button
-                        onClick={() => goTo(page - 1)}
-                        disabled={page === 1}
-                        className={`px-3 py-1 rounded-md ${page === 1
-                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            : "bg-white text-[#5559d1] shadow-sm"
-                            }`}
-                    >
-                        Prev
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pnum) => (
-                        <button
-                            key={pnum}
-                            onClick={() => goTo(pnum)}
-                            className={`px-3 py-1 rounded-md font-medium transition-colors ${page === pnum
-                                ? "bg-[#5559d1] text-white shadow-md"
-                                : "bg-white text-[#5559d1] hover:bg-[#5559d1] hover:text-white shadow-sm"
-                                }`}
-                        >
-                            {pnum}
-                        </button>
-                    ))}
-                    <button
-                        onClick={() => goTo(page + 1)}
-                        disabled={page === totalPages}
-                        className={`px-3 py-1 rounded-md ${page === totalPages
-                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                            : "bg-white text-[#5559d1] shadow-sm"
-                            }`}
-                    >
-                        Next
-                    </button>
+                <div className="mt-10">
+                    <Pagination
+                        page={page}
+                        totalPages={totalPages}
+                        onChange={(p) => setPage(p)}
+                    />
                 </div>
             )}
+
         </DashboardLayout>
     );
 }

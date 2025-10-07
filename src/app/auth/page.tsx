@@ -4,6 +4,7 @@ import { useState } from "react";
 import Loader from "@/components/Loader";
 import { useRouter } from "next/navigation";
 import { signupUser, loginUser, forgotPasswordAPI, verifyOtpAPI, changePasswordAPI, resendOtpAPI } from "@/lib/api";
+import toast from "react-hot-toast";
 
 export default function AuthPage() {
     const router = useRouter();
@@ -45,59 +46,57 @@ export default function AuthPage() {
                     email: formData.email,
                     password: formData.password,
                 });
-
                 localStorage.setItem("token", res.token);
                 localStorage.setItem("refreshToken", res.refreshToken);
                 localStorage.setItem("userProfile", JSON.stringify(res.user));
                 localStorage.setItem("role", res.user.role);
 
-                setMessage("Sign Up successful!");
+                toast.success("Sign Up successful!");
                 router.push("/DashBoard");
             } else {
                 if (step === "signin") {
                     const res = await loginUser({ email: formData.email, password: formData.password });
-
                     localStorage.setItem("token", res.token);
                     localStorage.setItem("refreshToken", res.refreshToken);
                     localStorage.setItem("userProfile", JSON.stringify(res.user));
                     localStorage.setItem("role", res.user.role);
 
-                    setMessage("Sign In successful!");
+                    toast.success("Sign In successful!");
                     router.push("/DashBoard");
                 } else if (step === "forgotEmail") {
                     const res = await forgotPasswordAPI(formData.email);
                     if (res.success) {
-                        setMessage("OTP sent to your email!");
+                        toast.success("OTP sent to your email!");
                         setStep("otp");
                     } else {
-                        setMessage(res.message || "Failed to send OTP");
+                        toast.error(res.message || "Failed to send OTP");
                     }
                 } else if (step === "otp") {
                     const res = await verifyOtpAPI(formData.email, formData.otp);
                     if (res.success && res.verified) {
-                        setMessage("OTP verified successfully!");
+                        toast.success("OTP verified successfully!");
                         setStep("resetPassword");
                     } else {
-                        setMessage(res.error?.message || "Invalid OTP");
+                        toast.error(res.error?.message || "Invalid OTP");
                     }
                 } else if (step === "resetPassword") {
                     if (formData.newPassword !== formData.confirmPassword) {
-                        setMessage("Passwords do not match!");
+                        toast.error("Passwords do not match!");
                     } else {
                         const res = await changePasswordAPI(formData.email, formData.otp, formData.newPassword);
                         if (res.success) {
-                            setMessage("Password reset successful!");
+                            toast.success("Password reset successful!");
                             setStep("signin");
                             setFormData({ ...formData, password: "", newPassword: "", confirmPassword: "", otp: "" });
                         } else {
-                            setMessage(res.error?.message || "Failed to reset password");
+                            toast.error(res.error?.message || "Failed to reset password");
                         }
                     }
                 }
             }
         } catch (err: unknown) {
-            if (err instanceof Error) setMessage(err.message);
-            else setMessage("Something went wrong");
+            if (err instanceof Error) toast.error(err.message);
+            else toast.error("Something went wrong");
         } finally {
             setLoading(false);
         }

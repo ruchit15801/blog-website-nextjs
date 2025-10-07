@@ -4,8 +4,18 @@ import { PencilIcon } from "lucide-react";
 import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { fetchAdminMeProfile, type AdminMeProfile } from "@/lib/adminClient";
+import toast from "react-hot-toast";
 import { logoutAndRedirect } from "@/lib/auth";
+import {
+    fetchMyProfile as fetchUserProfile,
+    updateMyProfile as updateUserProfile,
+    type MeProfile,
+} from "@/lib/api"; 
+import {
+    fetchAdminMeProfile,
+    updateAdminProfileAPI,
+    type AdminMeProfile,
+} from "@/lib/adminClient"; // admin API
 
 type UserProfileType = {
     fullName: string;
@@ -16,45 +26,93 @@ type UserProfileType = {
 };
 
 export default function UserProfileWithCategories() {
-    const [profile, setProfile] = useState<UserProfileType>(() => ({ fullName: "", email: "", role: "", createdAt: "", avatar: "" }));
+    const [profile, setProfile] = useState<UserProfileType>({
+        fullName: "",
+        email: "",
+        role: "",
+        createdAt: "",
+        avatar: "",
+    });
+    const [loading, setLoading] = useState(false);
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user"; // store role in localStorage
 
     // Update localStorage whenever profile changes
     useEffect(() => {
-        localStorage.setItem("userProfile", JSON.stringify({ fullName: profile.fullName, email: profile.email, avatar: profile.avatar, role: profile.role }));
+        localStorage.setItem(
+            "userProfile",
+            JSON.stringify({
+                fullName: profile.fullName,
+                email: profile.email,
+                avatar: profile.avatar,
+                role: profile.role,
+            })
+        );
         window.dispatchEvent(new Event("storage"));
     }, [profile]);
 
-    // Load profile from API
+    // Load profile from API based on role
     useEffect(() => {
+        if (!token) return;
         let active = true;
+
         (async () => {
             try {
-                const me: AdminMeProfile = await fetchAdminMeProfile();
+                let me: MeProfile | AdminMeProfile;
+                if (role === "admin") {
+                    me = await fetchAdminMeProfile(token);
+                } else {
+                    me = await fetchUserProfile(token);
+                }
+
                 if (!active) return;
+
+                const avatarUrl = 'avatarUrl' in me ? me.avatarUrl : 'avatar' in me ? me.avatar : '';
                 setProfile({
                     fullName: me.fullName || "",
                     email: me.email,
                     role: me.role,
                     createdAt: me.createdAt,
-                    avatar: me.avatar || me.avatarUrl || "",
+                    avatar: avatarUrl,
                 });
-            } catch {
-                // keep local profile fallback
+
+            } catch (err) {
+                console.error("Failed to fetch profile:", err);
             }
         })();
-        return () => { active = false; };
-    }, []);
 
-    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        return () => {
+            active = false;
+        };
+    }, [token, role]);
+
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onloadend = () => setProfile(prev => ({ ...prev, avatar: reader.result as string }));
-        reader.readAsDataURL(file);
+        if (!file || !token) return toast.error("User not authenticated");
+
+        setLoading(true);
+        toast.loading("Uploading avatar...", { id: "avatar-toast" });
+
+        try {
+            let result;
+            if (role === "admin") {
+                result = await updateAdminProfileAPI({ avatar: file }, token);
+            } else {
+                result = await updateUserProfile({ avatar: file }, token);
+            }
+
+            setProfile((prev) => ({ ...prev, avatar: result.avatarUrl || result.data.avatarUrl }));
+            toast.success("Avatar updated successfully!", { id: "avatar-toast" });
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to update avatar", { id: "avatar-toast" });
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // removed unused category handlers
-    const handleLogout = () => { logoutAndRedirect(); };
+    const handleLogout = () => logoutAndRedirect();
 
     return (
         <DashboardLayout>
@@ -71,18 +129,16 @@ export default function UserProfileWithCategories() {
                     <div className="flex gap-6 items-center">
                         <div className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                             {profile.avatar ? (
-                                <Image
-                                    src={profile.avatar}
-                                    alt="Avatar"
-                                    fill
-                                    className="object-cover"
-                                />
+                                <Image src={profile.avatar} alt="Avatar" fill className="object-cover" />
                             ) : (
                                 <span className="text-gray-500">No Avatar</span>
                             )}
 
                             {/* Edit Icon overlay */}
-                            <label className="absolute inset-0 flex items-center justify-center bg-black/50 bg-opacity-25 opacity-0 hover:opacity-100 cursor-pointer rounded-full transition">
+                            <label
+                                className={`absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 cursor-pointer rounded-full transition ${loading ? "pointer-events-none" : ""
+                                    }`}
+                            >
                                 <PencilIcon className="w-5 h-5 text-white" />
                                 <input
                                     type="file"
@@ -98,10 +154,17 @@ export default function UserProfileWithCategories() {
                             <p className="text-gray-600">{profile.email}</p>
                             <div className="mt-2 flex gap-2 text-sm">
                                 {profile.role && (
-                                    <span className="px-2 py-1 rounded-md text-white" style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>{profile.role}</span>
+                                    <span
+                                        className="px-2 py-1 rounded-md text-white"
+                                        style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
+                                    >
+                                        {profile.role}
+                                    </span>
                                 )}
                                 {profile.createdAt && (
-                                    <span className="px-2 py-1 rounded-md bg-gray-100 text-gray-700">Joined {new Date(profile.createdAt).toDateString()}</span>
+                                    <span className="px-2 py-1 rounded-md bg-gray-100 text-gray-700">
+                                        Joined {new Date(profile.createdAt).toDateString()}
+                                    </span>
                                 )}
                             </div>
                         </div>

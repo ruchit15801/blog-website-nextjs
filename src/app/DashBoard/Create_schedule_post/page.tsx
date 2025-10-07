@@ -12,6 +12,7 @@ import {
 } from "@/lib/adminClient";
 import DashboardLayout from "../DashBoardLayout";
 import Loader from "@/components/Loader";
+import toast from "react-hot-toast";
 
 type CategoryType = { _id: string; name: string };
 
@@ -66,6 +67,7 @@ export default function CreateSchedulePost() {
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : String(e);
             setCatError(message || "Failed to load categories");
+            toast.error("Failed to load categories");
         } finally {
             setCatsLoading(false);
         }
@@ -119,6 +121,7 @@ export default function CreateSchedulePost() {
 
             } catch (err) {
                 console.error(err);
+                toast.error("Failed to load post data");
             } finally {
                 setSubmitting(false);
             }
@@ -190,9 +193,9 @@ export default function CreateSchedulePost() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setMessage(null);
-        if (!token) { setMessage("Please enter admin token."); return; }
-        if (!title.trim()) { setMessage("Title is required."); return; }
-        if (!scheduleDate) { setMessage("Schedule date/time is required."); return; }
+        if (!token) { toast.error("Please enter admin token."); return; }
+        if (!title.trim()) { toast.error("Title is required."); return; }
+        if (!scheduleDate) { toast.error("Schedule date/time is required."); return; }
 
         try {
             setSubmitting(true);
@@ -215,11 +218,11 @@ export default function CreateSchedulePost() {
             if (postId) {
                 // EDIT MODE
                 await adminUpdatePostById(postId, postData);
-                setMessage("Scheduled post updated.");
+                toast.success("Scheduled post updated successfully!");
             } else {
                 // CREATE MODE
                 await createScheduledPost(postData);
-                setMessage("Scheduled post created.");
+                toast.success("Scheduled post created successfully!");
             }
 
             // redirect
@@ -227,7 +230,7 @@ export default function CreateSchedulePost() {
 
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
-            setMessage(message || "Failed to save scheduled post");
+            toast.error(message || "Failed to save scheduled post");
         } finally {
             setSubmitting(false);
         }

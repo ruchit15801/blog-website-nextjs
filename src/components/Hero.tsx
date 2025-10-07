@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { listTrendingByCategory, type TrendingCategory } from "@/lib/api";
+import toast from "react-hot-toast";
 
 type RemoteCategory = TrendingCategory;
 
@@ -15,7 +16,8 @@ export default function Hero() {
                 const { categories } = await listTrendingByCategory();
                 setCategories(categories);
             } catch (err) {
-                console.error("Failed to fetch trending categories", err);
+                console.log("Failed to fetch trending categories",err);
+                toast.error("Failed to fetch trending categories");
             } finally {
                 setLoading(false);
             }

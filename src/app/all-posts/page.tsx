@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Clock, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, type HomePost, type TrendingCategory, type HomeAuthor } from "@/lib/api";
+import toast from "react-hot-toast";
 
 type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
 
@@ -34,9 +35,22 @@ export default function AllPostsPage() {
         setLoading(true);
         setError(null);
         listAllHomePosts({ page, limit, sort, category: selectedCat })
-            .then((res) => { if (!active) return; setPosts(res.posts); setTotal(res.total); })
-            .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-            .finally(() => setLoading(false));
+            .then((res) => {
+                if (!active) return;
+                setPosts(res.posts);
+                setTotal(res.total);
+
+                if (!res.posts.length) {
+                    toast("No posts found for the selected filters.", { icon: "⚠️" });
+                } else {
+                    toast.success(`Loaded ${res.posts.length} posts successfully!`);
+                }
+            })
+            .catch((e) => {
+                const msg = e instanceof Error ? e.message : String(e);
+                setError(msg);
+                toast.error(msg);
+            }).finally(() => setLoading(false));
         return () => { active = false; };
     }, [page, limit, sort, selectedCat]);
 
