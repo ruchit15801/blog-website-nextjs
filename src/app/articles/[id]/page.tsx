@@ -223,52 +223,56 @@ export default function ArticlePage() {
                     {/* Content */}
                     <div ref={contentRef} className="flex-1 flex flex-col">
 
-                        {contentBlocks.map((block, index) => {
-                            if (skipIndexes.has(index)) return null;
+                        {(() => {
+                            let firstTextRendered = false; return contentBlocks.map((block, index) => {
+                                if (skipIndexes.has(index)) return null;
 
-                            if (typeof block === "string") {
-                                return (
-                                    <div key={index} className="prose_content prose max-w-none mb-4 leading-relaxed tracking-[.005em]"
-                                        dangerouslySetInnerHTML={{ __html: block }} />
-                                );
-                            }
-
-                            if (block.type === "image") {
-                                const nextBlock = contentBlocks[index + 1];
-                                if (
-                                    nextBlock &&
-                                    typeof nextBlock !== "string" &&
-                                    nextBlock.type === "image" &&
-                                    block.size === "small" &&
-                                    nextBlock.size === "small"
-                                ) {
-                                    skipIndexes.add(index + 1);
+                                if (typeof block === "string") {
+                                    const className = `prose_content prose max-w-none mb-4 leading-relaxed tracking-[.005em]${firstTextRendered ? '' : ' lead'}`;
+                                    if (!firstTextRendered) firstTextRendered = true;
                                     return (
-                                        <div key={index} className="flex gap-4 my-6">
-                                            <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
-                                                <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
-                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                            </div>
-                                            <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
-                                                <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
-                                                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                            </div>
-                                        </div>
+                                        <div key={index} className={className}
+                                            dangerouslySetInnerHTML={{ __html: block }} />
                                     );
                                 }
 
-                                const height = block.size === "small" ? "h-72 md:h-80" : "h-80 md:h-[28rem]";
-                                const width = block.size === "small" ? "md:w-4/5 lg:w-2/3" : "md:w-4/5";
-                                return (
-                                    <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom`}>
-                                        <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
-                                        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                    </figure>
-                                );
-                            }
+                                if (block.type === "image") {
+                                    const nextBlock = contentBlocks[index + 1];
+                                    if (
+                                        nextBlock &&
+                                        typeof nextBlock !== "string" &&
+                                        nextBlock.type === "image" &&
+                                        block.size === "small" &&
+                                        nextBlock.size === "small"
+                                    ) {
+                                        skipIndexes.add(index + 1);
+                                        return (
+                                            <div key={index} className="flex gap-4 my-6">
+                                                <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
+                                                    <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
+                                                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                                </div>
+                                                <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
+                                                    <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
+                                                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                                </div>
+                                            </div>
+                                        );
+                                    }
 
-                            return null;
-                        })}
+                                    const height = block.size === "small" ? "h-72 md:h-80" : "h-80 md:h-[28rem]";
+                                    const width = block.size === "small" ? "md:w-4/5 lg:w-2/3" : "md:w-4/5";
+                                    return (
+                                        <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom`}>
+                                            <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
+                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                        </figure>
+                                    );
+                                }
+
+                                return null;
+                            });
+                        })()}
                     </div>
                 </div>
             </div>
