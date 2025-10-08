@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
-import { Toaster } from "react-hot-toast"; 
+import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({
   children,
@@ -44,6 +44,30 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Primary Meta Tags */}
+        <title>BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips</title>
+        <meta name="title" content="BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips" />
+        <meta name="description" content="BlogCafeAI brings you the latest AI tools, technology insights, productivity hacks, and coding tutorials. Stay ahead with deep-dive articles and expert-curated content for creators, developers, and AI enthusiasts." />
+        {/* Keywords */}
+        <meta name="keywords" content="AI tools, artificial intelligence blog, AI news, productivity tips, tech trends, coding tutorials, ChatGPT, machine learning, automation, BlogCafeAI, AI updates" />
+        {/* Robots */}
+        <meta name="robots" content="index, follow" />
+        <meta name="language" content="English" />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.blogcafeai.com/" />
+        <meta property="og:title" content="BlogCafeAI — AI Tools, Tech Trends & Smart Productivity" />
+        <meta property="og:description" content="Stay updated with the world of Artificial Intelligence. Discover the best AI tools, tutorials, and guides that power creators and developers." />
+        <meta property="og:image" content="https://www.blogcafeai.com/og-image.jpg" />
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://www.blogcafeai.com/" />
+        <meta name="twitter:title" content="BlogCafeAI — AI Tools, Tech Trends & Smart Productivity" />
+        <meta name="twitter:description" content="Explore AI tools, automation tricks, and coding insights on BlogCafeAI — your daily AI knowledge shot." />
+        <meta name="twitter:image" content="https://www.blogcafeai.com/og-image.jpg" />
+        {/* Canonical */}
+        <link rel="canonical" href="https://www.blogcafeai.com/" />
+
         <Script
           id="adsense"
           async

@@ -595,7 +595,8 @@ export async function fetchPostById(id: string, token: string) {
 // Frontend
 export async function fetchSinglePostById(id: string) {
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/admin/posts/${id}`);
+    // Public endpoint (no token)
+    const res = await fetch(`${base}/posts/${id}`);
     if (!res.ok) throw new Error('Failed to fetch post');
     return res.json();
 }
