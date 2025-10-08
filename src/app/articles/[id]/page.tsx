@@ -3,9 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import Loader from "@/components/Loader";
 import { fetchSinglePostById } from "@/lib/adminClient";
-import { TwitterIcon, FacebookIcon, InstagramIcon, LinkedinIcon } from "lucide-react";
+import { listAllHomePosts, type HomePost } from "@/lib/api";
+import { TwitterIcon, FacebookIcon, InstagramIcon, LinkedinIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import Script from "next/script";
 
@@ -30,11 +32,13 @@ export default function ArticlePage() {
     const [error, setError] = useState<string | null>(null);
     // Public article page: no admin token required
     const contentRef = useRef<HTMLDivElement | null>(null);
-    const [progress, setProgress] = useState(0); 
-    
+    const [progress, setProgress] = useState(0);
+    const [prevPost, setPrevPost] = useState<HomePost | null>(null);
+    const [nextPost, setNextPost] = useState<HomePost | null>(null);
+
     const params = useParams();
     const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
-    
+
     useEffect(() => {
         if (!postId) return;
 
@@ -62,6 +66,30 @@ export default function ArticlePage() {
 
         loadPost();
     }, [postId]);
+
+    // Fetch neighbors (best-effort) once post is loaded
+    useEffect(() => {
+        let active = true;
+        if (!post?._id) return;
+        (async () => {
+            try {
+                const res = await listAllHomePosts({ page: 1, limit: 12, sort: "latest", category: undefined });
+                const arr = res.posts || [];
+                const idx = arr.findIndex(p => p._id === post._id);
+                if (!active) return;
+                if (idx >= 0) {
+                    setPrevPost(arr[idx + 1] || null);
+                    setNextPost(arr[idx - 1] || null);
+                } else {
+                    setPrevPost(arr[1] || null);
+                    setNextPost(arr[0] || null);
+                }
+            } catch {
+                // best-effort; ignore
+            }
+        })();
+        return () => { active = false; };
+    }, [post?._id]);
 
     // Reading progress based on content scroll
     useEffect(() => {
@@ -270,59 +298,125 @@ export default function ArticlePage() {
                         </div>
                     </div>
 
-                    {/* Content */}
-                    <div ref={contentRef} className="flex-1 flex flex-col px-0 sm:px-2">
+                    {/* Content wrapped in light card */}
+                    <div className="flex-1 px-0 sm:px-2">
+                        <div className="relative">
+                            <div className="pointer-events-none absolute -inset-2 bg-gradient-to-b from-[#f5f7ff] to-transparent rounded-[22px] blur-sm" />
+                        </div>
+                        <div className="relative rounded-2xl bg-white shadow-lg ring-1 ring-black/5 p-5 sm:p-6 md:p-8">
+                            <div ref={contentRef} className="flex flex-col">
 
-                        {(() => {
-                            let firstTextRendered = false; return contentBlocks.map((block, index) => {
-                                if (skipIndexes.has(index)) return null;
+                                {(() => {
+                                    let firstTextRendered = false; return contentBlocks.map((block, index) => {
+                                        if (skipIndexes.has(index)) return null;
 
-                                if (typeof block === "string") {
-                                    const className = `prose_content prose max-w-none mb-4 leading-relaxed tracking-[.005em]${firstTextRendered ? '' : ' lead'}`;
-                                    if (!firstTextRendered) firstTextRendered = true;
-                                    return (
-                                        <div key={index} className={className}
-                                            dangerouslySetInnerHTML={{ __html: block }} />
-                                    );
-                                }
+                                        if (typeof block === "string") {
+                                            const className = `prose_content prose max-w-none mb-4 leading-relaxed tracking-[.005em]${firstTextRendered ? '' : ' lead'}`;
+                                            if (!firstTextRendered) firstTextRendered = true;
+                                            return (
+                                                <div key={index} className={className}
+                                                    dangerouslySetInnerHTML={{ __html: block }} />
+                                            );
+                                        }
 
-                                if (block.type === "image") {
-                                    const nextBlock = contentBlocks[index + 1];
-                                    if (
-                                        nextBlock &&
-                                        typeof nextBlock !== "string" &&
-                                        nextBlock.type === "image" &&
-                                        block.size === "small" &&
-                                        nextBlock.size === "small"
-                                    ) {
-                                        skipIndexes.add(index + 1);
-                                        return (
-                                            <div key={index} className="flex gap-4 my-6">
-                                                <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
+                                        if (block.type === "image") {
+                                            const nextBlock = contentBlocks[index + 1];
+                                            if (
+                                                nextBlock &&
+                                                typeof nextBlock !== "string" &&
+                                                nextBlock.type === "image" &&
+                                                block.size === "small" &&
+                                                nextBlock.size === "small"
+                                            ) {
+                                                skipIndexes.add(index + 1);
+                                                return (
+                                                    <div key={index} className="flex gap-4 my-6">
+                                                        <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
+                                                            <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
+                                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                                        </div>
+                                                        <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
+                                                            <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
+                                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+
+                                            const height = block.size === "small" ? "h-72 md:h-80" : "h-80 md:h-[28rem]";
+                                            const width = block.size === "small" ? "md:w-4/5 lg:w-2/3" : "md:w-4/5";
+                                            return (
+                                                <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom`}>
                                                     <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
                                                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                                </div>
-                                                <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
-                                                    <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
-                                                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                                </div>
-                                            </div>
-                                        );
-                                    }
+                                                </figure>
+                                            );
+                                        }
 
-                                    const height = block.size === "small" ? "h-72 md:h-80" : "h-80 md:h-[28rem]";
-                                    const width = block.size === "small" ? "md:w-4/5 lg:w-2/3" : "md:w-4/5";
-                                    return (
-                                        <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom`}>
-                                            <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
-                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                        </figure>
-                                    );
-                                }
+                                        return null;
+                                    });
+                                })()}
+                            </div>
+                        </div>
 
-                                return null;
-                            });
-                        })()}
+                        {/* Author section */}
+                        <div className="mt-8 rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-8 flex items-center gap-4">
+                            <div className="relative w-12 h-12 rounded-full overflow-hidden bg-[#eef2ff] flex items-center justify-center text-[#5559d1] font-bold">
+                                {post.author?.fullName ? (post.author.fullName.split(' ').map(s => s[0]).join('').slice(0, 2)) : 'AU'}
+                            </div>
+                            <div className="flex-1">
+                                <div className="text-sm text-gray-500">Written by</div>
+                                <div className="text-base font-semibold" style={{ color: '#29294b' }}>{post.author?.fullName || "Unknown Author"}</div>
+                                <div className="text-sm text-gray-500">Published on {formattedDate}</div>
+                            </div>
+                            <div className="hidden sm:block text-sm text-gray-500">Category: {post.category || 'Uncategorized'}</div>
+                        </div>
+
+                        {/* Prev/Next cards */}
+                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Prev */}
+                            <div className="group rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-7 transition-transform hover:-translate-y-0.5 hover:shadow-lg">
+                                <div className="text-xs tracking-widest font-semibold uppercase mb-2" style={{ color: '#696981' }}>Previous Article</div>
+                                {(prevPost ? (
+                                    <Link href={`/articles/${prevPost._id}`} className="flex items-center gap-4">
+                                        <ChevronLeft className="w-4 h-4 text-[#5559d1]" />
+                                        <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                                            <Image src={prevPost.bannerImageUrl || "/images/a1.webp"} alt={prevPost.title} fill className="object-cover" />
+                                        </div>
+                                        <div className="text-[#29294b] font-semibold leading-snug group-hover:underline">
+                                            {prevPost.title}
+                                        </div>
+                                    </Link>
+                                ) : (
+                                    <Link href={`/all-posts`} className="flex items-center gap-4 group">
+                                        <ChevronLeft className="w-4 h-4 text-[#5559d1]" />
+                                        <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100" />
+                                        <div className="text-[#29294b] font-semibold leading-snug group-hover:underline">Browse more articles</div>
+                                    </Link>
+                                ))}
+                            </div>
+                            {/* Next */}
+                            <div className="group rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-7 transition-transform hover:-translate-y-0.5 hover:shadow-lg">
+                                <div className="text-xs tracking-widest font-semibold uppercase mb-2" style={{ color: '#696981' }}>Next Article</div>
+                                {(nextPost ? (
+                                    <Link href={`/articles/${nextPost._id}`} className="flex items-center gap-4 justify-end">
+                                        <div className="text-right text-[#29294b] font-semibold leading-snug group-hover:underline">
+                                            {nextPost.title}
+                                        </div>
+                                        <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                                            <Image src={nextPost.bannerImageUrl || "/images/a1.webp"} alt={nextPost.title} fill className="object-cover" />
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-[#5559d1]" />
+                                    </Link>
+                                ) : (
+                                    <Link href={`/all-posts`} className="flex items-center gap-4 justify-end">
+                                        <div className="text-right text-[#29294b] font-semibold leading-snug group-hover:underline">See latest articles</div>
+                                        <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100" />
+                                        <ChevronRight className="w-4 h-4 text-[#5559d1]" />
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
