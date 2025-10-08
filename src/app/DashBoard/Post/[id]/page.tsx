@@ -41,21 +41,24 @@ export default function PostPage({
     const [post, setPost] = useState<RemotePost | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const token = getAdminToken();
+    const token = (typeof window !== "undefined" ? (getAdminToken() || localStorage.getItem("token")) : null);
 
     const params = useParams();
     const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
     useEffect(() => {
-        if (!postId || !token) return;
+        if (!postId) return;
 
         const loadPost = async () => {
             setLoading(true);
             setError(null);
             try {
+                if (!token) throw new Error("Missing auth token. Please login.");
                 const response = await fetchPostById(postId, token);
-                if (!response.success) throw new Error("Post not found");
-                setPost(response.post);
+
+                const maybePost = (response?.post ?? response?.data ?? response) as RemotePost | undefined;
+                if (!maybePost) throw new Error("Post not found");
+                setPost(maybePost);
             } catch (err) {
                 const msg = err instanceof Error ? err.message : String(err);
                 setError(msg);

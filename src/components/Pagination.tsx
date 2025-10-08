@@ -2,6 +2,14 @@
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 export default function Pagination({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+    const smoothJumpTop = () => {
+        try { if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" }); } catch { }
+    };
+    const changePage = (p: number) => {
+        if (p === page) return;
+        smoothJumpTop();
+        onChange(p);
+    };
     const visiblePages = (() => {
         const pages: number[] = [];
         const maxShown = 7;
@@ -24,7 +32,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
             <div className="text-xs font-semibold tracking-wide" style={{ color: '#696981' }}>Page {page} of {totalPages}</div>
             <div className="flex items-center gap-2">
                 <button
-                    onClick={() => onChange(1)}
+                    onClick={() => changePage(1)}
                     disabled={page === 1}
                     className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                     aria-label="First page"
@@ -34,7 +42,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                     <ChevronsLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
                 </button>
                 <button
-                    onClick={() => onChange(Math.max(1, page - 1))}
+                    onClick={() => changePage(Math.max(1, page - 1))}
                     disabled={page === 1}
                     className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                     aria-label="Previous page"
@@ -49,7 +57,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                     ) : (
                         <button
                             key={pnum}
-                            onClick={() => onChange(pnum)}
+                            onClick={() => changePage(pnum)}
                             className={`px-3 py-1 rounded-full text-sm font-semibold transition ${page === pnum ? "text-white" : ""}`}
                             style={page === pnum ? {
                                 background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)',
@@ -65,7 +73,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                     )
                 ))}
                 <button
-                    onClick={() => onChange(Math.min(totalPages, page + 1))}
+                    onClick={() => changePage(Math.min(totalPages, page + 1))}
                     disabled={page === totalPages}
                     className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                     aria-label="Next page"
@@ -75,7 +83,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                     <ChevronRight className="w-4 h-4" style={{ color: '#5559d1' }} />
                 </button>
                 <button
-                    onClick={() => onChange(totalPages)}
+                    onClick={() => changePage(totalPages)}
                     disabled={page === totalPages}
                     className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                     aria-label="Last page"
