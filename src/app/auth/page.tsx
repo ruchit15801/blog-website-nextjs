@@ -46,6 +46,8 @@ export default function AuthPage() {
                     email: formData.email,
                     password: formData.password,
                 });
+                // Reset any previous session completely before setting new creds
+                try { localStorage.clear(); sessionStorage.clear(); localStorage.removeItem("admin_token"); } catch { }
                 localStorage.setItem("token", res.token);
                 localStorage.setItem("refreshToken", res.refreshToken);
                 localStorage.setItem("userProfile", JSON.stringify(res.user));
@@ -58,6 +60,7 @@ export default function AuthPage() {
             } else {
                 if (step === "signin") {
                     const res = await loginUser({ email: formData.email, password: formData.password });
+                    try { localStorage.clear(); sessionStorage.clear(); localStorage.removeItem("admin_token"); } catch { }
                     localStorage.setItem("token", res.token);
                     localStorage.setItem("refreshToken", res.refreshToken);
                     localStorage.setItem("userProfile", JSON.stringify(res.user));

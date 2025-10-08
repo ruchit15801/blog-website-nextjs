@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchAllUserPosts } from "@/lib/api";
+import { listAllHomePosts } from "@/lib/api";
 
 function rss({ title, site, items }: { title: string; site: string; items: { title: string; link: string; description?: string }[] }) {
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -17,16 +17,11 @@ export async function GET() {
   const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com";
   let items: { title: string; link: string; description?: string }[] = [];
   try {
-    const res = await fetchAllUserPosts({ page: 1, limit: 50 });
-    type ApiPost = { _id?: string; id?: string; title?: string; contentHtml?: string; subtitle?: string };
-    const posts = ((res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.data
-      || (res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.posts
-      || (res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.result
-      || []) as ApiPost[];
+    const res = await listAllHomePosts({ page: 1, limit: 50, sort: "latest" });
+    const posts = res.posts as Array<{ _id: string; title?: string; bannerImageUrl?: string } & Record<string, unknown>>;
     items = posts.map(p => ({
       title: p.title || "Post",
-      link: `${site}/articles/${(p._id || p.id)}`,
-      description: (p.subtitle as string) || (p.contentHtml ? String(p.contentHtml).replace(/<[^>]*>/g, ' ').slice(0, 180) : undefined)
+      link: `${site}/articles/${p._id}`,
     }));
   } catch {
     items = [{ title: "Welcome to BlogCafeAI", link: `${site}/` }];

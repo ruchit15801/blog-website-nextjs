@@ -2,12 +2,13 @@ import toast from "react-hot-toast";
 
 export function saveAdminToken(token: string) {
     if (typeof window === "undefined") return;
-    localStorage.setItem("token", token);
+    // keep admin token separate from user token to avoid cross-session leakage
+    localStorage.setItem("admin_token", token);
 }
 
 export function getAdminToken(): string | null {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("token");
+    return localStorage.getItem("admin_token");
 }
 
 export async function createRemotePost(payload: {
