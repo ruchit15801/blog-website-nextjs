@@ -74,7 +74,7 @@ export default function Navbar() {
                 </ul>
 
                 {/* === RIGHT : Actions === */}
-                <div className="navbar-actions flex items-center gap-2">
+                <div className="navbar-actions flex items-center gap-2 hidden md:flex">
                     {/* Sign Up */}
                     <Link
                         href="/auth"
@@ -92,6 +92,7 @@ export default function Navbar() {
                         <Link href="/all-posts" className={`px-3 py-2 rounded-lg ${pathname === "/all-posts" ? "bg-gray-100" : ""}`} onClick={() => setOpen(false)}>All Posts</Link>
                         <Link href="/about" className={`px-3 py-2 rounded-lg ${pathname === "/about" ? "bg-gray-100" : ""}`} onClick={() => setOpen(false)}>About</Link>
                         <Link href="/contact" className={`px-3 py-2 rounded-lg ${pathname === "/contact" ? "bg-gray-100" : ""}`} onClick={() => setOpen(false)}>Contact Us</Link>
+                        <Link href="/auth" className="mt-2 buy-btn px-4 py-2 rounded-lg text-center" onClick={() => setOpen(false)}>Sign Up</Link>
                     </div>
                 </div>
             )}

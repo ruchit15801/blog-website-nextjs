@@ -236,11 +236,11 @@ export default function ArticlePage() {
 
             {/* Main Layout */}
             <div className="flex justify-center">
-                <div className="flex flex-col lg:flex-row gap-8 w-full max-w-5xl mx-auto">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 w-full max-w-5xl mx-auto px-0 sm:px-2">
                     {/* Sidebar */}
-                    <div style={{ position: 'sticky', top: '60px', alignSelf: 'start' }}>
+                    <div className="hidden lg:block" style={{ position: 'sticky', top: '60px', alignSelf: 'start' }}>
                         <div className="flex flex-col items-center gap-6">
-                            <div className="relative flex items-center justify-center text-center font-bold" style={{ width: 96, height: 96 }} aria-label="Reading progress">
+                            <div className="relative flex items-center justify-center text-center font-bold" style={{ width: 84, height: 84 }} aria-label="Reading progress">
                                 <div
                                     className="absolute inset-0 rounded-full"
                                     style={{
@@ -248,7 +248,7 @@ export default function ArticlePage() {
                                         filter: 'drop-shadow(0 4px 12px rgba(114,114,255,.25))'
                                     }}
                                 />
-                                <div className="relative flex items-center justify-center rounded-full bg-white" style={{ width: 70, height: 70, color: '#29294b' }}>
+                                <div className="relative flex items-center justify-center rounded-full bg-white" style={{ width: 60, height: 60, color: '#29294b' }}>
                                     <span className='px-1' style={{ fontSize: '0.8rem', fontWeight: 700 }}>
                                         {post.readingTimeMinutes || 0} min
                                     </span>
@@ -272,7 +272,7 @@ export default function ArticlePage() {
                     </div>
 
                     {/* Content */}
-                    <div ref={contentRef} className="flex-1 flex flex-col">
+                    <div ref={contentRef} className="flex-1 flex flex-col px-0 sm:px-2">
 
                         {(() => {
                             let firstTextRendered = false; return contentBlocks.map((block, index) => {

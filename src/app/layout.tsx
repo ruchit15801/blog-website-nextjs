@@ -76,6 +76,25 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+        {/* Google Analytics */}
+        <Script
+          id="ga-external"
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-GJM1MCPF9S"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="ga-inline"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);} 
+              gtag('js', new Date());
+              gtag('config', 'G-GJM1MCPF9S');
+            `,
+          }}
+        />
         <meta
           name="google-adsense-account"
           content="ca-pub-8481647724806223"
