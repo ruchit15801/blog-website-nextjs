@@ -8,7 +8,9 @@ export async function generateMetadata(
         const { id } = await params;
         if (!id) return {};
         const res = await fetchSinglePostById(id);
-        const post = (res as any)?.post ?? (res as any)?.data ?? res;
+        type PostShape = { title?: string; subtitle?: string; contentHtml?: string; bannerImageUrl?: string; imageUrls?: string[] } | null | undefined;
+        const postCandidate = (res as Record<string, unknown>)?.post ?? (res as Record<string, unknown>)?.data ?? res;
+        const post = postCandidate as PostShape;
         if (!post || typeof post !== "object") return {};
 
         const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com";

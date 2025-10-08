@@ -175,6 +175,7 @@ export default function ArticlePage() {
                         description: (post.subtitle || '').trim() || undefined,
                         image: [post.bannerImageUrl, ...(Array.isArray(post.imageUrls) ? post.imageUrls : [])].filter(Boolean),
                         datePublished: post.publishedAt || post.createdAt,
+                        dateModified: post.createdAt,
                         author: post.author?.fullName ? { '@type': 'Person', name: post.author.fullName } : undefined,
                         mainEntityOfPage: {
                             '@type': 'WebPage',
@@ -186,8 +187,25 @@ export default function ArticlePage() {
                             logo: {
                                 '@type': 'ImageObject',
                                 url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/images/BlogCafe_Logo.svg`,
+                                width: 512,
+                                height: 512,
                             },
                         },
+                    })
+                }}
+            />
+            {/* BreadcrumbList JSON-LD */}
+            <Script id="ld-breadcrumb" type="application/ld+json" strategy="afterInteractive"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        '@context': 'https://schema.org',
+                        '@type': 'BreadcrumbList',
+                        itemListElement: [
+                            { '@type': 'ListItem', position: 1, name: 'Home', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/` },
+                            { '@type': 'ListItem', position: 2, name: 'All Posts', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts` },
+                            { '@type': 'ListItem', position: 3, name: post.category || 'Uncategorized', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts` },
+                            { '@type': 'ListItem', position: 4, name: post.title, item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${postId}` }
+                        ]
                     })
                 }}
             />

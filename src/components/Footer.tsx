@@ -78,7 +78,7 @@ export default function Footer() {
               <span className="home-page-list uppercase block text-base font-semibold mb-3">Site</span>
               <ul className="home-page-sub-menu space-y-2 opacity-80">
                 <li><Link href="/" className="hover:underline">Home</Link></li>
-                <li><Link href="/blog" className="hover:underline">Blog</Link></li>
+                <li><Link href="/all-posts" className="hover:underline">Blogs</Link></li>
                 <li><Link href="/about" className="hover:underline">About</Link></li>
                 <li><Link href="/contact" className="hover:underline">Contact</Link></li>
               </ul>

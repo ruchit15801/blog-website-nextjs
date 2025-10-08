@@ -4,6 +4,8 @@ export async function GET() {
     const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com";
     const body = `User-agent: *
 Allow: /
+Disallow: /DashBoard/
+Disallow: /api/
 
 Sitemap: ${site}/sitemap.xml
 `;

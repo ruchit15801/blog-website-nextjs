@@ -96,6 +96,11 @@ export default function RootLayout({
                 'https://www.instagram.com/',
                 'https://www.linkedin.com/'
               ],
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts?search={search_term_string}`,
+                'query-input': 'required name=search_term_string'
+              }
             }),
           }}
         />
