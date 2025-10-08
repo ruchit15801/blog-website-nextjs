@@ -8,7 +8,20 @@ import { fetchAdminPosts, type RemotePost, adminDeletePostById } from "@/lib/adm
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
-import { fetchUserPosts } from "@/lib/api";
+import { fetchAllUserPosts } from "@/lib/api";
+
+interface UserPost {
+    _id: string;
+    title: string;
+    bannerImageUrl?: string;
+    createdAt?: string;
+    publishedAt?: string;
+    author?: { _id: string; fullName: string } | string;
+    contentHtml?: string;
+    tags?: string[];
+    readingTimeMinutes?: number;
+    slug?: string;
+}
 
 export default function AllPosts() {
     const [currentPage, setCurrentPage] = useState(1);
@@ -23,19 +36,101 @@ export default function AllPosts() {
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
+
+    // useEffect(() => {
+    //     if (!token) return;
+    //     let active = true;
+    //     setLoading(true);
+    //     setError(null);
+
+    //     (async () => {
+    //         try {
+    //             let res;
+    //             if (role === "admin") {
+    //                 res = await fetchAdminPosts({ page: 1, limit: 24 } , token); // Pass token if needed
+    //             } else {
+    //                 res = await fetchAllUserPosts(token);
+    //             }
+
+    //             if (!active) return;
+
+    //             setPosts(res.data || []); 
+    //         } catch (err) {
+    //             console.log(err);
+    //             toast.error("Failed to load posts");
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     })();
+
+    //     return () => {
+    //         active = false;
+    //     };
+    // }, [token, role]);
+
+
     useEffect(() => {
+        if (!token) return;
+
         let active = true;
         setLoading(true);
         setError(null);
-        fetchAdminPosts({ page: 1, limit: 24 })
-            .then((res) => {
+
+        (async () => {
+            try {
+                let posts: RemotePost[] = [];
+
+                if (role === "admin") {
+                    const res = await fetchAdminPosts({ page: currentPage, limit: 24 }, token);
+                    posts = res.posts.map(p => ({
+                        _id: p._id,
+                        title: p.title,
+                        bannerImageUrl: p.bannerImageUrl,
+                        createdAt: p.createdAt,
+                        publishedAt: p.publishedAt,
+                        author: p.author
+                            ? typeof p.author === "string"
+                                ? { _id: "", fullName: p.author } 
+                                : { _id: p.author._id, fullName: p.author.fullName }
+                            : undefined,
+                        contentHtml: p.contentHtml || "",
+                        tags: p.tags || [],
+                        readingTimeMinutes: p.readingTimeMinutes || 0,
+                    }));
+                } else {
+                    const res = await fetchAllUserPosts({ page: currentPage, limit: 24 });
+                    posts = res.data.map((p: UserPost) => ({
+                        _id: p._id,
+                        title: p.title,
+                        bannerImageUrl: p.bannerImageUrl,
+                        createdAt: p.createdAt,
+                        publishedAt: p.publishedAt,
+                        author: p.author
+                            ? typeof p.author === "string"
+                                ? { _id: "", fullName: p.author }
+                                : { _id: p.author._id, fullName: p.author.fullName }
+                            : undefined,
+                        contentHtml: p.contentHtml || "",
+                        tags: p.tags || [],
+                        readingTimeMinutes: p.readingTimeMinutes || 0,
+                        slug: p.slug,
+                    }));
+                }
+
                 if (!active) return;
-                setLivePosts(res.posts || []);
-            })
-            .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-            .finally(() => setLoading(false));
+                setLivePosts(posts);
+            } catch (err) {
+                console.error(err);
+                toast.error("Failed to load posts");
+            } finally {
+                if (active) setLoading(false);
+            }
+        })();
+
         return () => { active = false; };
-    }, []);
+    }, [token, role, currentPage]);
 
     const baseList = useMemo(() => {
         return livePosts.map((p: RemotePost) => ({
@@ -66,8 +161,6 @@ export default function AllPosts() {
     const totalPages = Math.ceil(filteredArticles.length / perPage);
     const start = (currentPage - 1) * perPage;
     const paginatedArticles = filteredArticles.slice(start, start + perPage);
-
-
 
     // --- Handlers ---
     const handleEdit = (post: RemotePost) => {

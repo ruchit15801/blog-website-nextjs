@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -11,8 +12,7 @@ export default function Navbar() {
             <nav className="navbar-container">
                 {/* === LEFT : Logo === */}
                 <Link href="/" className="navbar-logo">
-                    {/* <Image src="/images/logo.png" alt="BlogCafeAI" width={130} height={130} priority /> */}
-                    <span className="navbar-title" style={{ color: '#29294b', letterSpacing: '-.02em' }}>BlogCafeAI</span>
+                    <Image src="/images/BlogCafe_Logo.svg" alt="BlogCafeAI" width={130} height={130} priority />
                 </Link>
 
 

@@ -1,11 +1,13 @@
+import toast from "react-hot-toast";
+
 export function saveAdminToken(token: string) {
     if (typeof window === "undefined") return;
-    localStorage.setItem("admin_token", token);
+    localStorage.setItem("token", token);
 }
 
 export function getAdminToken(): string | null {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("admin_token");
+    return localStorage.getItem("token");
 }
 
 export async function createRemotePost(payload: {
@@ -17,7 +19,7 @@ export async function createRemotePost(payload: {
     imageFiles?: File[];
     categoryId?: string;
     tags?: string | string[];
-    status?: "draft" | "published";
+    status?: "published" | "scheduled";
 }) {
     const token = getAdminToken();
     if (!token) throw new Error("Admin token missing. Please set it first.");
@@ -54,7 +56,7 @@ export async function createRemotePost(payload: {
     }
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/posts`, {
+    const res = await fetch(`${base}/admin/posts`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: form,
@@ -106,7 +108,7 @@ export async function createScheduledPost(payload: {
     if (payload.bannerFile) form.append("bannerImage", payload.bannerFile);
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/posts/scheduled`, {
+    const res = await fetch(`${base}/admin/posts/scheduled`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: form,
@@ -132,7 +134,7 @@ export async function publishAdminPostNow(
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/posts/${postId}/publish`, {
+    const res = await fetch(`${base}/admin/posts/${postId}/publish`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -162,7 +164,7 @@ export async function fetchCategories(tokenOverride?: string): Promise<RemoteCat
     const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
     if (!token) throw new Error("Admin token missing. Please set it first.");
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/categories`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+    const res = await fetch(`${base}/categories`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
     if (!res.ok) {
         const text = await res.text();
         throw new Error(`Failed to load categories: ${res.status} ${text}`);
@@ -190,7 +192,7 @@ export async function updateCategory(id: string, payload: { name?: string; descr
     if (payload.imageFile) form.append("image", payload.imageFile);
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/categories/${id}`, {
+    const res = await fetch(`${base}/categories/${id}`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
         body: form,
@@ -209,7 +211,7 @@ export async function deleteCategory(id: string) {
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/categories/${id}`, {
+    const res = await fetch(`${base}/categories/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
     });
@@ -251,7 +253,7 @@ export async function fetchAdminUsers(
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const url = new URL(`${base}/api/admin/users`);
+    const url = new URL(`${base}/admin/users`);
     if (params.page != null) url.searchParams.set("page", String(params.page));
     if (params.limit != null) url.searchParams.set("limit", String(params.limit));
     if (params.q != null && params.q !== "") url.searchParams.set("q", params.q);
@@ -292,7 +294,7 @@ export async function updateAdminUser(
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/users/${userId}`, {
+    const res = await fetch(`${base}/admin/users/${userId}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
@@ -319,7 +321,7 @@ export async function deleteAdminUser(
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/users/${userId}`, {
+    const res = await fetch(`${base}/admin/users/${userId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
     });
@@ -418,7 +420,7 @@ export async function adminUpdatePostById(
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/posts/${postId}`, {
+    const res = await fetch(`${base}/admin/posts/${postId}`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -465,7 +467,7 @@ export async function fetchAdminScheduledPosts(
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const url = new URL(`${base}/api/admin/posts/scheduled`);
+    const url = new URL(`${base}/admin/posts/scheduled`);
     if (params.page != null) url.searchParams.set("page", String(params.page));
     if (params.limit != null) url.searchParams.set("limit", String(params.limit));
     if (params.q) url.searchParams.set("q", params.q);
@@ -519,7 +521,7 @@ export async function fetchAdminMeProfile(tokenOverride?: string): Promise<Admin
     const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
     if (!token) throw new Error("Admin token missing. Please login.");
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/me/profile`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+    const res = await fetch(`${base}/admin/me/profile`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
     if (!res.ok) {
         const text = await res.text();
         throw new Error(`Failed to load profile: ${res.status} ${text}`);
@@ -546,7 +548,7 @@ export async function updateAdminProfileAPI(payload: UpdateAdminProfilePayload, 
     if (payload.avatar) formData.append("avatar", payload.avatar);
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/me/profile`, {
+    const res = await fetch(`${base}/admin/me/profile`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${_token}` },
         body: formData,
@@ -555,11 +557,45 @@ export async function updateAdminProfileAPI(payload: UpdateAdminProfilePayload, 
     if (!res.ok) throw new Error(`Failed to update profile: ${res.status}`);
     return res.json();
 }
+// export async function fetchPostById(id: string, token: string) {
+//     const base = process.env.NEXT_PUBLIC_API_URL || "";
+//     const res = await fetch(`${base}/admin/posts/${id}`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//     });
+//     if (!res.ok) throw new Error('Failed to fetch post');
+//     return res.json();
+// }
+
 export async function fetchPostById(id: string, token: string) {
+    try {
+        const base = process.env.NEXT_PUBLIC_API_URL || "";
+        const res = await fetch(`${base}/admin/posts/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (!res.ok) {
+            const errorData = await res.json();
+            const msg = errorData?.error?.message || "Failed to fetch post";
+            toast.error(msg); // toast me show
+            throw new Error(msg);
+        }
+
+        const data = await res.json();
+        toast.success("Post loaded successfully!");
+        return data;
+    } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        toast.error(msg);
+        throw err;
+    }
+}
+
+// Frontend
+export async function fetchSinglePostById(id: string) {
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/admin/posts/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await fetch(`${base}/admin/posts/${id}`);
     if (!res.ok) throw new Error('Failed to fetch post');
     return res.json();
 }
@@ -583,7 +619,7 @@ export async function fetchAdminDashboard(tokenOverride?: string): Promise<Admin
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/api/admin/dashboard`, {
+    const res = await fetch(`${base}/admin/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
     });

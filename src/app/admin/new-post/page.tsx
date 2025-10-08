@@ -91,7 +91,7 @@ export default function NewPostPage() {
                 imageFiles,
                 categoryId: resolvedCategoryId,
                 tags,
-                status,
+                status : status as "published" | "scheduled",
             });
             setMessage("Post created successfully.");
             // Reset form fields (keep token locked)
@@ -211,8 +211,7 @@ export default function NewPostPage() {
 
                         <div className="grid gap-2">
                             <label className="text-sm font-semibold">Status</label>
-                            <select value={status} onChange={(e) => setStatus(e.target.value as "draft" | "published")} className="rounded-xl px-3 h-11 bg-white/5 border border-white/10">
-                                <option value="draft">draft</option>
+                            <select value={status} onChange={(e) => setStatus(e.target.value as "published" | "published")} className="rounded-xl px-3 h-11 bg-white/5 border border-white/10">
                                 <option value="published">published</option>
                             </select>
                         </div>

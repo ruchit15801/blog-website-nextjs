@@ -1,5 +1,6 @@
 "use client";
 import { ChevronUp } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -36,8 +37,9 @@ export default function Footer() {
           {/* ===== LEFT SIDE ===== */}
           <div className="footer-item-inner-items">
             <div className="flex items-center gap-2 mb-4">
-              {/* <Image src="/images/logo.png" alt="Logo" width={130} height={130} priority /> */}
-              <span className="navbar-title" style={{ color: '#29294b', letterSpacing: '-.02em' }}>BlogCafeAI</span>
+              <Link href="/" className="navbar-logo">
+                <Image src="/images/BlogCafe_Logo.svg" alt="BlogCafeAI" width={130} height={130} priority />
+              </Link>
             </div>
 
             <p className="mb-4 opacity-80">

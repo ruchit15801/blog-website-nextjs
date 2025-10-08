@@ -11,7 +11,7 @@ import {
 } from "@/lib/adminClient";
 import Loader from "@/components/Loader";
 import toast from "react-hot-toast";
-import { fetchMyProfile, fetchUserDashboard, UserDashboardData } from "@/lib/api";
+import { fetchMyProfile, fetchUserDashboard, MeProfile, UserDashboardData } from "@/lib/api";
 
 interface StatCardProps {
   title: string;
@@ -33,41 +33,66 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<AdminMeProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user"; // store role in localStorage
+
+  // Save profile info to localStorage whenever it updates
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
+    if (!profile) return;
+    localStorage.setItem(
+      "userProfile",
+      JSON.stringify({
+        fullName: profile.fullName,
+        email: profile.email,
+        avatar: profile.avatar,
+        role: profile.role,
+      })
+    );
+    window.dispatchEvent(new Event("storage"));
+  }, [profile]);
+
+  // Load dashboard data (profile + stats) based on role
+  useEffect(() => {
+    if (!token) {
+      toast.error("User token missing. Please login again.");
+      return;
+    }
+
+    let active = true;
+    setLoading(true);
+
+    (async () => {
       try {
-        // Check if admin token exists
-        const adminToken = localStorage.getItem("token"); 
-        console.log("admin token is :- ", adminToken);
-        if (adminToken) {
-          const me = await fetchAdminMeProfile(adminToken);
-          setProfile(me);
+        let me: AdminMeProfile | MeProfile;
+        let stats: AdminDashboardData | UserDashboardData;
 
-          const stats = await fetchAdminDashboard();
-          setDashboard(stats);
+        if (role === "admin") {
+          // Admin API calls
+          me = await fetchAdminMeProfile(token);
+          stats = await fetchAdminDashboard(token);
         } else {
-          // User token
-          const userToken = localStorage.getItem("accessToken");
-          console.log("user token is :- ", userToken);
-          if (!userToken) throw new Error("User token missing. Please login.");
-
-          const me = await fetchMyProfile(userToken); // normal user profile
-          setProfile(me);
-
-          const stats = await fetchUserDashboard(userToken);
-          setDashboard(stats);
+          // User API calls
+          me = await fetchMyProfile(token);
+          stats = await fetchUserDashboard(token);
         }
-      } catch (err: unknown) {
-        console.error(err);
+
+        if (!active) return;
+
+        // Set data in state
+        setProfile(me);
+        setDashboard(stats);
+      } catch (err) {
+        console.error("Failed to load dashboard:", err);
         toast.error("Failed to load dashboard. Please login again.");
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
-    };
+    })();
 
-    loadData();
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [token, role]);
 
 
 

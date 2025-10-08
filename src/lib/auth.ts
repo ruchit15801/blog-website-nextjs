@@ -1,23 +1,20 @@
 export function logoutAndRedirect() {
+    if (typeof window === "undefined") return;
+
     try {
-        if (typeof window !== "undefined") {
-            const keysToRemove = [
-                "token",
-                "refreshToken",
-                "userProfile",
-                "role",
-                "categories",
-            ];
-            keysToRemove.forEach((k) => localStorage.removeItem(k));
-            window.dispatchEvent(new Event("storage"));
-        }
-    } catch {
-        // ignore
+        localStorage.clear();
+        sessionStorage.clear();
+        document.cookie.split(";").forEach((c) => {
+            document.cookie = c
+                .replace(/^ +/, "")
+                .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+        });
+        window.dispatchEvent(new Event("storage"));
+
+    } catch (err) {
+        console.error("Error clearing data during logout:", err);
     } finally {
-        if (typeof window !== "undefined") {
-            window.location.replace("/auth");
-        }
+        window.location.replace("/auth");
     }
 }
-
 

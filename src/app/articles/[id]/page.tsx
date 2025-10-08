@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Loader from "@/components/Loader";
-import { fetchPostById, getAdminToken } from "@/lib/adminClient";
+import { fetchSinglePostById, getAdminToken } from "@/lib/adminClient";
 import { TwitterIcon, FacebookIcon, InstagramIcon, LinkedinIcon } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -41,7 +41,7 @@ export default function ArticlePage() {
             setLoading(true);
             setError(null);
             try {
-                const response = await fetchPostById(postId, token);
+                const response = await fetchSinglePostById(postId);
                 if (!response.success) throw new Error("Post not found");
                 setPost(response.post);
                 toast.success("Post loaded successfully!");

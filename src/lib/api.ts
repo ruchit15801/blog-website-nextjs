@@ -189,64 +189,170 @@ export const resetPasswordAPI = async (email: string, otp: string, newPassword: 
   return res.data;
 };
 
-
-// Get current user
-export const getMe = async (token: string) => {
-  const response = await api.get("/auth/me", {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return response.data;
-};
-
-// create Post
-export const createPost = async (
-  data: FormData,
-  token: string
-) => {
-  const res = await api.post("/admin/posts", data, {
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
-  });
-  return res.data;
-};
-
-export interface User_Post {
+// src/lib/types.ts
+export type UserPost = {
+  _id: string;
+  id : string; // for compatibility
   title: string;
   slug: string;
-  summary: string;
-  bannerImageUrl: string;
-  publishedAt: string;
-  createdAt: string;
-  readingTimeMinutes: number;
-  tags: string[];
-  category?: { _id: string; name: string } | string;
-  author?: { _id: string; fullName?: string; name?: string; email?: string } | string;
-}
+  summary?: string;
+  bannerImageUrl?: string;
+  author?: { _id: string; fullName?: string } | string;
+  category?: { _id: string; name?: string; slug?: string } | string;
+  publishedAt?: string;
+  tags?: string[];
+  createdAt?: string;
+  readingTimeMinutes?: number;
+  contentHtml?: string;
+};
 
-export interface PaginatedPosts {
+export type PaginatedPosts = {
   success: boolean;
-  data: User_Post[];
+  data: UserPost[];
   meta: {
     page: number;
     limit: number;
     total: number;
   };
+};
+
+export async function fetchAllUserPosts(params: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    tag?: string;
+    search?: string;
+    sort?: 'latest' | 'trending' | 'featured';
+    authorId?: string;
+}) {
+    const base = process.env.NEXT_PUBLIC_API_URL || '';
+    const url = new URL(`${base}/posts`);
+    
+    Object.entries(params).forEach(([key, value]) => {
+        if (value) url.searchParams.set(key, String(value));
+    });
+
+    const res = await fetch(url.toString());
+    if (!res.ok) throw new Error('Failed to fetch posts');
+    return res.json();
 }
 
-export async function fetchUserPosts(
-  userId: string,
-  token: string,
-  page = 1,
-  limit = 10
-): Promise<PaginatedPosts> {
-  const base = process.env.NEXT_PUBLIC_API_URL || "";
-  const res = await axios.get(`${base}/posts/`, {
-    params: { page, limit },
+// Get a single post by slug
+export const fetchPostBySlug = async (slug: string, token?: string) => {
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE_URL}/posts/${slug}`, {
+    headers,
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Failed to fetch post: ${res.status}`);
+  return res.json();
+};
+
+// Create a new post
+export const createPost = async (
+  data: {
+    title: string;
+    subtitle?: string;
+    contentHtml: string;
+    categoryId?: string;
+    tags?: string[];
+    status?: string;
+    publishedAt?: string;
+    bannerImage?: File | null;
+    images?: File[];
+  },
+  token: string
+) => {
+  const formData = new FormData();
+  formData.append("title", data.title);
+  if (data.subtitle) formData.append("subtitle", data.subtitle);
+  formData.append("contentHtml", data.contentHtml);
+  if (data.categoryId) formData.append("categoryId", data.categoryId);
+  if (data.status) formData.append("status", data.status);
+  if (data.publishedAt) formData.append("publishedAt", data.publishedAt);
+  if (data.tags && data.tags.length > 0)
+    data.tags.forEach((tag) => formData.append("tags", tag));
+  if (data.bannerImage) formData.append("bannerImage", data.bannerImage);
+  if (data.images && data.images.length > 0)
+    data.images.forEach((img) => formData.append("images", img));
+
+  const res = await api.post("/posts", formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+type PostUpdateInput = {
+  title?: string;
+  subtitle?: string;
+  contentHtml?: string;
+  categoryId?: string;
+  tags?: string[];
+  status?: string;
+  publishedAt?: string;
+  bannerImage?: File | null;
+  images?: File[];
+};
+
+// Update a post
+export const updatePost = async (
+  id: string,
+  data: PostUpdateInput,
+  token: string
+) => {
+  const formData = new FormData();
+  if (data.title) formData.append("title", data.title);
+  if (data.subtitle) formData.append("subtitle", data.subtitle);
+  if (data.contentHtml) formData.append("contentHtml", data.contentHtml);
+  if (data.categoryId) formData.append("categoryId", data.categoryId);
+  if (data.status) formData.append("status", data.status);
+  if (data.publishedAt) formData.append("publishedAt", data.publishedAt);
+  if (data.tags && data.tags.length > 0)
+    data.tags.forEach((t) => formData.append("tags", t));
+  if (data.bannerImage) formData.append("bannerImage", data.bannerImage);
+  if (data.images && data.images.length > 0)
+    data.images.forEach((img) => formData.append("images", img));
+
+  const res = await api.patch(`/posts/${id}`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+
+// Delete a post
+export const deletePost = async (id: string, token: string) => {
+  const res = await api.delete(`/posts/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
-}
+};
 
+// Publish a post
+export const publishPost = async (id: string, token: string) => {
+  const res = await api.post(
+    `/posts/${id}/publish`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return res.data;
+};
 
+// Get post meta (views, comments, favorites)
+export const fetchPostMeta = async (id: string, token?: string) => {
+  const headers: Record<string, string> = {};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE_URL}/posts/${id}/meta`, { headers });
+  if (!res.ok) throw new Error(`Failed to fetch post meta: ${res.status}`);
+  return res.json();
+};
 
 // Categories
 export type Category = {

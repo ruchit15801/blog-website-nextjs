@@ -2,15 +2,13 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams,} from "next/navigation";
 import { Clock } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import { fetchAdminPosts, type RemotePost } from "@/lib/adminClient";
 
 export default function BlogIndex() {
-    const searchParams = useSearchParams();
-    const authorId = searchParams?.get("author") || null;
-
+    const { authorId } = useParams();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(12);
     const [loading, setLoading] = useState(false);
@@ -25,7 +23,7 @@ export default function BlogIndex() {
         let active = true;
         setLoading(true);
         setError(null);
-        fetchAdminPosts({ page, limit, userid: authorId || undefined })
+       fetchAdminPosts({ page, limit, userid: Array.isArray(authorId) ? authorId[0] : authorId || undefined })
             .then((res) => {
                 if (!active) return;
                 setPosts(res.posts || []);

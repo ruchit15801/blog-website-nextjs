@@ -48,7 +48,7 @@ export default function ArticlesSection({
             id: p._id,
             title: p.title,
             date: formatDate(p.publishedAt || p.createdAt),
-            author: getPostAuthorName(p), // <-- sirf HomePost ke liye
+            author: getPostAuthorName(p), 
             excerpt: "",
             image: p.bannerImageUrl || "/images/a1.webp",
             tag: Array.isArray(p.tags) ? p.tags : [],

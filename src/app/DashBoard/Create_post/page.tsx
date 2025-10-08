@@ -3,9 +3,10 @@ import Image from "next/image";
 import TiptapEditor from "@/components/TiptapEditor";
 import Loader from "@/components/Loader";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { adminUpdatePostById, createRemotePost, fetchCategories, fetchPostById, getAdminToken, saveAdminToken } from "@/lib/adminClient";
+import { adminUpdatePostById, createRemotePost, fetchCategories, fetchPostById, getAdminToken} from "@/lib/adminClient";
 import DashboardLayout from "../DashBoardLayout";
 import toast from "react-hot-toast";
+import { createPost, updatePost } from "@/lib/api";
 
 type CategoryType = { _id: string; name: string };
 type PostType = {
@@ -57,8 +58,6 @@ export default function AdminLayout() {
 
     const editorRef = useRef<HTMLDivElement | null>(null);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
-    const [images, setImageUrls] = useState("");
-    console.log(setImageUrls);
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
@@ -157,35 +156,63 @@ export default function AdminLayout() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setMessage(null);
-        if (!token) return toast.error("Please enter admin token.");
         if (!title.trim()) return toast.error("Title is required.");
+
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
+
+        if (!token) return toast.error("Please login first.");
 
         try {
             setSubmitting(true);
-            saveAdminToken(token);
 
+            // Resolve category ID
             const resolvedCategoryId = categoryName
                 ? (categories.find((c) => c.name === categoryName)?._id ?? "")
                 : categoryId;
 
-            const postData = {
-                title,
-                subtitle,
-                contentHtml,
-                bannerFile,
-                images,
-                imageFiles,
-                categoryId: resolvedCategoryId,
-                tags: tagsList,
-                status,
-            };
+            // Prepare data based on role
+            if (role === "admin") {
+                // Admin API
+                const postData = {
+                    title,
+                    subtitle,
+                    contentHtml,
+                    bannerFile,
+                    imageFiles,
+                    categoryId: resolvedCategoryId,
+                    tags: tagsList,
+                    status,
+                };
 
-            if (editPost?._id) {
-                await adminUpdatePostById(editPost._id, postData);
-                toast.success("Post updated successfully.");
+                if (editPost?._id) {
+                    await adminUpdatePostById(editPost._id, postData, token);
+                    toast.success("Post updated successfully.");
+                } else {
+                    await createRemotePost(postData);
+                    toast.success("Post created successfully.");
+                }
+
             } else {
-                await createRemotePost({ ...postData, status: "published" });
-                toast.success("Post created successfully.");
+                // User API
+                const postData = {
+                    title,
+                    subtitle,
+                    contentHtml,
+                    bannerImage: bannerFile ?? undefined,
+                    images: imageFiles ?? [],
+                    categoryId: resolvedCategoryId,
+                    tags: tagsList,
+                    status,
+                };
+
+                if (editPost?._id) {
+                    await updatePost(editPost._id, postData, token);
+                    toast.success("Post updated successfully.");
+                } else {
+                    await createPost(postData, token);
+                    toast.success("Post created successfully.");
+                }
             }
 
             setTimeout(() => { window.location.href = "/DashBoard/See_all_post"; }, 600);

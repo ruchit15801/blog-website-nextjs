@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { loginUser, signupUser, getMe, createPost as createPostApi, forgotPasswordAPI} from "../../lib/api";
+import { loginUser, signupUser,forgotPasswordAPI } from "../../lib/api";
 import axios from "axios";
 
 // --- Types ---
@@ -107,39 +107,6 @@ export const forgotPassword = createAsyncThunk(
     }
 );
 
-export const fetchMe = createAsyncThunk<
-    { user: User },
-    { token: string },
-    { rejectValue: string }
->("auth/fetchMe", async ({ token }, { rejectWithValue }) => {
-    try {
-        const res = await getMe(token);
-        return res;
-    } catch (err: unknown) {
-        let message = "Fetch user failed";
-        if (axios.isAxiosError(err)) message = err.response?.data?.error?.message || err.message;
-        else if (err instanceof Error) message = err.message;
-        return rejectWithValue(message);
-    }
-});
-
-// --- Create Post ---
-export const createPost = createAsyncThunk<
-    Post,
-    { data: FormData; token: string },
-    { rejectValue: string }
->("/admin/posts", async ({ data, token }, { rejectWithValue }) => {
-    try {
-        const res = await createPostApi(data, token);
-        return res.post;
-    } catch (err: unknown) {
-        let message = "Post creation failed";
-        if (axios.isAxiosError(err)) message = err.response?.data?.error?.message || err.message;
-        else if (err instanceof Error) message = err.message;
-        return rejectWithValue(message);
-    }
-});
-
 // --- Slice ---
 const authSlice = createSlice({
     name: "auth",
@@ -203,33 +170,7 @@ const authSlice = createSlice({
                 state.forgotError = action.payload as string;
             })
 
-            // FetchMe
-            .addCase(fetchMe.pending, (state) => {
-                state.loading = true;
-            })
-        .addCase(fetchMe.fulfilled, (state, action: PayloadAction<{ user: User }>) => {
-            state.loading = false;
-            state.user = action.payload.user;
-        })
-        .addCase(fetchMe.rejected, (state) => {
-            state.loading = false;
-            state.user = null;
-        })
-
-        // Create Post
-        .addCase(createPost.pending, (state) => {
-            state.postLoading = true;
-            state.postError = null;
-        })
-        .addCase(createPost.fulfilled, (state, action: PayloadAction<Post>) => {
-            state.postLoading = false;
-            state.posts.push(action.payload);
-        })
-        .addCase(createPost.rejected, (state, action) => {
-            state.postLoading = false;
-            state.postError = action.payload ?? "Post creation failed";
-        });
-},
+    },
 });
 
 export const { logout } = authSlice.actions;
