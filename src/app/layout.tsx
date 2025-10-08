@@ -44,7 +44,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Primary Meta Tags */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Primary Meta Tags (defaults; page-level generateMetadata can override) */}
         <title>BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips</title>
         <meta name="title" content="BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips" />
         <meta name="description" content="BlogCafeAI brings you the latest AI tools, technology insights, productivity hacks, and coding tutorials. Stay ahead with deep-dive articles and expert-curated content for creators, developers, and AI enthusiasts." />
@@ -55,18 +56,18 @@ export default function RootLayout({
         <meta name="language" content="English" />
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.blogcafeai.com/" />
+        <meta property="og:url" content={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
         <meta property="og:title" content="BlogCafeAI — AI Tools, Tech Trends & Smart Productivity" />
         <meta property="og:description" content="Stay updated with the world of Artificial Intelligence. Discover the best AI tools, tutorials, and guides that power creators and developers." />
         <meta property="og:image" content="https://www.blogcafeai.com/og-image.jpg" />
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content="https://www.blogcafeai.com/" />
+        <meta name="twitter:url" content={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
         <meta name="twitter:title" content="BlogCafeAI — AI Tools, Tech Trends & Smart Productivity" />
         <meta name="twitter:description" content="Explore AI tools, automation tricks, and coding insights on BlogCafeAI — your daily AI knowledge shot." />
         <meta name="twitter:image" content="https://www.blogcafeai.com/og-image.jpg" />
         {/* Canonical */}
-        <link rel="canonical" href="https://www.blogcafeai.com/" />
+        <link rel="canonical" href={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
 
         <Script
           id="adsense"
@@ -78,6 +79,25 @@ export default function RootLayout({
         <meta
           name="google-adsense-account"
           content="ca-pub-8481647724806223"
+        />
+        {/* Organization JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'BlogCafeAI',
+              url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com',
+              logo: (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + '/images/BlogCafe_Logo.svg',
+              sameAs: [
+                'https://www.facebook.com/',
+                'https://twitter.com/',
+                'https://www.instagram.com/',
+                'https://www.linkedin.com/'
+              ],
+            }),
+          }}
         />
       </head>
 

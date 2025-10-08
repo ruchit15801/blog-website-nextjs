@@ -293,6 +293,17 @@ a[style] { text-underline-offset: 3px; }
 img, video { max-width: 100%; height: auto; }
 iframe { max-width: 100%; }
 
+/* Ultra-small screens (e.g., iPhone SE width <= 375px) */
+@media (max-width: 375px) {
+  .px-8 { padding-left: 1rem !important; padding-right: 1rem !important; }
+  .p-8 { padding: 1rem !important; }
+  h1 { font-size: 1.75rem !important; line-height: 1.2 !important; }
+  h2 { font-size: 1.25rem !important; line-height: 1.25 !important; }
+  h3 { font-size: 1.125rem !important; }
+  .text-4xl { font-size: 1.75rem !important; }
+  .text-5xl { font-size: 2rem !important; }
+}
+
 /* THEME LOADER */
 @keyframes loaderSpin {
   0% { transform: rotate(0deg); }

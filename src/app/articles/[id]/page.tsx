@@ -7,6 +7,7 @@ import Loader from "@/components/Loader";
 import { fetchSinglePostById } from "@/lib/adminClient";
 import { TwitterIcon, FacebookIcon, InstagramIcon, LinkedinIcon } from "lucide-react";
 import toast from "react-hot-toast";
+import Script from "next/script";
 
 type RemotePost = {
     _id: string;
@@ -164,6 +165,32 @@ export default function ArticlePage() {
 
     return (
         <div className="mx-auto max-w-7xl space-y-8 px-8">
+            {/* JSON-LD Article schema */}
+            <Script id="ld-article" type="application/ld+json" strategy="afterInteractive"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        '@context': 'https://schema.org',
+                        '@type': 'Article',
+                        headline: post.title,
+                        description: (post.subtitle || '').trim() || undefined,
+                        image: [post.bannerImageUrl, ...(Array.isArray(post.imageUrls) ? post.imageUrls : [])].filter(Boolean),
+                        datePublished: post.publishedAt || post.createdAt,
+                        author: post.author?.fullName ? { '@type': 'Person', name: post.author.fullName } : undefined,
+                        mainEntityOfPage: {
+                            '@type': 'WebPage',
+                            '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${postId}`,
+                        },
+                        publisher: {
+                            '@type': 'Organization',
+                            name: 'BlogCafeAI',
+                            logo: {
+                                '@type': 'ImageObject',
+                                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/images/BlogCafe_Logo.svg`,
+                            },
+                        },
+                    })
+                }}
+            />
             {/* Header */}
             <div className="text-center space-y-3">
                 <div className="text-sm text-gray-500 py-6" style={{ color: '#696981', fontWeight: 400 }}>
