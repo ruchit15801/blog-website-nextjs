@@ -139,8 +139,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const menus = role === "admin" ? adminMenu : userMenu;
 
   return (
-    <div className="flex min-h-screen bg-gray-100 dashboard-skin">
-      <aside className={`bg-white shadow-md flex flex-col p-4 fixed top-0 left-0 h-screen overflow-auto transition-transform duration-200 w-64 ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+    <div className="relative flex min-h-screen bg-gray-100 dashboard-skin overflow-x-hidden">
+      <aside className={`bg-white shadow-md flex flex-col p-4 fixed top-0 left-0 h-screen overflow-auto transition-transform duration-200 w-64 z-30 ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <Link href="/" className="navbar-logo">
           <Image src="/images/BlogCafe_Logo.svg" alt="BlogCafeAI" width={130} height={130} priority />
         </Link>
@@ -154,6 +154,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 ? "bg-blue-100 text-blue-600"
                 : "hover:bg-gray-100"
                 }`}
+              onClick={() => setOpen(false)}
             >
               {item.icon}
               <span>{item.label}</span>
@@ -162,7 +163,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </nav>
       </aside>
 
-      <div className="flex-1 md:ml-64 flex flex-col">
+      {/* Backdrop for mobile menu */}
+      {open && (
+        <div className="fixed inset-0 bg-black/40 z-20 md:hidden" onClick={() => setOpen(false)} />
+      )}
+
+      <div className="flex-1 md:ml-64 flex flex-col min-w-0">
         <header className="bg-white shadow flex justify-between items-center px-4 md:px-6 h-16 sticky top-0 z-20">
           <button className="md:hidden p-2 rounded-lg border border-gray-200" onClick={() => setOpen(v => !v)} aria-label="Toggle sidebar">
             <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#29294b" strokeWidth="2" strokeLinecap="round" /></svg>

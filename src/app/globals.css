@@ -46,6 +46,7 @@ body {
   font-family: var(--cs-font-body-family), Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
+  overflow-x: hidden; /* prevent accidental sideways scroll on mobile */
 }
 
 /* 14️⃣ Force light text over legacy inline hex colors (production-safe) */
@@ -292,6 +293,18 @@ a[style] { text-underline-offset: 3px; }
 /* Responsive media */
 img, video { max-width: 100%; height: auto; }
 iframe { max-width: 100%; }
+
+/* Content responsiveness helpers */
+.prose_content pre,
+.prose_content code {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.prose_content table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
 
 /* Ultra-small screens (e.g., iPhone SE width <= 375px) */
 @media (max-width: 375px) {
