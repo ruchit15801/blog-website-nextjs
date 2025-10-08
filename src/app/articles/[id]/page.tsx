@@ -91,6 +91,21 @@ export default function ArticlePage() {
         return () => { active = false; };
     }, [post?._id]);
 
+    // Scroll reveal animation for blocks
+    useEffect(() => {
+        const nodes = document.querySelectorAll('.reveal-on-scroll');
+        if (!nodes.length) return;
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('revealed');
+                }
+            });
+        }, { rootMargin: '0px 0px -5% 0px', threshold: 0.08 });
+        nodes.forEach((n) => io.observe(n));
+        return () => io.disconnect();
+    }, [postId, post?.contentHtml]);
+
     // Reading progress based on content scroll
     useEffect(() => {
         function handleScroll() {
@@ -314,7 +329,7 @@ export default function ArticlePage() {
                                             const className = `prose_content prose max-w-none mb-4 leading-relaxed tracking-[.005em]${firstTextRendered ? '' : ' lead'}`;
                                             if (!firstTextRendered) firstTextRendered = true;
                                             return (
-                                                <div key={index} className={className}
+                                                <div key={index} className={`${className} reveal-on-scroll reveal`}
                                                     dangerouslySetInnerHTML={{ __html: block }} />
                                             );
                                         }
@@ -330,7 +345,7 @@ export default function ArticlePage() {
                                             ) {
                                                 skipIndexes.add(index + 1);
                                                 return (
-                                                    <div key={index} className="flex gap-4 my-6">
+                                                    <div key={index} className="flex gap-4 my-6 reveal-on-scroll reveal">
                                                         <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
                                                             <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
                                                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
@@ -346,7 +361,7 @@ export default function ArticlePage() {
                                             const height = block.size === "small" ? "h-72 md:h-80" : "h-80 md:h-[28rem]";
                                             const width = block.size === "small" ? "md:w-4/5 lg:w-2/3" : "md:w-4/5";
                                             return (
-                                                <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom`}>
+                                                <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom reveal-on-scroll reveal`}>
                                                     <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
                                                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
                                                 </figure>
@@ -360,7 +375,7 @@ export default function ArticlePage() {
                         </div>
 
                         {/* Author section */}
-                        <div className="mt-8 rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-8 flex items-center gap-4">
+                        <div className="mt-8 rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-8 flex items-center gap-4 reveal-on-scroll reveal">
                             <div className="relative w-12 h-12 rounded-full overflow-hidden bg-[#eef2ff] flex items-center justify-center text-[#5559d1] font-bold">
                                 {post.author?.fullName ? (post.author.fullName.split(' ').map(s => s[0]).join('').slice(0, 2)) : 'AU'}
                             </div>
@@ -375,7 +390,7 @@ export default function ArticlePage() {
                         {/* Prev/Next cards */}
                         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
                             {/* Prev */}
-                            <div className="group rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-7 transition-transform hover:-translate-y-0.5 hover:shadow-lg">
+                            <div className="group rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-7 transition-all hover:-translate-y-0.5 hover:shadow-lg reveal-on-scroll reveal">
                                 <div className="text-xs tracking-widest font-semibold uppercase mb-2" style={{ color: '#696981' }}>Previous Article</div>
                                 {(prevPost ? (
                                     <Link href={`/articles/${prevPost._id}`} className="flex items-center gap-4">
@@ -396,7 +411,7 @@ export default function ArticlePage() {
                                 ))}
                             </div>
                             {/* Next */}
-                            <div className="group rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-7 transition-transform hover:-translate-y-0.5 hover:shadow-lg">
+                            <div className="group rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-7 transition-all hover:-translate-y-0.5 hover:shadow-lg reveal-on-scroll reveal">
                                 <div className="text-xs tracking-widest font-semibold uppercase mb-2" style={{ color: '#696981' }}>Next Article</div>
                                 {(nextPost ? (
                                     <Link href={`/articles/${nextPost._id}`} className="flex items-center gap-4 justify-end">
