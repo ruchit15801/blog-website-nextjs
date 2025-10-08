@@ -289,6 +289,10 @@ a[style] { text-underline-offset: 3px; }
 .editor-area ul, .editor-area ol { padding-left: 1.25rem; margin: .5rem 0; font-family: var(--cs-font-body-family), sans-serif; }
 .editor-area blockquote { border-left: 3px solid var(--brand-teal); padding-left: .75rem; margin: .75rem 0; opacity: .9; font-family: var(--cs-font-body-family), sans-serif; }
 
+/* Responsive media */
+img, video { max-width: 100%; height: auto; }
+iframe { max-width: 100%; }
+
 /* THEME LOADER */
 @keyframes loaderSpin {
   0% { transform: rotate(0deg); }
