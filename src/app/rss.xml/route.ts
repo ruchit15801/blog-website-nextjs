@@ -18,10 +18,14 @@ export async function GET() {
   let items: { title: string; link: string; description?: string }[] = [];
   try {
     const res = await fetchAllUserPosts({ page: 1, limit: 50 });
-    const posts = (res?.data || res?.posts || res?.result || []) as Array<{ _id?: string; id?: string; title?: string; contentHtml?: string; subtitle?: string } & Record<string, unknown>>;
+    type ApiPost = { _id?: string; id?: string; title?: string; contentHtml?: string; subtitle?: string };
+    const posts = ((res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.data
+      || (res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.posts
+      || (res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.result
+      || []) as ApiPost[];
     items = posts.map(p => ({
       title: p.title || "Post",
-      link: `${site}/articles/${(p._id || (p as any).id)}`,
+      link: `${site}/articles/${(p._id || p.id)}`,
       description: (p.subtitle as string) || (p.contentHtml ? String(p.contentHtml).replace(/<[^>]*>/g, ' ').slice(0, 180) : undefined)
     }));
   } catch {

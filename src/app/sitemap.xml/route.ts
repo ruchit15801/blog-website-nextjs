@@ -10,12 +10,16 @@ ${items}
 
 export async function GET() {
     const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com";
-    const staticUrls = [`/`, `/about`, `/contact`, `/blog`, `/all-posts`, `/privacy-policy`, `/cookie-policy`, `/disclaimer`];
-    let postUrls: string[] = [];
+  const staticUrls = [`/`, `/about`, `/contact`, `/blog`, `/all-posts`, `/privacy-policy`, `/cookie-policy`, `/disclaimer`];
+  let postUrls: string[] = [];
     try {
-        const res = await fetchAllUserPosts({ page: 1, limit: 200 });
-        const items = (res?.data || res?.posts || res?.result || []) as Array<{ _id?: string; id?: string } & Record<string, unknown>>;
-        postUrls = items.map(p => `/articles/${(p._id || (p as any).id)}`).filter(Boolean);
+    const res = await fetchAllUserPosts({ page: 1, limit: 200 });
+    type ApiPost = { _id?: string; id?: string };
+    const items = ((res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.data
+      || (res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.posts
+      || (res as { data?: ApiPost[]; posts?: ApiPost[]; result?: ApiPost[] })?.result
+      || []) as ApiPost[];
+    postUrls = items.map(p => `/articles/${(p._id || p.id)}`).filter(Boolean);
     } catch {
         postUrls = [];
     }
