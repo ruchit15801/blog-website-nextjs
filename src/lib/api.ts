@@ -403,7 +403,7 @@ export async function createUserScheduledPost(
     publishedAt: string;
     bannerImage?: File | null;
     images?: File[];
-    status?: string; 
+    status?: string;
   },
   token: string,
   authorId?: string // optional: pass if creating for specific user
@@ -537,6 +537,11 @@ export type MeProfile = {
 export type UpdateProfilePayload = {
   fullName?: string;
   avatar?: File;
+  socialLinks?: { twitter?: string; facebook?: string; instagram?: string; linkedin?: string };
+  twitterUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  linkedinUrl?: string;
 };
 
 // Get current user profile
@@ -557,6 +562,16 @@ export const updateMyProfile = async (
   const formData = new FormData();
   if (payload.fullName) formData.append("fullName", payload.fullName);
   if (payload.avatar) formData.append("avatar", payload.avatar);
+  // Map social link fields to API expected keys
+  const fromObj = payload.socialLinks || {};
+  const twitterUrl = payload.twitterUrl ?? fromObj.twitter;
+  const facebookUrl = payload.facebookUrl ?? fromObj.facebook;
+  const instagramUrl = payload.instagramUrl ?? fromObj.instagram;
+  const linkedinUrl = payload.linkedinUrl ?? fromObj.linkedin;
+  if (twitterUrl) formData.append("twitterUrl", twitterUrl);
+  if (facebookUrl) formData.append("facebookUrl", facebookUrl);
+  if (instagramUrl) formData.append("instagramUrl", instagramUrl);
+  if (linkedinUrl) formData.append("linkedinUrl", linkedinUrl);
 
   const res = await api.patch("/users/me/profile", formData, {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },

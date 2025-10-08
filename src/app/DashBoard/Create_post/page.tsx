@@ -245,6 +245,18 @@ export default function AdminLayout() {
                 <form id="new-post-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Left column: form fields */}
                     <div className="space-y-5 bg-white rounded-2xl shadow p-6 card-hover">
+                        {/* Instruction panel */}
+                        <div className="rounded-xl p-4" style={{ background: 'linear-gradient(180deg, #f5f7ff 0%, #ffffff 100%)' }}>
+                            <div className="text-sm font-semibold mb-2" style={{ color: '#29294b' }}>Posting guide</div>
+                            <ul className="list-disc pl-5 text-sm space-y-1" style={{ color: '#696981' }}>
+                                <li>Write a clear Title and optional Subtitle.</li>
+                                <li>Select a Category; use Refresh to sync latest categories.</li>
+                                <li>Add Tags: type a tag and press Enter; click × to remove.</li>
+                                <li>Upload a Banner and optional gallery images. Use × to remove any preview.</li>
+                                <li>Use the editor on the right to format content (H2/H3, lists, quotes, links).</li>
+                                <li>Click Show Preview to review before publishing.</li>
+                            </ul>
+                        </div>
                         {/* Title */}
                         <div className="space-y-1">
                             <label className="text-sm font-semibold">Title *</label>

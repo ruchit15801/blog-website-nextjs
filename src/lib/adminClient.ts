@@ -538,6 +538,11 @@ export async function fetchAdminMeProfile(tokenOverride?: string): Promise<Admin
 export type UpdateAdminProfilePayload = {
     fullName?: string;
     avatar?: File;
+    socialLinks?: { twitter?: string; facebook?: string; instagram?: string; linkedin?: string };
+    twitterUrl?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    linkedinUrl?: string;
 };
 
 export async function updateAdminProfileAPI(payload: UpdateAdminProfilePayload, token?: string) {
@@ -547,6 +552,16 @@ export async function updateAdminProfileAPI(payload: UpdateAdminProfilePayload, 
     const formData = new FormData();
     if (payload.fullName) formData.append("fullName", payload.fullName);
     if (payload.avatar) formData.append("avatar", payload.avatar);
+    // Map UI social links to API fields
+    const fromObj = payload.socialLinks || {};
+    const twitterUrl = payload.twitterUrl ?? fromObj.twitter;
+    const facebookUrl = payload.facebookUrl ?? fromObj.facebook;
+    const instagramUrl = payload.instagramUrl ?? fromObj.instagram;
+    const linkedinUrl = payload.linkedinUrl ?? fromObj.linkedin;
+    if (twitterUrl) formData.append("twitterUrl", twitterUrl);
+    if (facebookUrl) formData.append("facebookUrl", facebookUrl);
+    if (instagramUrl) formData.append("instagramUrl", instagramUrl);
+    if (linkedinUrl) formData.append("linkedinUrl", linkedinUrl);
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const res = await fetch(`${base}/admin/me/profile`, {
