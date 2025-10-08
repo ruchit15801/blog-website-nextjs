@@ -8,7 +8,7 @@ import { fetchAdminPosts, type RemotePost, adminDeletePostById } from "@/lib/adm
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
-import { fetchAllUserPosts } from "@/lib/api";
+import { deletePost, fetchAllUserPosts } from "@/lib/api";
 
 interface UserPost {
     _id: string;
@@ -39,36 +39,6 @@ export default function AllPosts() {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
 
-    // useEffect(() => {
-    //     if (!token) return;
-    //     let active = true;
-    //     setLoading(true);
-    //     setError(null);
-
-    //     (async () => {
-    //         try {
-    //             let res;
-    //             if (role === "admin") {
-    //                 res = await fetchAdminPosts({ page: 1, limit: 24 } , token); // Pass token if needed
-    //             } else {
-    //                 res = await fetchAllUserPosts(token);
-    //             }
-
-    //             if (!active) return;
-
-    //             setPosts(res.data || []); 
-    //         } catch (err) {
-    //             console.log(err);
-    //             toast.error("Failed to load posts");
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     })();
-
-    //     return () => {
-    //         active = false;
-    //     };
-    // }, [token, role]);
 
 
     useEffect(() => {
@@ -92,7 +62,7 @@ export default function AllPosts() {
                         publishedAt: p.publishedAt,
                         author: p.author
                             ? typeof p.author === "string"
-                                ? { _id: "", fullName: p.author } 
+                                ? { _id: "", fullName: p.author }
                                 : { _id: p.author._id, fullName: p.author.fullName }
                             : undefined,
                         contentHtml: p.contentHtml || "",
@@ -100,23 +70,33 @@ export default function AllPosts() {
                         readingTimeMinutes: p.readingTimeMinutes || 0,
                     }));
                 } else {
-                    const res = await fetchAllUserPosts({ page: currentPage, limit: 24 });
-                    posts = res.data.map((p: UserPost) => ({
-                        _id: p._id,
-                        title: p.title,
-                        bannerImageUrl: p.bannerImageUrl,
-                        createdAt: p.createdAt,
-                        publishedAt: p.publishedAt,
-                        author: p.author
-                            ? typeof p.author === "string"
-                                ? { _id: "", fullName: p.author }
-                                : { _id: p.author._id, fullName: p.author.fullName }
-                            : undefined,
-                        contentHtml: p.contentHtml || "",
-                        tags: p.tags || [],
-                        readingTimeMinutes: p.readingTimeMinutes || 0,
-                        slug: p.slug,
-                    }));
+                    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+                    if (token && userId) {
+
+                        const res = await fetchAllUserPosts({
+                            page: currentPage,
+                            limit: 24,
+                            token: token!,
+                            authorId: userId, 
+                        });
+
+                        posts = res.data.map((p: UserPost) => ({
+                            _id: p._id,
+                            title: p.title,
+                            bannerImageUrl: p.bannerImageUrl,
+                            createdAt: p.createdAt,
+                            publishedAt: p.publishedAt,
+                            author: p.author
+                                ? typeof p.author === "string"
+                                    ? { _id: "", fullName: p.author }
+                                    : { _id: p.author._id, fullName: p.author.fullName }
+                                : undefined,
+                            contentHtml: p.contentHtml || "",
+                            tags: p.tags || [],
+                            readingTimeMinutes: p.readingTimeMinutes || 0,
+                            slug: p.slug,
+                        }));
+                    }
                 }
 
                 if (!active) return;
@@ -167,12 +147,37 @@ export default function AllPosts() {
         router.push(`/DashBoard/Create_post?id=${post._id}`);
     };
 
+    // const handleDelete = async (postId: string) => {
+    //     const confirmed = window.confirm("Are you sure you want to delete this post?");
+    //     if (!confirmed) return;
+
+    //     try {
+    //         await adminDeletePostById(postId);
+    //         setLivePosts(prev => prev.filter(p => p._id !== postId));
+    //         toast.success(`Post deleted successfully!`);
+    //     } catch (err) {
+    //         console.error(err);
+    //         toast.error("Failed to delete post");
+    //     }
+    // };
+
+
     const handleDelete = async (postId: string) => {
         const confirmed = window.confirm("Are you sure you want to delete this post?");
         if (!confirmed) return;
 
+        if (!token) {
+            toast.error("You must be logged in to delete a post");
+            return;
+        }
+
         try {
-            await adminDeletePostById(postId);
+            if (role === "admin") {
+                await adminDeletePostById(postId);
+            } else {
+                await deletePost(postId, token);
+            }
+
             setLivePosts(prev => prev.filter(p => p._id !== postId));
             toast.success(`Post deleted successfully!`);
         } catch (err) {
@@ -180,6 +185,7 @@ export default function AllPosts() {
             toast.error("Failed to delete post");
         }
     };
+
 
     return (
         <DashboardLayout>

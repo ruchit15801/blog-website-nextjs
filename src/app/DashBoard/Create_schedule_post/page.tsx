@@ -13,6 +13,7 @@ import {
 import DashboardLayout from "../DashBoardLayout";
 import Loader from "@/components/Loader";
 import toast from "react-hot-toast";
+import { createUserScheduledPost, updatePost } from "@/lib/api";
 
 type CategoryType = { _id: string; name: string };
 
@@ -168,7 +169,6 @@ export default function CreateSchedulePost() {
     }, [categories, postId, token]);
 
 
-    // Legacy placeholder kept for UI compatibility
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const exec = (_cmd: string, _value?: string) => { /* handled by TiptapEditor */ };
 
@@ -193,7 +193,12 @@ export default function CreateSchedulePost() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setMessage(null);
-        if (!token) { toast.error("Please enter admin token."); return; }
+
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
+        const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : undefined;
+
+        if (!token) { toast.error("Please enter token."); return; }
         if (!title.trim()) { toast.error("Title is required."); return; }
         if (!scheduleDate) { toast.error("Schedule date/time is required."); return; }
 
@@ -206,23 +211,46 @@ export default function CreateSchedulePost() {
                 subtitle,
                 contentHtml,
                 publishedAt: new Date(scheduleDate).toISOString(),
-                bannerFile: bannerFile ?? undefined,
-                images: "",
-                imageFiles: imageFiles,
-                categoryId: categoryId,
-                tags: tagsList,
+                bannerFile: bannerFile ?? undefined, // correct for admin function
+                imageFiles: imageFiles.length > 0 ? imageFiles : undefined, // admin expects File[]
+                categoryId: categoryId || undefined,
+                tags: tagsList.length > 0 ? tagsList : undefined,
                 status: "scheduled" as const,
             };
 
 
             if (postId) {
                 // EDIT MODE
-                await adminUpdatePostById(postId, postData);
+                if (role === "admin") {
+                    await adminUpdatePostById(postId, postData, token);
+                } else {
+                    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+                    if (!userId) {
+                        toast.error("User not found in localStorage");
+                        return;
+                    }
+
+                    await updatePost(
+                        postId,
+                        postData,
+                        token,
+                    );
+
+                }
                 toast.success("Scheduled post updated successfully!");
             } else {
                 // CREATE MODE
-                await createScheduledPost(postData);
-                toast.success("Scheduled post created successfully!");
+                if (role === "admin") {
+                    // Admin post creation uses internal token
+                    await createScheduledPost(postData);
+                    toast.success("Scheduled post created successfully (Admin)!");
+                } else {
+                    // User post creation needs userId + token
+                    if (!userId) { toast.error("User not found."); return; }
+                    await createUserScheduledPost(postData, token, userId);
+                    toast.success("Scheduled post created successfully (User)!");
+                }
+
             }
 
             // redirect

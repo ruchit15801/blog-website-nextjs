@@ -557,14 +557,6 @@ export async function updateAdminProfileAPI(payload: UpdateAdminProfilePayload, 
     if (!res.ok) throw new Error(`Failed to update profile: ${res.status}`);
     return res.json();
 }
-// export async function fetchPostById(id: string, token: string) {
-//     const base = process.env.NEXT_PUBLIC_API_URL || "";
-//     const res = await fetch(`${base}/admin/posts/${id}`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//     });
-//     if (!res.ok) throw new Error('Failed to fetch post');
-//     return res.json();
-// }
 
 export async function fetchPostById(id: string, token: string) {
     try {

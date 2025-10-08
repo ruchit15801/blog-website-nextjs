@@ -50,6 +50,8 @@ export default function AuthPage() {
                 localStorage.setItem("refreshToken", res.refreshToken);
                 localStorage.setItem("userProfile", JSON.stringify(res.user));
                 localStorage.setItem("role", res.user.role);
+                localStorage.setItem("userId", res.user._id);
+
 
                 toast.success("Sign Up successful!");
                 router.push("/DashBoard");
@@ -60,6 +62,8 @@ export default function AuthPage() {
                     localStorage.setItem("refreshToken", res.refreshToken);
                     localStorage.setItem("userProfile", JSON.stringify(res.user));
                     localStorage.setItem("role", res.user.role);
+                    localStorage.setItem("userId", res.user._id);
+
 
                     toast.success("Sign In successful!");
                     router.push("/DashBoard");

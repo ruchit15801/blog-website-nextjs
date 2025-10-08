@@ -56,7 +56,6 @@ export default function PostPage({
                 const response = await fetchPostById(postId, token);
                 if (!response.success) throw new Error("Post not found");
                 setPost(response.post);
-                toast.success("Post loaded successfully!");
             } catch (err) {
                 const msg = err instanceof Error ? err.message : String(err);
                 setError(msg);
@@ -192,7 +191,7 @@ export default function PostPage({
                 <div className="flex justify-center">
                     <div className="flex flex-col lg:flex-row gap-2 w-full max-w-4xl mx-auto">
                         {/* Sidebar (10%) */}
-                        <div className="w-full sm:w-1/4 lg:w-1/5 flex-shrink-0" style={{ position: 'sticky', top: '60px', alignSelf: 'start' }}>
+                        <div className="w-full sm:w-1/4 lg:w-1/5 flex-shrink-0" style={{ position: 'sticky', top: '70px', alignSelf: 'start' }}>
                             <div className="flex gap-6  sm:flex-col sm:items-center justify-around sm:justify-start">
                                 {/* Reading Time Circle */}
                                 <div className="relative flex items-center justify-center text-center font-bold rounded-full" style={{ width: '96px', height: '96px' }}>

@@ -30,11 +30,11 @@ export default function ArticlePage() {
     const [error, setError] = useState<string | null>(null);
     // Public article page: no admin token required
     const contentRef = useRef<HTMLDivElement | null>(null);
-    const [progress, setProgress] = useState(0); // reading progress percent
-
+    const [progress, setProgress] = useState(0); 
+    
     const params = useParams();
     const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
-
+    
     useEffect(() => {
         if (!postId) return;
 
@@ -51,7 +51,6 @@ export default function ArticlePage() {
                     throw new Error("Post not found");
                 }
                 setPost(maybePost as RemotePost);
-                toast.success("Post loaded successfully!");
             } catch (err) {
                 const msg = err instanceof Error ? err.message : String(err);
                 setError(msg);
@@ -238,7 +237,7 @@ export default function ArticlePage() {
             <div className="flex justify-center">
                 <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 w-full max-w-5xl mx-auto px-0 sm:px-2">
                     {/* Sidebar */}
-                    <div className="hidden lg:block" style={{ position: 'sticky', top: '60px', alignSelf: 'start' }}>
+                    <div style={{ position: 'sticky', top: '70px', alignSelf: 'start' }}>
                         <div className="flex flex-col items-center gap-6">
                             <div className="relative flex items-center justify-center text-center font-bold" style={{ width: 84, height: 84 }} aria-label="Reading progress">
                                 <div

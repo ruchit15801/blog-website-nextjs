@@ -42,8 +42,6 @@ export default function AllPostsPage() {
 
                 if (!res.posts.length) {
                     toast("No posts found for the selected filters.", { icon: "⚠️" });
-                } else {
-                    toast.success(`Loaded ${res.posts.length} posts successfully!`);
                 }
             })
             .catch((e) => {
@@ -104,7 +102,7 @@ export default function AllPostsPage() {
                         {authors.length === 0 && <p className="text-sm text-gray-500">No authors to display.</p>}
                         {authors.map(a => (
                             <div key={a._id} className="flex items-center gap-3">
-                                <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="rounded-full object-cover" />
+                                <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
                                 <div className="flex-1">
                                     <div className="font-medium" style={{ color: '#29294b' }}>{a.fullName}</div>
                                 </div>

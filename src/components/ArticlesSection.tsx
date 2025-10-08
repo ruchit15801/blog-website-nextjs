@@ -157,7 +157,7 @@ export default function ArticlesSection({
                                 alt={topAuthors?.[0]?.fullName || "Author"}
                                 width={50}
                                 height={50}
-                                className="rounded-full object-cover"
+                                className="about_author_img object-cover"
                             />
                             <div>
                                 <h3 className="font-semibold text-gray-800">{topAuthors?.[0]?.fullName || "Top Author"}</h3>
@@ -201,7 +201,7 @@ export default function ArticlesSection({
                             {(topAuthors || []).slice(0, 3).map((a) => (
                                 <div key={a._id} className="flex justify-between items-center">
                                     <div className="flex items-center gap-3">
-                                        <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="rounded-full object-cover" />
+                                        <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
                                         <div>
                                             <h4 className="font-medium">{a.fullName || "Author"}</h4>
                                             <p className="text-sm text-gray-500">Featured contributor</p>

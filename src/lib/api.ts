@@ -192,7 +192,7 @@ export const resetPasswordAPI = async (email: string, otp: string, newPassword: 
 // src/lib/types.ts
 export type UserPost = {
   _id: string;
-  id : string; // for compatibility
+  id: string; // for compatibility
   title: string;
   slug: string;
   summary?: string;
@@ -216,26 +216,56 @@ export type PaginatedPosts = {
   };
 };
 
-export async function fetchAllUserPosts(params: {
-    page?: number;
-    limit?: number;
-    category?: string;
-    tag?: string;
-    search?: string;
-    sort?: 'latest' | 'trending' | 'featured';
-    authorId?: string;
-}) {
-    const base = process.env.NEXT_PUBLIC_API_URL || '';
-    const url = new URL(`${base}/posts`);
-    
-    Object.entries(params).forEach(([key, value]) => {
-        if (value) url.searchParams.set(key, String(value));
-    });
+// export async function fetchAllUserPosts(params: {
+//     page?: number;
+//     limit?: number;
+//     category?: string;
+//     tag?: string;
+//     search?: string;
+//     sort?: 'latest' | 'trending' | 'featured';
+//     authorId?: string;
+// }) {
+//     const base = process.env.NEXT_PUBLIC_API_URL || '';
+//     const url = new URL(`${base}/posts`);
 
-    const res = await fetch(url.toString());
-    if (!res.ok) throw new Error('Failed to fetch posts');
-    return res.json();
+//     Object.entries(params).forEach(([key, value]) => {
+//         if (value) url.searchParams.set(key, String(value));
+//     });
+
+//     const res = await fetch(url.toString());
+//     if (!res.ok) throw new Error('Failed to fetch posts');
+//     return res.json();
+// }
+
+export async function fetchAllUserPosts(params: {
+  page?: number;
+  limit?: number;
+  token: string;
+  category?: string;
+  tag?: string;
+  search?: string;
+  authorId: string;
+  sort?: 'latest' | 'trending' | 'featured';
+}) {
+  const { token, ...rest } = params;
+  const base = process.env.NEXT_PUBLIC_API_URL || '';
+  const url = new URL(`${base}/posts`);
+
+  Object.entries(rest).forEach(([key, value]) => {
+    if (value) url.searchParams.set(key, String(value));
+  });
+
+  const res = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  console.log("user api res is :- ", res);
+
+  if (!res.ok) throw new Error('Failed to fetch posts');
+  return res.json();
 }
+
 
 // Get a single post by slug
 export const fetchPostBySlug = async (slug: string, token?: string) => {
@@ -334,6 +364,75 @@ export const deletePost = async (id: string, token: string) => {
   });
   return res.data;
 };
+
+
+// List scheduled posts (paginated)
+export async function fetchScheduledPosts(params: {
+  page?: number;
+  limit?: number;
+  token: string;
+  userId?: string;
+  q?: string; // optional search query
+}) {
+  const { token, ...rest } = params;
+  const base = process.env.NEXT_PUBLIC_API_URL || '';
+  const url = new URL(`${base}/posts/scheduled`);
+
+  Object.entries(rest).forEach(([key, value]) => {
+    if (value) url.searchParams.set(key, String(value));
+  });
+
+  const res = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error('Failed to fetch scheduled posts');
+  return res.json();
+}
+
+// Create a scheduled post
+export async function createUserScheduledPost(
+  data: {
+    title: string;
+    subtitle?: string;
+    contentHtml: string;
+    categoryId?: string;
+    tags?: string[];
+    publishedAt: string;
+    bannerImage?: File | null;
+    images?: File[];
+    status?: string; 
+  },
+  token: string,
+  authorId?: string // optional: pass if creating for specific user
+) {
+  const formData = new FormData();
+  formData.append('title', data.title);
+  if (data.subtitle) formData.append('subtitle', data.subtitle);
+  formData.append('contentHtml', data.contentHtml);
+  if (data.categoryId) formData.append('categoryId', data.categoryId);
+  formData.append('publishedAt', data.publishedAt);
+  if (data.tags && data.tags.length > 0) data.tags.forEach(tag => formData.append('tags', tag));
+  if (data.bannerImage) formData.append('bannerImage', data.bannerImage);
+  if (data.images && data.images.length > 0) data.images.forEach(img => formData.append('images', img));
+  if (data.status) formData.append('status', data.status);
+  if (authorId) formData.append('authorId', authorId);
+
+  const base = process.env.NEXT_PUBLIC_API_URL || '';
+  const res = await fetch(`${base}/posts/scheduled`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error('Failed to create scheduled post');
+  return res.json();
+}
+
 
 // Publish a post
 export const publishPost = async (id: string, token: string) => {
