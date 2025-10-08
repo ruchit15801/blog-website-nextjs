@@ -262,6 +262,18 @@ export default function ArticlePage() {
                     <span className="Breadcrumb text-md">{post.author?.fullName || "Unknown Author"}</span> on {formattedDate}
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-800 py-2 tracking-tight" style={{ color: '#29294b' }}>{post.title}</h1>
+                <div className="mx-auto" style={{ maxWidth: '880px' }}>
+                    <div className="h-1 w-full rounded-full" style={{ background: 'linear-gradient(90deg, #9895ff 0%, #514dcc 100%)', opacity: .85 }} />
+                </div>
+                <div className="mx-auto flex flex-wrap items-center justify-center gap-2 pt-3" style={{ maxWidth: '880px' }}>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: '#eef2ff', color: '#5559d1' }}>{(post.readingTimeMinutes || 0)} min read</span>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold text-gray-600 bg-gray-100">{post.category || 'Uncategorized'}</span>
+                    <span className="ml-2 text-xs text-gray-500">Share:</span>
+                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent((process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + `/articles/${postId}`)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>X</a>
+                    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent((process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + `/articles/${postId}`)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>Facebook</a>
+                    <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent((process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + `/articles/${postId}`)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>LinkedIn</a>
+                    <button onClick={() => { try { navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${postId}`); } catch { } }} className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)', color: '#fff', boxShadow: '0 10px 24px -12px rgba(114,114,255,.45)' }}>Copy link</button>
+                </div>
                 {post.subtitle && (
                     <div className="mx-auto" style={{ maxWidth: '740px' }}>
                         <div className="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full mb-2" style={{ background: '#eef2ff', color: '#5559d1' }}>Description</div>
@@ -279,6 +291,7 @@ export default function ArticlePage() {
                     <div className="absolute bottom-3 left-3 inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.85)', color: '#29294b', backdropFilter: 'blur(4px)' }}>
                         Main Image
                     </div>
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/5" />
                 </div>
             )}
 
