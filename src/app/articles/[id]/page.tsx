@@ -263,9 +263,12 @@ export default function ArticlePage() {
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold text-gray-800 py-2 tracking-tight" style={{ color: '#29294b' }}>{post.title}</h1>
                 {post.subtitle && (
-                    <p className="text-gray-600 mx-auto" style={{ fontSize: '18px', maxWidth: '720px', fontWeight: 400, color: '#696981', lineHeight: 1.65 }}>
-                        {post.subtitle}
-                    </p>
+                    <div className="mx-auto" style={{ maxWidth: '740px' }}>
+                        <div className="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full mb-2" style={{ background: '#eef2ff', color: '#5559d1' }}>Description</div>
+                        <p className="text-gray-600" style={{ fontSize: '18px', fontWeight: 400, color: '#696981', lineHeight: 1.65 }}>
+                            {post.subtitle}
+                        </p>
+                    </div>
                 )}
             </div>
 
@@ -273,6 +276,9 @@ export default function ArticlePage() {
             {post.bannerImageUrl && (
                 <div className="relative w-full h-150 rounded-2xl overflow-hidden">
                     <Image src={post.bannerImageUrl} alt={post.title} fill className="object-cover" />
+                    <div className="absolute bottom-3 left-3 inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.85)', color: '#29294b', backdropFilter: 'blur(4px)' }}>
+                        Main Image
+                    </div>
                 </div>
             )}
 
@@ -348,10 +354,12 @@ export default function ArticlePage() {
                                                     <div key={index} className="flex gap-4 my-6 reveal-on-scroll reveal">
                                                         <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
                                                             <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
+                                                            <span className="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#29294b' }}>Image</span>
                                                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
                                                         </div>
                                                         <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
                                                             <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
+                                                            <span className="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#29294b' }}>Image</span>
                                                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
                                                         </div>
                                                     </div>
@@ -363,7 +371,11 @@ export default function ArticlePage() {
                                             return (
                                                 <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom reveal-on-scroll reveal`}>
                                                     <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
+                                                    <span className="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#29294b' }}>Image</span>
                                                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                                    <figcaption className="absolute bottom-3 right-3 text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#696981' }}>
+                                                        Inline image
+                                                    </figcaption>
                                                 </figure>
                                             );
                                         }
