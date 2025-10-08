@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Loader from "@/components/Loader";
-import { fetchSinglePostById, getAdminToken } from "@/lib/adminClient";
+import { fetchSinglePostById } from "@/lib/adminClient";
 import { TwitterIcon, FacebookIcon, InstagramIcon, LinkedinIcon } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -27,7 +27,7 @@ export default function ArticlePage() {
     const [post, setPost] = useState<RemotePost | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const token = getAdminToken();
+    // Public article page: no admin token required
     const contentRef = useRef<HTMLDivElement | null>(null);
     const [progress, setProgress] = useState(0); // reading progress percent
 
@@ -35,15 +35,21 @@ export default function ArticlePage() {
     const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
     useEffect(() => {
-        if (!postId || !token) return;
+        if (!postId) return;
 
         const loadPost = async () => {
             setLoading(true);
             setError(null);
             try {
                 const response = await fetchSinglePostById(postId);
-                if (!response.success) throw new Error("Post not found");
-                setPost(response.post);
+                // Accept flexible API shapes
+                const maybePost = (response?.post
+                    ?? response?.data
+                    ?? response) as unknown;
+                if (!maybePost || typeof maybePost !== "object") {
+                    throw new Error("Post not found");
+                }
+                setPost(maybePost as RemotePost);
                 toast.success("Post loaded successfully!");
             } catch (err) {
                 const msg = err instanceof Error ? err.message : String(err);
@@ -55,7 +61,7 @@ export default function ArticlePage() {
         };
 
         loadPost();
-    }, [postId, token]);
+    }, [postId]);
 
     // Reading progress based on content scroll
     useEffect(() => {

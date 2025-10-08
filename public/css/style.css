@@ -10,7 +10,7 @@
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0.75rem 0rem;
+  padding: 0.75rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -83,6 +83,17 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .navbar-menu { display: none; }
+  .footer-section { width: 100%; padding: 0 16px; }
+  .footer-container { padding: 0 16px; }
+}
+
+@media (min-width: 768px) {
+  .navbar-menu { display: flex; }
 }
 
 .icon-btn {
@@ -275,6 +286,18 @@
     width: 100%;
     padding: 0px 24px;
     margin: 0px auto;
+}
+
+/* Responsive tweaks */
+@media (max-width: 767px) {
+  .navbar-menu { display: none; }
+  .footer-section { width: 100%; padding: 0 16px; }
+  .footer-container { padding: 0 16px; }
+  .hero-section p { font-size: 16px; }
+}
+
+@media (min-width: 768px) {
+  .navbar-menu { display: flex; }
 }
 .footer-item{
     padding: 3rem 0px;

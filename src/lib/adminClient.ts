@@ -594,11 +594,29 @@ export async function fetchPostById(id: string, token: string) {
 
 // Frontend
 export async function fetchSinglePostById(id: string) {
-    const base = process.env.NEXT_PUBLIC_API_URL || "";
-    const res = await fetch(`${base}/posts/${id}`);
-    if (!res.ok) throw new Error('Failed to fetch post');
-    return res.json();
+    // Try primary public API first
+    const prim = process.env.NEXT_PUBLIC_API_URL || "";
+    const alt = process.env.NEXT_PUBLIC_HOME_API_URL || "";
+
+    // Helper to fetch and parse
+    const hit = async (base: string) => {
+        if (!base) throw new Error("Missing API base URL");
+        const url = `${base}/posts/${id}`;
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`Failed to fetch post ${res.status}`);
+        return res.json();
+    };
+
+    try {
+        return await hit(prim);
+    } catch (_) {
+        if (alt && alt !== prim) {
+            return await hit(alt);
+        }
+        throw _;
+    }
 }
+
 
 
 // Dashboaed 

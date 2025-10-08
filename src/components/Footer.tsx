@@ -33,7 +33,7 @@ export default function Footer() {
 
       <footer className="footer text-black">
         {/* ========= TOP / INNER ========= */}
-        <div className="footer-item-inner mx-auto ps-8 grid grid-cols-1 sm:grid-cols-2 gap-20 text-sm">
+        <div className="footer-item-inner mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 text-sm">
           {/* ===== LEFT SIDE ===== */}
           <div className="footer-item-inner-items">
             <div className="flex items-center gap-2 mb-4">
@@ -72,7 +72,7 @@ export default function Footer() {
           </div>
 
           {/* ===== RIGHT SIDE ===== */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 ps-30">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {/* === Site === */}
             <div>
               <span className="home-page-list uppercase block text-base font-semibold mb-3">Site</span>
@@ -107,7 +107,7 @@ export default function Footer() {
 
         {/* ========= BOTTOM / COPYRIGHT ========= */}
         <div className="footer-item-bottom">
-          <div className="px-8 text-sm opacity-60">
+          <div className="px-4 sm:px-8 text-sm opacity-60">
             © {year} – BlogCafeAI. All rights reserved.
           </div>
         </div>

@@ -19,7 +19,7 @@ import toast from "react-hot-toast";
 import {
   fetchAdminMeProfile,
   type AdminMeProfile,
-} from "@/lib/adminClient"; 
+} from "@/lib/adminClient";
 import { fetchMyProfile, MeProfile } from "@/lib/api";
 
 interface DashboardLayoutProps {
@@ -38,6 +38,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [role, setRole] = useState<"admin" | "user" | null>(null);
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -139,7 +140,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex min-h-screen bg-gray-100 dashboard-skin">
-      <aside className="w-64 bg-white shadow-md flex flex-col p-4 fixed top-0 left-0 h-screen overflow-auto">
+      <aside className={`bg-white shadow-md flex flex-col p-4 fixed top-0 left-0 h-screen overflow-auto transition-transform duration-200 w-64 ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <Link href="/" className="navbar-logo">
           <Image src="/images/BlogCafe_Logo.svg" alt="BlogCafeAI" width={130} height={130} priority />
         </Link>
@@ -161,9 +162,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </nav>
       </aside>
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <header className="bg-white shadow flex justify-end items-center px-6 h-16 sticky top-0 z-20">
-          <div className="flex items-center gap-4">
+      <div className="flex-1 md:ml-64 flex flex-col">
+        <header className="bg-white shadow flex justify-between items-center px-4 md:px-6 h-16 sticky top-0 z-20">
+          <button className="md:hidden p-2 rounded-lg border border-gray-200" onClick={() => setOpen(v => !v)} aria-label="Toggle sidebar">
+            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#29294b" strokeWidth="2" strokeLinecap="round" /></svg>
+          </button>
+          <div className="flex items-center gap-4 ml-auto">
             {user && (
               <>
                 <div className="flex flex-col text-right">
@@ -186,7 +190,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </header>
 
-        <main className="flex-1 p-8">{children}</main>
+        <main className="flex-1 p-4 md:p-8">{children}</main>
       </div>
     </div>
   );
