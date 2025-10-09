@@ -9,7 +9,6 @@ export default function NewPostPage() {
     const [title, setTitle] = useState("");
     const [subtitle, setSubtitle] = useState("");
     const [categoryId, setCategoryId] = useState("");
-    console.log(setCategoryId);
     const [categoryName, setCategoryName] = useState("");
     const [categories, setCategories] = useState<RemoteCategory[]>([]);
     const [catsLoading, setCatsLoading] = useState(false);

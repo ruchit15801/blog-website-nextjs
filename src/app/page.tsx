@@ -43,7 +43,6 @@ export default function Home() {
     setLoading(true);
     setError(null);
     listAllHomePosts({ page, limit, sort: "random", category: selectedCat }).then((res) => {
-      console.log("All posts fetched:-", res);
       if (!active) return;
       setGrid(res.posts);
       setTotal(res.total);

@@ -171,7 +171,6 @@ export async function fetchCategories(tokenOverride?: string): Promise<RemoteCat
         throw new Error(`Failed to load categories: ${res.status} ${text}`);
     }
     const data: unknown = await res.json();
-    console.log('data', data)
     // Flexible shapes: array | {data: array} | {categories: array} | {result: array}
     if (Array.isArray(data)) return data as RemoteCategory[];
     if (typeof data === "object" && data !== null) {
@@ -460,11 +459,61 @@ export async function adminDeletePostById(postId: string, tokenOverride?: string
     return data.success;
 }
 
+// export async function fetchAdminScheduledPosts(
+//     params: { page?: number; limit?: number; q?: string; userId?: string },
+//     tokenOverride?: string
+// ): Promise<PaginatedPosts> {
+//     const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+//     if (!token) throw new Error("Admin token missing. Please login as admin.");
+
+//     const base = process.env.NEXT_PUBLIC_API_URL || "";
+//     const url = new URL(`${base}/admin/posts/scheduled`);
+//     if (params.page != null) url.searchParams.set("page", String(params.page));
+//     if (params.limit != null) url.searchParams.set("limit", String(params.limit));
+//     if (params.q) url.searchParams.set("q", params.q);
+//     if (params.userId) url.searchParams.set("userId", params.userId);
+
+//     const res = await fetch(url.toString(), {
+//         headers: { Authorization: `Bearer ${token}` },
+//         cache: "no-store",
+//     });
+
+//     if (!res.ok) {
+//         const text = await res.text();
+//         throw new Error(`Failed to load scheduled posts: ${res.status} ${text}`);
+//     }
+
+//     const data: unknown = await res.json();
+//     if (data && typeof data === "object") {
+//         const obj = data as Record<string, unknown>;
+//         const list = ((obj.data as unknown) ?? (obj.posts as unknown)) ?? (obj.result as unknown);
+//         const meta = (obj.meta as Record<string, unknown>) || (obj as Record<string, unknown>);
+//         const posts = Array.isArray(list) ? (list as RemotePost[]) : [];
+//         const total = (meta.total as number) ?? (obj.total as number) ?? posts.length;
+//         const page = (meta.page as number) ?? (obj.page as number) ?? (params.page ?? 1);
+//         const inferredLimit = params.limit ?? (posts.length || 10);
+//         const limit = (meta.limit as number) ?? (obj.limit as number) ?? inferredLimit;
+//         const totalPages = (meta.totalPages as number) ?? (obj.totalPages as number) ?? Math.max(1, Math.ceil(total / (limit || 1)));
+//         return { posts, total, page, limit, totalPages };
+//     }
+
+//     return { posts: [], total: 0, page: params.page ?? 1, limit: params.limit ?? 10, totalPages: 1 };
+// }
+
 export async function fetchAdminScheduledPosts(
     params: { page?: number; limit?: number; q?: string; userId?: string },
     tokenOverride?: string
-): Promise<PaginatedPosts> {
-    const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+): Promise<{
+    posts: RemotePost[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}> {
+    const token =
+        tokenOverride ??
+        getAdminToken() ??
+        (typeof window !== "undefined" ? localStorage.getItem("token") : null);
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
@@ -484,22 +533,22 @@ export async function fetchAdminScheduledPosts(
         throw new Error(`Failed to load scheduled posts: ${res.status} ${text}`);
     }
 
-    const data: unknown = await res.json();
-    if (data && typeof data === "object") {
-        const obj = data as Record<string, unknown>;
-        const list = ((obj.data as unknown) ?? (obj.posts as unknown)) ?? (obj.result as unknown);
-        const meta = (obj.meta as Record<string, unknown>) || (obj as Record<string, unknown>);
-        const posts = Array.isArray(list) ? (list as RemotePost[]) : [];
-        const total = (meta.total as number) ?? (obj.total as number) ?? posts.length;
-        const page = (meta.page as number) ?? (obj.page as number) ?? (params.page ?? 1);
-        const inferredLimit = params.limit ?? (posts.length || 10);
-        const limit = (meta.limit as number) ?? (obj.limit as number) ?? inferredLimit;
-        const totalPages = (meta.totalPages as number) ?? (obj.totalPages as number) ?? Math.max(1, Math.ceil(total / (limit || 1)));
-        return { posts, total, page, limit, totalPages };
-    }
+    const dataObj = (await res.json()) as {
+        data?: RemotePost[];
+        meta?: { total?: number; page?: number; limit?: number; totalPages?: number };
+    };
 
-    return { posts: [], total: 0, page: params.page ?? 1, limit: params.limit ?? 10, totalPages: 1 };
+    const posts: RemotePost[] = Array.isArray(dataObj.data) ? dataObj.data : [];
+    const meta = dataObj.meta ?? { total: posts.length, page: params.page ?? 1, limit: params.limit ?? 10 };
+
+    const total = meta.total ?? posts.length;
+    const page = meta.page ?? (params.page ?? 1);
+    const limit = meta.limit ?? (params.limit ?? 10);
+    const totalPages = meta.totalPages ?? Math.max(1, Math.ceil(total / limit));
+
+    return { posts, total, page, limit, totalPages };
 }
+
 
 export type AdminMeProfile = {
     _id: string;
@@ -665,4 +714,53 @@ export async function fetchAdminDashboard(tokenOverride?: string): Promise<Admin
     }
 
     throw new Error("Invalid dashboard response");
+}
+
+
+// lib/api.ts
+export type UserPost = {
+  _id: string;
+  title: string;
+  bannerImageUrl?: string;
+  createdAt: string;
+  publishedAt?: string;
+  author: { _id: string; fullName: string } | string;
+  contentHtml?: string;
+  tags?: string[];
+  readingTimeMinutes?: number;
+  slug?: string;
+};
+
+export type FetchPostsParams = {
+  page?: number;
+  limit?: number;
+  token: string;
+  category?: string;
+  tag?: string;
+  search?: string;
+  authorId?: string; // optional: pass if you want a single user
+  sort?: 'latest' | 'trending' | 'featured';
+};
+
+export async function fetchUserAllPosts(params: FetchPostsParams) {
+  const { token, ...rest } = params;
+  const base = process.env.NEXT_PUBLIC_API_URL || '';
+  const url = new URL(`${base}/posts`);
+
+  // Add query parameters dynamically
+  Object.entries(rest).forEach(([key, value]) => {
+    if (value) url.searchParams.set(key, String(value));
+  });
+
+  const res = await fetch(url.toString(), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error('Failed to fetch posts');
+
+  // Response expected: { success: true, data: UserPost[], meta: { page, limit, total } }
+  const json = await res.json();
+  return json;
 }

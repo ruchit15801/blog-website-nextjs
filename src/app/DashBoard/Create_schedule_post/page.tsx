@@ -211,13 +211,12 @@ export default function CreateSchedulePost() {
                 subtitle,
                 contentHtml,
                 publishedAt: new Date(scheduleDate).toISOString(),
-                bannerFile: bannerFile ?? undefined, // correct for admin function
-                imageFiles: imageFiles.length > 0 ? imageFiles : undefined, // admin expects File[]
+                bannerFile: bannerFile ?? undefined, 
+                imageFiles: imageFiles.length > 0 ? imageFiles : undefined, 
                 categoryId: categoryId || undefined,
                 tags: tagsList.length > 0 ? tagsList : undefined,
                 status: "scheduled" as const,
             };
-
 
             if (postId) {
                 // EDIT MODE
@@ -241,11 +240,9 @@ export default function CreateSchedulePost() {
             } else {
                 // CREATE MODE
                 if (role === "admin") {
-                    // Admin post creation uses internal token
                     await createScheduledPost(postData);
                     toast.success("Scheduled post created successfully (Admin)!");
                 } else {
-                    // User post creation needs userId + token
                     if (!userId) { toast.error("User not found."); return; }
                     await createUserScheduledPost(postData, token, userId);
                     toast.success("Scheduled post created successfully (User)!");

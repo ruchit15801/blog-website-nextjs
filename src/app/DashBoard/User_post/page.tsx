@@ -4,7 +4,7 @@ import { MoreHorizontal, Search, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
-import { adminDeletePostById, fetchAdminPosts, fetchAdminUsers, type RemotePost, type RemoteUser } from "@/lib/adminClient";
+import { adminDeletePostById, fetchUserAllPosts, UserPost,type RemoteUser } from "@/lib/adminClient";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
@@ -37,44 +37,52 @@ export default function UserPosts() {
 
     useEffect(() => {
         let active = true;
-        (async () => {
-            try {
-                const usersRes = await fetchAdminUsers({ page: 1, limit: 100 });
-                if (!active) return;
-                setUserOptions(usersRes.users);
-            } catch {
-                // ignore users error on sidebar
-            }
-        })();
-        return () => { active = false; };
-    }, []);
-
-    useEffect(() => {
-        let active = true;
         setLoading(true);
         setError(null);
-        const userid = selectedUser !== "all" ? selectedUser : undefined;
-        fetchAdminPosts({ page, limit, q: search || undefined, userid })
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError('Token not found');
+            setLoading(false);
+            return;
+        }
+
+        const authorId = selectedUser !== 'all' ? selectedUser : undefined;
+
+        fetchUserAllPosts({
+            page,
+            limit,
+            token,
+            search: search || undefined,
+            authorId,
+        })
             .then((res) => {
                 if (!active) return;
-                const mapped: UiPost[] = (res.posts || []).map((p: RemotePost) => ({
+
+                const mapped: UiPost[] = res.data.map((p: UserPost) => ({
                     id: p._id,
                     title: p.title,
-                    authorName: typeof p.author === "string" ? p.author : (p.author?.fullName || "Unknown"),
+                    authorName: typeof p.author === 'string'
+                        ? p.author
+                        : p.author?.fullName || 'Unknown',
                     date: p.publishedAt || p.createdAt || new Date().toISOString(),
-                    excerpt: "",
-                    image: p.bannerImageUrl || "/images/a1.webp",
+                    image: p.bannerImageUrl || '/images/a1.webp',
                     tag: p.tags || [],
                     readTime: p.readingTimeMinutes || 0,
                 }));
+
                 setItems(mapped);
-                setTotal(res.total || mapped.length);
-                setTotalPages(res.totalPages || 1);
+                setTotal(res.meta.total || mapped.length);
+                setTotalPages(Math.ceil((res.meta.total || mapped.length) / limit));
             })
             .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-            .finally(() => setLoading(false));
+            .finally(() => {
+                if (active) setLoading(false);
+            });
+
         return () => { active = false; };
     }, [page, limit, search, selectedUser]);
+
 
     const handleDelete = async (postId: string) => {
         const confirmed = window.confirm("Are you sure you want to delete this post?");

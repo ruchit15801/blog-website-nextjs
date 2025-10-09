@@ -8,7 +8,7 @@ type RemoteCategory = TrendingCategory;
 
 type HeroProps = {
     selectedCat?: string | null;
-    onCategorySelect?: (catId: string) => void;
+    onCategorySelect?: (catId: string | null) => void;
 };
 
 export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
@@ -88,35 +88,28 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                 {loading ? (
                     <p>Loading...</p>
                 ) : (
-                    <div className="trending-buttons-container mx-auto">
-                        
-                        {/* First 6 categories */}
-                        {/* {categories.slice(0, 6).map((cat) => (
-                            <button
-                                key={cat._id}
-                                className="trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full"
-                            >
-                                <span
-                                    className="inline-flex items-center justify-center rounded-full"
-                                    style={{ width: 28, height: 28, background: '#eef2ff' }}
-                                >
-                                    <Image
-                                        src={cat.imageUrl || "/images/about.webp"}
-                                        alt={cat.name}
-                                        width={20}
-                                        height={20}
-                                        className="rounded-full object-cover"
-                                    />
-                                </span>
-                                <span>{cat.name}</span>
-                            </button>
-                        ))} */}
+                    <div className="trending-buttons-container mx-auto flex flex-wrap justify-center gap-4">
 
+                        {/* ===== All Button ===== */}
+                        <button
+                            key="all"
+                            className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${!selectedCat ? "bg-indigo-100" : ""}`}
+                            onClick={() => onCategorySelect?.(null)}
+                        >
+                            <span
+                                className="inline-flex items-center justify-center rounded-full"
+                                style={{ width: 28, height: 28, background: '#eef2ff' }}
+                            >
+                                🌐
+                            </span>
+                            <span>All</span>
+                        </button>
+
+                        {/* First 6 categories */}
                         {categories.slice(0, 6).map((cat) => (
                             <button
                                 key={cat._id}
-                                className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${selectedCat === cat._id ? "bg-indigo-100" : ""
-                                    }`}
+                                className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${selectedCat === cat._id ? "bg-indigo-100" : ""}`}
                                 onClick={() => onCategorySelect?.(cat._id)}
                             >
                                 <span
@@ -135,35 +128,12 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                             </button>
                         ))}
 
-
-                        {/* Next 2 categories only */}
+                        {/* Next 2 categories */}
                         <div className="second-row flex justify-center gap-4 w-full mt-4">
-                            {/* {categories.slice(6, 8).map((cat) => (
-                                <button
-                                    key={cat._id}
-                                    className="trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full"
-                                >
-                                    <span
-                                        className="inline-flex items-center justify-center rounded-full"
-                                        style={{ width: 28, height: 28, background: '#eef2ff' }}
-                                    >
-                                        <Image
-                                            src={cat.imageUrl || "/images/aside.webp"}
-                                            alt={cat.name}
-                                            width={20}
-                                            height={20}
-                                            className="rounded-full object-cover"
-                                        />
-                                    </span>
-                                    <span>{cat.name}</span>
-                                </button>
-                            ))} */}
-
                             {categories.slice(6, 8).map((cat) => (
                                 <button
                                     key={cat._id}
-                                    className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${selectedCat === cat._id ? "bg-indigo-100" : ""
-                                        }`}
+                                    className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${selectedCat === cat._id ? "bg-indigo-100" : ""}`}
                                     onClick={() => onCategorySelect?.(cat._id)}
                                 >
                                     <span className="inline-flex items-center justify-center rounded-full" style={{ width: 28, height: 28, background: '#eef2ff' }}>
@@ -172,11 +142,9 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                                     <span>{cat.name}</span>
                                 </button>
                             ))}
-
                         </div>
                     </div>
-                    
-                )}       
+                )}
             </section>
         </main>
     );

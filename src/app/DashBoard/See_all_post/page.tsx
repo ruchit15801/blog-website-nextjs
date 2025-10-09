@@ -8,7 +8,7 @@ import { fetchAdminPosts, type RemotePost, adminDeletePostById } from "@/lib/adm
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
-import { deletePost, fetchAllUserPosts } from "@/lib/api";
+import { deleteUserPost, fetchAllUserPosts } from "@/lib/api";
 
 interface UserPost {
     _id: string;
@@ -33,13 +33,12 @@ export default function AllPosts() {
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
     const isSearchActive = searchQuery.trim() !== "";
+    const [totalPosts, setTotalPosts] = useState<number>(0);
     const [open, setOpen] = useState(false);
     const router = useRouter();
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
-
-
 
     useEffect(() => {
         if (!token) return;
@@ -48,71 +47,64 @@ export default function AllPosts() {
         setLoading(true);
         setError(null);
 
-        (async () => {
+        const fetchPosts = async () => {
             try {
                 let posts: RemotePost[] = [];
+                let total = 0;
 
                 if (role === "admin") {
-                    const res = await fetchAdminPosts({ page: currentPage, limit: 24 }, token);
-                    posts = res.posts.map(p => ({
+                    const res = await fetchAdminPosts({ page: currentPage, limit: perPage }, token);
+                    posts = res.posts;
+                    total = res.total;
+                } else {
+                    const userId = localStorage.getItem("userId");
+                    if (!userId) {
+                        setError("User ID not found");
+                        return;
+                    }
+
+                    const res = await fetchAllUserPosts({
+                        page: currentPage,
+                        limit: perPage,
+                        token: token,
+                        authorId: userId,
+                    });
+
+                    posts = res.data.map((p: UserPost) => ({
                         _id: p._id,
                         title: p.title,
                         bannerImageUrl: p.bannerImageUrl,
                         createdAt: p.createdAt,
                         publishedAt: p.publishedAt,
-                        author: p.author
-                            ? typeof p.author === "string"
-                                ? { _id: "", fullName: p.author }
-                                : { _id: p.author._id, fullName: p.author.fullName }
-                            : undefined,
+                        author: typeof p.author === "string" ? { _id: "", fullName: p.author } : p.author,
                         contentHtml: p.contentHtml || "",
                         tags: p.tags || [],
                         readingTimeMinutes: p.readingTimeMinutes || 0,
+                        slug: p.slug,
                     }));
-                } else {
-                    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
-                    if (token && userId) {
 
-                        const res = await fetchAllUserPosts({
-                            page: currentPage,
-                            limit: 24,
-                            token: token!,
-                            authorId: userId, 
-                        });
-                        console.log("user post fetched :-", res);
-
-                        posts = res.data.map((p: UserPost) => ({
-                            _id: p._id,
-                            title: p.title,
-                            bannerImageUrl: p.bannerImageUrl,
-                            createdAt: p.createdAt,
-                            publishedAt: p.publishedAt,
-                            author: p.author
-                                ? typeof p.author === "string"
-                                    ? { _id: "", fullName: p.author }
-                                    : { _id: p.author._id, fullName: p.author.fullName }
-                                : undefined,
-                            contentHtml: p.contentHtml || "",
-                            tags: p.tags || [],
-                            readingTimeMinutes: p.readingTimeMinutes || 0,
-                            slug: p.slug,
-                        }));
-                        console.log("user posts :-", posts);
-                    }
+                    total = res.meta.total;
                 }
 
                 if (!active) return;
+
                 setLivePosts(posts);
-            } catch (err) {
+                setTotalPosts(total);
+            } catch (err: unknown) {
                 console.error(err);
                 toast.error("Failed to load posts");
             } finally {
                 if (active) setLoading(false);
             }
-        })();
+        };
 
-        return () => { active = false; };
+        fetchPosts();
+
+        return () => {
+            active = false;
+        };
     }, [token, role, currentPage]);
+
 
     const baseList = useMemo(() => {
         return livePosts.map((p: RemotePost) => ({
@@ -140,29 +132,12 @@ export default function AllPosts() {
         return filtered;
     }, [searchQuery, sortOrder, baseList]);
 
-    const totalPages = Math.ceil(filteredArticles.length / perPage);
-    const start = (currentPage - 1) * perPage;
-    const paginatedArticles = filteredArticles.slice(start, start + perPage);
+    const paginatedArticles = filteredArticles;
 
     // --- Handlers ---
     const handleEdit = (post: RemotePost) => {
         router.push(`/DashBoard/Create_post?id=${post._id}`);
     };
-
-    // const handleDelete = async (postId: string) => {
-    //     const confirmed = window.confirm("Are you sure you want to delete this post?");
-    //     if (!confirmed) return;
-
-    //     try {
-    //         await adminDeletePostById(postId);
-    //         setLivePosts(prev => prev.filter(p => p._id !== postId));
-    //         toast.success(`Post deleted successfully!`);
-    //     } catch (err) {
-    //         console.error(err);
-    //         toast.error("Failed to delete post");
-    //     }
-    // };
-
 
     const handleDelete = async (postId: string) => {
         const confirmed = window.confirm("Are you sure you want to delete this post?");
@@ -177,7 +152,7 @@ export default function AllPosts() {
             if (role === "admin") {
                 await adminDeletePostById(postId);
             } else {
-                await deletePost(postId, token);
+                await deleteUserPost(postId, token);
             }
 
             setLivePosts(prev => prev.filter(p => p._id !== postId));
@@ -187,7 +162,6 @@ export default function AllPosts() {
             toast.error("Failed to delete post");
         }
     };
-
 
     return (
         <DashboardLayout>
@@ -311,9 +285,10 @@ export default function AllPosts() {
                     <div className="lg:col-span-3 mt-10">
                         <Pagination
                             page={currentPage}
-                            totalPages={totalPages}
+                            totalPages={Math.ceil(totalPosts / perPage)}
                             onChange={(p) => setCurrentPage(p)}
                         />
+
                     </div>
 
                 </div>

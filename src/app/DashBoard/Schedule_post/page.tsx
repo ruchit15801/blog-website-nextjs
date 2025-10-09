@@ -9,7 +9,7 @@ import { adminDeletePostById, fetchAdminScheduledPosts, publishAdminPostNow, typ
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
-import { fetchScheduledPosts } from "@/lib/api";
+import { deleteUserPost, fetchScheduledPosts, publishUserPost } from "@/lib/api";
 
 export default function SchedulePosts() {
     const perPage = 6;
@@ -19,6 +19,7 @@ export default function SchedulePosts() {
     const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [totalPosts, setTotalPosts] = useState(0);
     const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
     const router = useRouter();
 
@@ -30,9 +31,7 @@ export default function SchedulePosts() {
         const role = (localStorage.getItem("role") || "").toLowerCase();
         const token = localStorage.getItem("accessToken") || "";
 
-        const fetchFn =
-            role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
-        console.log("Fetching scheduled posts for:", role);
+        const fetchFn = role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
 
         fetchFn({
             page,
@@ -43,13 +42,15 @@ export default function SchedulePosts() {
         })
             .then((res) => {
                 if (!active) return;
-                setLivePosts(res.data || []);
-            }).catch((e) => setError(e instanceof Error ? e.message : String(e)))
+                const posts = role === "admin" ? res.posts : res.data || [];
+                setLivePosts(posts);
+                const total = role === "admin" ? res.total : res.total || res.meta?.total || posts.length;
+                setTotalPosts(total);
+            })
+            .catch((e) => setError(e instanceof Error ? e.message : String(e)))
             .finally(() => setLoading(false));
 
-        return () => {
-            active = false;
-        };
+        return () => { active = false };
     }, [page, perPage, search]);
 
     const baseList = useMemo(() => {
@@ -66,16 +67,14 @@ export default function SchedulePosts() {
     }, [livePosts]);
 
     const filtered = useMemo(() => {
-        const f = baseList.filter(p =>
-            p.title.toLowerCase().includes(search.toLowerCase())
-        );
+        const f = [...baseList];
         f.sort((a, b) =>
             sortOrder === "latest"
                 ? new Date(b.date).getTime() - new Date(a.date).getTime()
                 : new Date(a.date).getTime() - new Date(b.date).getTime()
         );
         return f;
-    }, [search, sortOrder, baseList]);
+    }, [sortOrder, baseList]);
 
     const handleEdit = (post: RemotePost) => {
         router.push(`/DashBoard/Create_schedule_post?id=${post._id}`);
@@ -86,14 +85,19 @@ export default function SchedulePosts() {
 
         try {
             setLoading(true);
-            const updatedPost = await publishAdminPostNow(postId);
+            const role = (localStorage.getItem("role") || "").toLowerCase();
+            const token = localStorage.getItem(role === "admin" ? "token" : "token");
+            if (!token) throw new Error("Token not found");
 
-            setLivePosts(prev =>
-                prev.map(lp => (lp._id === postId ? updatedPost : lp))
-            );
-
+            if (role === "admin") {
+                await publishAdminPostNow(postId, token);
+            } else {
+                await publishUserPost(postId, token);
+            }
+            setLivePosts(prev => prev.filter(lp => lp._id !== postId));
             toast.success(`"${postTitle}" published successfully!`);
         } catch (err) {
+            console.error(err);
             toast.error(err instanceof Error ? err.message : "Failed to publish post");
         } finally {
             setLoading(false);
@@ -105,19 +109,27 @@ export default function SchedulePosts() {
         if (!confirmed) return;
 
         try {
-            await adminDeletePostById(postId);
+            const role = (localStorage.getItem("role") || "").toLowerCase();
+            const token = localStorage.getItem("token");
+            if (!token) throw new Error("Token not found");
+
+            if (role === "admin") {
+                await adminDeletePostById(postId);
+            } else {
+                await deleteUserPost(postId, token);
+            }
+
             setLivePosts(prev => prev.filter(p => p._id !== postId));
             toast.success(`Post deleted successfully!`);
         } catch (err) {
             console.error(err);
-            toast.error("Failed to delete post");
+            toast.error(err instanceof Error ? err.message : "Failed to delete post");
         }
     };
 
     // --- Pagination ---
-    const totalPages = Math.ceil(filtered.length / perPage);
-    const start = (page - 1) * perPage;
-    const paginated = filtered.slice(start, start + perPage);
+    const totalPages = Math.ceil(totalPosts / perPage);
+    const paginated = filtered;
 
     return (
         <DashboardLayout>

@@ -73,7 +73,6 @@ export async function listAllHomePosts(params: ListAllPostsParams = {}) {
   const url = new URL(`${HOME_API_BASE_URL}/home/all-posts`);
   if (params.page != null) url.searchParams.set("page", String(params.page));
   if (params.limit != null) url.searchParams.set("limit", String(params.limit));
-  if (params.sort) url.searchParams.set("sort", params.sort);
   if (params.category != null) url.searchParams.set("category", String(params.category));
   const res = await fetch(url.toString(), { cache: "no-store" });
   if (!res.ok) throw new Error(`Home posts failed: ${res.status}`);
@@ -216,27 +215,6 @@ export type PaginatedPosts = {
   };
 };
 
-// export async function fetchAllUserPosts(params: {
-//     page?: number;
-//     limit?: number;
-//     category?: string;
-//     tag?: string;
-//     search?: string;
-//     sort?: 'latest' | 'trending' | 'featured';
-//     authorId?: string;
-// }) {
-//     const base = process.env.NEXT_PUBLIC_API_URL || '';
-//     const url = new URL(`${base}/posts`);
-
-//     Object.entries(params).forEach(([key, value]) => {
-//         if (value) url.searchParams.set(key, String(value));
-//     });
-
-//     const res = await fetch(url.toString());
-//     if (!res.ok) throw new Error('Failed to fetch posts');
-//     return res.json();
-// }
-
 export async function fetchAllUserPosts(params: {
   page?: number;
   limit?: number;
@@ -260,12 +238,10 @@ export async function fetchAllUserPosts(params: {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("user api res is :- ", res);
 
   if (!res.ok) throw new Error('Failed to fetch posts');
   return res.json();
 }
-
 
 // Get a single post by slug
 export const fetchPostBySlug = async (slug: string, token?: string) => {
@@ -285,12 +261,12 @@ export const createPost = async (
     title: string;
     subtitle?: string;
     contentHtml: string;
+    bannerFile?: File | null;
+    images?: string;
+    imageFiles?: File[];
     categoryId?: string;
-    tags?: string[];
-    status?: string;
-    publishedAt?: string;
-    bannerImage?: File | null;
-    images?: File[];
+    tags?: string | string[];
+    status?: "published" | "scheduled";
   },
   token: string
 ) => {
@@ -300,12 +276,24 @@ export const createPost = async (
   formData.append("contentHtml", data.contentHtml);
   if (data.categoryId) formData.append("categoryId", data.categoryId);
   if (data.status) formData.append("status", data.status);
-  if (data.publishedAt) formData.append("publishedAt", data.publishedAt);
-  if (data.tags && data.tags.length > 0)
-    data.tags.forEach((tag) => formData.append("tags", tag));
-  if (data.bannerImage) formData.append("bannerImage", data.bannerImage);
-  if (data.images && data.images.length > 0)
-    data.images.forEach((img) => formData.append("images", img));
+  if (data.tags) {
+    if (Array.isArray(data.tags)) {
+      data.tags.forEach((tag: string) => formData.append("tags", tag));
+    } else {
+      formData.append("tags", data.tags);
+    }
+  }
+  if (data.bannerFile) formData.append("bannerImage", data.bannerFile);
+  if (data.images) {
+    if (Array.isArray(data.images)) {
+      data.images.forEach((img: string) => formData.append("images", img));
+    } else {
+      formData.append("images", data.images);
+    }
+  }
+  if (data.imageFiles && data.imageFiles.length > 0) {
+    data.imageFiles.forEach((file: File) => formData.append("images", file));
+  }
 
   const res = await api.post("/posts", formData, {
     headers: {
@@ -356,15 +344,16 @@ export const updatePost = async (
   return res.data;
 };
 
-
 // Delete a post
-export const deletePost = async (id: string, token: string) => {
+export const deleteUserPost = async (id: string, token: string) => {
+  if (!token) throw new Error("Token not found");
+
   const res = await api.delete(`/posts/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
   return res.data;
 };
-
 
 // List scheduled posts (paginated)
 export async function fetchScheduledPosts(params: {
@@ -398,15 +387,16 @@ export async function createUserScheduledPost(
     title: string;
     subtitle?: string;
     contentHtml: string;
-    categoryId?: string;
-    tags?: string[];
     publishedAt: string;
-    bannerImage?: File | null;
-    images?: File[];
-    status?: string;
+    bannerFile?: File | null;
+    images?: string;
+    imageFiles?: File[];
+    categoryId?: string;
+    tags?: string | string[];
+    status?: "scheduled";
   },
   token: string,
-  authorId?: string // optional: pass if creating for specific user
+  authorId?: string
 ) {
   const formData = new FormData();
   formData.append('title', data.title);
@@ -414,9 +404,14 @@ export async function createUserScheduledPost(
   formData.append('contentHtml', data.contentHtml);
   if (data.categoryId) formData.append('categoryId', data.categoryId);
   formData.append('publishedAt', data.publishedAt);
-  if (data.tags && data.tags.length > 0) data.tags.forEach(tag => formData.append('tags', tag));
-  if (data.bannerImage) formData.append('bannerImage', data.bannerImage);
-  if (data.images && data.images.length > 0) data.images.forEach(img => formData.append('images', img));
+  if (data.tags && data.tags.length > 0) {
+    const tagsArray = Array.isArray(data.tags) ? data.tags : [data.tags];
+    tagsArray.forEach((tag: string) => formData.append('tags', tag));
+  }
+  if (data.bannerFile) formData.append('bannerImage', data.bannerFile);
+  if (data.imageFiles && data.imageFiles.length > 0) {
+    data.imageFiles.forEach((file: File) => formData.append('images', file));
+  }
   if (data.status) formData.append('status', data.status);
   if (authorId) formData.append('authorId', authorId);
 
@@ -433,9 +428,8 @@ export async function createUserScheduledPost(
   return res.json();
 }
 
-
 // Publish a post
-export const publishPost = async (id: string, token: string) => {
+export const publishUserPost = async (id: string, token: string) => {
   const res = await api.post(
     `/posts/${id}/publish`,
     {},

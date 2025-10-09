@@ -100,7 +100,7 @@ export default function AdminLayout() {
         if (!postId || !token || prefilledRef.current) return;
         try {
             const res = await fetchPostById(postId, token);
-            const post = res.post; // API structure: {success: true, post: {...}}
+            const post = res.post; 
 
             setEditPost(post);
 
@@ -109,7 +109,15 @@ export default function AdminLayout() {
             setStatus(post.status as "published" | "scheduled" || "published");
 
             // Tags
-            setTagsList(Array.isArray(post.tags) ? post.tags : (typeof post.tags === "string" ? post.tags.split(",") : []));
+            const tagsFromPost = post.tags
+                ? Array.isArray(post.tags)
+                    ? post.tags
+                    : typeof post.tags === "string"
+                        ? post.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+                        : []
+                : [];
+
+            setTagsList(tagsFromPost);
 
             // Content HTML
             setContentHtml(post.contentHtml || "");
@@ -194,13 +202,12 @@ export default function AdminLayout() {
                 }
 
             } else {
-                // User API
                 const postData = {
                     title,
                     subtitle,
                     contentHtml,
-                    bannerImage: bannerFile ?? undefined,
-                    images: imageFiles ?? [],
+                    bannerFile: bannerFile ?? undefined,
+                    imageFiles: imageFiles ?? [],
                     categoryId: resolvedCategoryId,
                     tags: tagsList,
                     status,
@@ -509,7 +516,7 @@ export default function AdminLayout() {
 
                     {/* Right column */}
                     <div className="space-y-3 bg-white rounded-2xl shadow p-6 card-hover">
-                         {/* Instruction panel */}
+                        {/* Instruction panel */}
                         <div className="rounded-xl p-4" style={{ background: 'linear-gradient(180deg, #f5f7ff 0%, #ffffff 100%)' }}>
                             <div className="text-sm font-semibold mb-2" style={{ color: '#29294b' }}>Posting guide</div>
                             <ul className="list-disc pl-5 text-sm space-y-1" style={{ color: '#696981' }}>
