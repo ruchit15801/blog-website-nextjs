@@ -2,17 +2,17 @@
 import { useEffect, useMemo, useState } from "react";
 import Hero from "@/components/Hero";
 import ArticlesSection from "@/components/ArticlesSection";
-import { getHomeOverview, listAllHomePosts, listTrendingByCategory, type HomePost, type TrendingCategory } from "@/lib/api";
-import Pagination from "@/components/Pagination";
+import { getHomeOverview, listAllHomePosts, listTrendingByCategory, type HomePost } from "@/lib/api";
+// Pagination UI is handled inside ArticlesSection via provided meta
 
 export default function Home() {
 
   const [featured, setFeatured] = useState<HomePost[]>([]);
   const [trending, setTrending] = useState<HomePost[]>([]);
-  const [recent, setRecent] = useState<HomePost[]>([]);
-  const [recentMeta, setRecentMeta] = useState<{ total: number; page: number; limit: number; totalPages: number } | undefined>(undefined);
+  // const [recent, setRecent] = useState<HomePost[]>([]); // kept for potential future use
+  const [recentMeta, setRecentMeta] = useState<{ total: number; page: number; limit: number; totalPages: number; hasNextPage?: boolean; hasPrevPage?: boolean } | undefined>(undefined);
   const [authors, setAuthors] = useState<{ _id: string; fullName?: string; avatarUrl?: string }[]>([]);
-  const [catOptions, setCatOptions] = useState<TrendingCategory[]>([]);
+  // const [catOptions, setCatOptions] = useState<TrendingCategory[]>([]); // Hero internally fetches categories
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [search] = useState("");
   const [page, setPage] = useState(1);
@@ -24,17 +24,16 @@ export default function Home() {
 
   useEffect(() => {
     let active = true;
-    getHomeOverview(page, limit).then((d) => {
+    getHomeOverview(page, limit).then(({ featuredPosts, trendingPosts, topAuthors, recentPagination }) => {
       if (!active) return;
-      setFeatured(d.featuredPosts);
-      setTrending(d.trendingPosts);
-      setRecent(d.recentPosts);
-      setAuthors(d.topAuthors);
-      setRecentMeta(d.recentPagination);
+      setFeatured(featuredPosts);
+      setTrending(trendingPosts);
+      setAuthors(topAuthors);
+      setRecentMeta(recentPagination);
     }).catch(() => { });
-    listTrendingByCategory().then((d) => {
+    listTrendingByCategory().then(() => {
       if (!active) return;
-      setCatOptions(d.categories);
+      // setCatOptions(d.categories);
     }).catch(() => { });
     return () => { active = false; };
   }, [page, limit]);
@@ -47,6 +46,7 @@ export default function Home() {
       if (!active) return;
       setGrid(res.posts);
       setTotal(res.total);
+      setRecentMeta({ total: res.total, page: res.page, limit: res.limit, totalPages: res.totalPages, hasNextPage: (res as unknown as { hasNextPage?: boolean }).hasNextPage, hasPrevPage: (res as unknown as { hasPrevPage?: boolean }).hasPrevPage });
     }).catch((e) => setError(e instanceof Error ? e.message : String(e))).finally(() => setLoading(false));
     return () => { active = false; };
   }, [page, limit, selectedCat]);

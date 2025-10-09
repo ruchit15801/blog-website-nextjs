@@ -61,18 +61,16 @@ export default function ArticlesSection({
 
     // Process recent posts for main articles
     const articles = useMemo(() => {
-        return (recentPosts || []).map((p) => (
-            console.log('p', p),
-            {
-                id: p._id,
-                title: p.title,
-                date: formatDate(p.publishedAt || p.createdAt),
-                author: getPostAuthorName(p),
-                excerpt: "",
-                image: p.bannerImageUrl || "/images/a1.webp",
-                tag: Array.isArray(p.tags) ? p.tags : [],
-                readTime: p.readingTimeMinutes ?? 0,
-            }));
+        return (recentPosts || []).map((p) => ({
+            id: p._id,
+            title: p.title,
+            date: formatDate(p.publishedAt || p.createdAt),
+            author: getPostAuthorName(p),
+            excerpt: "",
+            image: p.bannerImageUrl || "/images/a1.webp",
+            tag: Array.isArray(p.tags) ? p.tags : [],
+            readTime: p.readingTimeMinutes ?? 0,
+        }));
     }, [recentPosts]);
 
 
@@ -127,6 +125,8 @@ export default function ArticlesSection({
                                         alt={a.title}
                                         fill
                                         className="object-cover rounded-2xl"
+                                        loading="lazy"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     />
                                     {/* Tags */}
                                     <div className="absolute top-3 left-3 flex flex-wrap gap-2">
@@ -143,7 +143,7 @@ export default function ArticlesSection({
                                     <div
                                         className={`absolute top-3 right-3 flex items-center gap-1 text-white text-xs px-3 py-1 rounded-xl
                                                 transition-all duration-300 ease-in-out font-bold
-                                                ${(Array.isArray(a.tag) ? a.tag.length > 0 : Boolean(a.tag)) ? 'bg-black/70': 'bg-black/20'} opacity-0 group-hover:opacity-100 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap`}>
+                                                ${(Array.isArray(a.tag) ? a.tag.length > 0 : Boolean(a.tag)) ? 'bg-black/70' : 'bg-black/20'} opacity-0 group-hover:opacity-100 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap`}>
                                         <Clock className="w-4 h-4 flex-shrink-0" />
                                         <span className="truncate">{a.readTime} min read</span>
                                     </div>
@@ -195,18 +195,18 @@ export default function ArticlesSection({
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Featured Posts</h3>
                         <div className="relative w-full h-80 overflow-hidden group">
-                            {slider.map((post, i) => (
-                                <div key={post.title} className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${i === index ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                                    <Image src={post.img} alt={post.title} fill className="object-cover rounded-2xl" />
+                            {slider.length > 0 && (
+                                <div className="absolute inset-0 transition-opacity duration-500 ease-in-out opacity-100 z-10">
+                                    <Image src={slider[index].img} alt={slider[index].title} fill className="object-cover rounded-2xl" loading="lazy" sizes="(max-width: 768px) 100vw, 33vw" />
                                     <div className="absolute inset-0 flex flex-col justify-between p-3 text-white">
-                                        <span className="text-xs uppercase tracking-wide bg-white/20 px-2 py-1 rounded self-start">{post.tag}</span>
+                                        <span className="text-xs uppercase tracking-wide bg-white/20 px-2 py-1 rounded self-start">{slider[index].tag}</span>
                                         <div>
-                                            <span className="block text-sm">{post.author} • {post.date}</span>
-                                            <h4 className="text-lg font-semibold">{post.title}</h4>
+                                            <span className="block text-sm">{slider[index].author} • {slider[index].date}</span>
+                                            <h4 className="text-lg font-semibold">{slider[index].title}</h4>
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+                            )}
                             <button onClick={prev} className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 p-3 rounded-full z-20 opacity-0 group-hover:opacity-100 hover:translate-x-5 transition-all" aria-label="Previous slide">
                                 <ChevronLeft className="w-6 h-6 text-white" />
                             </button>

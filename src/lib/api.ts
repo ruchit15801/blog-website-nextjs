@@ -37,6 +37,16 @@ export async function getHomeOverview(page: number = 1, limit: number = 12) {
   const url = new URL(`${HOME_API_BASE_URL}/home`);
   if (page) url.searchParams.set("page", String(page));
   if (limit) url.searchParams.set("limit", String(limit));
+  // tiny in-memory cache (15s) to avoid duplicate calls during quick nav
+  const key = `home_overview_${page}_${limit}`;
+  type CacheVal = { t: number; v: { featuredPosts: HomePost[]; trendingPosts: HomePost[]; recentPosts: HomePost[]; topAuthors: HomeAuthor[]; recentPagination?: { total: number; page: number; limit: number; totalPages: number } } };
+  const g = globalThis as unknown as { __homeCache?: Map<string, CacheVal> };
+  g.__homeCache = g.__homeCache || new Map<string, CacheVal>();
+  const now = Date.now();
+  const hit = g.__homeCache.get(key);
+  if (hit && now - hit.t < 15000) {
+    return hit.v;
+  }
   const res = await fetch(url.toString(), { cache: "no-store" });
   if (!res.ok) throw new Error(`Home overview failed: ${res.status}`);
   const data = await res.json();
@@ -55,12 +65,23 @@ export async function getHomeOverview(page: number = 1, limit: number = 12) {
   const featuredPosts = topViewed; // use top viewed as featured
   const trendingPosts = topLiked.length ? topLiked : (topCommented.length ? topCommented : topViewed);
   const recentPosts = recentData.data;
-  console.log('recentPosts', recentPosts)
-  const recentPagination = recentData.pagination as undefined | { total: number; page: number; limit: number; totalPages: number };
+  // Normalize pagination/meta from overview's recent
+  type AnyMeta = { total?: number; count?: number; page?: number; currentPage?: number; limit?: number; pageSize?: number; totalPages?: number; pages?: number; hasNextPage?: boolean; hasPrevPage?: boolean } | undefined;
+  const rp: AnyMeta = (recentData as unknown as { meta?: AnyMeta; pagination?: AnyMeta })?.meta || (recentData as unknown as { pagination?: AnyMeta })?.pagination;
+  const recentPagination = rp ? {
+    total: Number(rp.total ?? rp.count ?? 0),
+    page: Number(rp.page ?? rp.currentPage ?? 1),
+    limit: Number(rp.limit ?? rp.pageSize ?? 12),
+    totalPages: Number(rp.totalPages ?? rp.pages ?? (rp.total && rp.limit ? Math.max(1, Math.ceil(Number(rp.total) / Number(rp.limit))) : 1)),
+    hasNextPage: Boolean(rp.hasNextPage ?? (rp.page && rp.totalPages ? rp.page < rp.totalPages : false)),
+    hasPrevPage: Boolean(rp.hasPrevPage ?? (rp.page ? rp.page > 1 : false)),
+  } : undefined;
   type RawAuthor = { authorId?: string; _id?: string; fullName?: string; avatarUrl?: string };
   const topAuthors = (authors as RawAuthor[]).map((a) => ({ _id: a.authorId || a._id || "", fullName: a.fullName, avatarUrl: a.avatarUrl })) as HomeAuthor[];
 
-  return { featuredPosts, trendingPosts, recentPosts, topAuthors, recentPagination };
+  const result = { featuredPosts, trendingPosts, recentPosts, topAuthors, recentPagination };
+  g.__homeCache.set(key, { t: now, v: result });
+  return result;
 }
 
 export type ListAllPostsParams = {
@@ -75,17 +96,30 @@ export async function listAllHomePosts(params: ListAllPostsParams = {}) {
   if (params.page != null) url.searchParams.set("page", String(params.page));
   if (params.limit != null) url.searchParams.set("limit", String(params.limit));
   if (params.category != null) url.searchParams.set("category", String(params.category));
+  const key = `home_all_${params.page ?? 1}_${params.limit ?? 12}_${params.category ?? "all"}`;
+  type ListCacheVal = { t: number; v: { posts: HomePost[]; total: number; page: number; limit: number; totalPages: number } };
+  const g = globalThis as unknown as { __homeCache?: Map<string, ListCacheVal> };
+  g.__homeCache = g.__homeCache || new Map<string, ListCacheVal>();
+  const now = Date.now();
+  const hit = g.__homeCache.get(key);
+  if (hit && now - hit.t < 15000) {
+    return hit.v;
+  }
   const res = await fetch(url.toString(), { cache: "no-store" });
   if (!res.ok) throw new Error(`Home posts failed: ${res.status}`);
   const data = await res.json();
   const list = (data.data || data.posts || data.result || []) as HomePost[];
-  const meta = (data.meta || data) as Partial<{ total: number; page: number; limit: number; totalPages: number }>;
-  const total = meta.total ?? list.length;
-  const page = meta.page ?? (params.page ?? 1);
-  const inferredLimit = params.limit ?? (list.length || 12);
-  const limit = meta.limit ?? inferredLimit;
-  const totalPages = meta.totalPages ?? Math.max(1, Math.ceil(total / (limit || 1)));
-  return { posts: list, total, page, limit, totalPages };
+  const rawMeta = (data.meta || data.pagination || data) as Partial<{ total: number; page: number; limit: number; totalPages: number; hasNextPage?: boolean; hasPrevPage?: boolean; currentPage?: number; pages?: number }>;
+  const total = Number(rawMeta.total ?? list.length);
+  const page = Number(rawMeta.page ?? rawMeta.currentPage ?? (params.page ?? 1));
+  const inferredLimit = Number(params.limit ?? (list.length || 12));
+  const limit = Number(rawMeta.limit ?? inferredLimit);
+  const totalPages = Number(rawMeta.totalPages ?? rawMeta.pages ?? Math.max(1, Math.ceil((total || 0) / (limit || 1))));
+  const hasNextPage = Boolean(rawMeta.hasNextPage ?? (page < totalPages));
+  const hasPrevPage = Boolean(rawMeta.hasPrevPage ?? (page > 1));
+  const result = { posts: list, total, page, limit, totalPages, hasNextPage, hasPrevPage };
+  g.__homeCache.set(key, { t: now, v: result });
+  return result;
 }
 
 export type TrendingCategory = { _id: string; name: string; icon?: string; imageUrl?: string };
