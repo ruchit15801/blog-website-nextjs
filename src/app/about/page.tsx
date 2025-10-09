@@ -6,7 +6,7 @@ import { Facebook, Twitter, Instagram, Linkedin, MapPin, Mail } from "lucide-rea
 export default function AboutPage() {
     return (
         <>
-            <div className="mx-auto max-w-7xl px-4">
+            <div className="mx-auto max-w-7xl px-4 sm:px-4 md:px-6">
                 {/* Breadcrumb */}
                 <div className="mb-6 text-sm text-gray-500">
                     <Link href="/">Home</Link> &gt; <span> About</span>
@@ -44,7 +44,7 @@ export default function AboutPage() {
                 </section>
 
                 {/* INTRO COPY */}
-                <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 mb-10">
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-2xl shadow p-6 card-hover">
                             <h2 className="text-2xl font-bold mb-3" style={{ color: '#29294b' }}>Our Story</h2>

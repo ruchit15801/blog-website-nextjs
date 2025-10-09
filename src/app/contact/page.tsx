@@ -43,8 +43,8 @@ export default function ContactPage() {
                 </div>
 
                 {/* Contact Form */}
-                <section className="mt-12  flex justify-center items-center">
-                    <form onSubmit={handleSubmit} className="flex flex-col space-y-6 p-6 rounded-2xl max-w-xl w-full text-left bg-white" style={{ boxShadow: '0 5px 25px 0 rgba(114,114,255,.12)', padding: '48px', borderRadius: '16px', maxWidth: '640px' }}>
+                <section className="mt-12 flex justify-center items-center">
+                    <form onSubmit={handleSubmit} className="flex flex-col space-y-6 p-4 sm:p-6 rounded-2xl max-w-xl w-full text-left bg-white" style={{ boxShadow: '0 5px 25px 0 rgba(114,114,255,.12)', borderRadius: '16px', maxWidth: '640px' }}>
                         <h5 className="text-xl" style={{ color: '#29294b', fontWeight: 700, lineHeight: 1.2, fontSize: '1.3rem', letterSpacing: '-.04em' }}>
                             Ready to Get Started?
                         </h5>

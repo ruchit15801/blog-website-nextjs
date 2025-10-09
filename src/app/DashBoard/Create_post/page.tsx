@@ -3,7 +3,7 @@ import Image from "next/image";
 import TiptapEditor from "@/components/TiptapEditor";
 import Loader from "@/components/Loader";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { adminUpdatePostById, createRemotePost, fetchCategories, fetchPostById, getAdminToken} from "@/lib/adminClient";
+import { adminUpdatePostById, createRemotePost, fetchCategories, fetchPostById, getAdminToken } from "@/lib/adminClient";
 import DashboardLayout from "../DashBoardLayout";
 import toast from "react-hot-toast";
 import { createPost, updatePost } from "@/lib/api";
@@ -242,9 +242,9 @@ export default function AdminLayout() {
                     </div>
                 </div>
 
-                <form id="new-post-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <form id="new-post-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     {/* Left column: form fields */}
-                    <div className="space-y-5 bg-white rounded-2xl shadow p-6 card-hover">
+                    <div className="space-y-5 bg-white rounded-2xl shadow p-4 sm:p-6 card-hover">
                         {/* Instruction panel */}
                         <div className="rounded-xl p-4" style={{ background: 'linear-gradient(180deg, #f5f7ff 0%, #ffffff 100%)' }}>
                             <div className="text-sm font-semibold mb-2" style={{ color: '#29294b' }}>Posting guide</div>
@@ -371,7 +371,7 @@ export default function AdminLayout() {
                             <label className="text-sm font-semibold block">Images</label>
 
                             {/* Upload area with preview inside */}
-                            <div className="relative flex flex-col items-center w-full max-w-md p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition hover:shadow-md">
+                            <div className="relative flex flex-col items-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition hover:shadow-md">
 
                                 {/* Existing images from API */}
                                 {imagePreviews.length > 0 && (
@@ -520,7 +520,7 @@ export default function AdminLayout() {
                     </div>
 
                     {/* Right column */}
-                    <div className="space-y-3 bg-white rounded-2xl shadow p-6 card-hover">
+                    <div className="space-y-3 bg-white rounded-2xl shadow p-4 sm:p-6 card-hover">
                         <label className="text-sm font-semibold text-gray-700">Content *</label>
 
                         <TiptapEditor

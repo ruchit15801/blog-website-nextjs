@@ -62,7 +62,7 @@ export default function Home() {
   void Math.max(1, Math.ceil((filteredGrid.length || total) / limit));
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen px-4 sm:px-4 md:px-6">
       <main>
         <Hero />
 
