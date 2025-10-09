@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Loader from "@/components/Loader";
 import Image from "next/image";
 import { listTrendingByCategory, type TrendingCategory } from "@/lib/api";
 import toast from "react-hot-toast";
@@ -86,7 +87,7 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                 </h5>
 
                 {loading ? (
-                    <p>Loading...</p>
+                    <div className="py-8 flex justify-center"><Loader inline label="Loading topics..." /></div>
                 ) : (
                     <div className="trending-buttons-container mx-auto flex flex-wrap justify-center gap-4">
 

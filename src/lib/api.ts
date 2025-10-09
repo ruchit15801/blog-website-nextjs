@@ -55,6 +55,7 @@ export async function getHomeOverview(page: number = 1, limit: number = 12) {
   const featuredPosts = topViewed; // use top viewed as featured
   const trendingPosts = topLiked.length ? topLiked : (topCommented.length ? topCommented : topViewed);
   const recentPosts = recentData.data;
+  console.log('recentPosts', recentPosts)
   const recentPagination = recentData.pagination as undefined | { total: number; page: number; limit: number; totalPages: number };
   type RawAuthor = { authorId?: string; _id?: string; fullName?: string; avatarUrl?: string };
   const topAuthors = (authors as RawAuthor[]).map((a) => ({ _id: a.authorId || a._id || "", fullName: a.fullName, avatarUrl: a.avatarUrl })) as HomeAuthor[];

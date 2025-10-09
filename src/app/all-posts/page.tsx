@@ -7,6 +7,7 @@ import { Clock, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight }
 import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, type HomePost, type TrendingCategory, type HomeAuthor } from "@/lib/api";
 import toast from "react-hot-toast";
 import { buildSlugPath } from "@/lib/slug";
+import Loader from "@/components/Loader";
 
 type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
 
@@ -138,7 +139,11 @@ export default function AllPostsPage() {
 
                 {/* Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                    {loading && <div className="col-span-full text-center py-20">Loading...</div>}
+                    {loading && (
+                        <div className="col-span-full flex justify-center py-16">
+                            <Loader inline label="Loading posts..." />
+                        </div>
+                    )}
                     {error && !loading && <div className="col-span-full text-center text-red-500 py-10">{error}</div>}
                     {!loading && !error && filtered.map((p) => {
                         const authorName = typeof p.author === "string" ? p.author : (p.author?.fullName || "");

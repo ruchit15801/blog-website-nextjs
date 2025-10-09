@@ -32,11 +32,27 @@ export default function ArticlesSection({
     };
 
 
-    // Helper to format dates
+    // Robust date formatter: supports ISO and YYYY-MM-DD strings
     const formatDate = (dateStr?: string) => {
-        if (!dateStr) return "Unknown Date";
-        const date = new Date(dateStr);
-        return date.toLocaleDateString("en-US", {
+        if (!dateStr || typeof dateStr !== "string") return "Unknown Date";
+        // Fast path for YYYY-MM-DD
+        const parts = dateStr.split("T")[0]?.split("-") || [];
+        if (parts.length === 3) {
+            const [year, month, day] = parts.map(Number);
+            if (year && month && day) {
+                try {
+                    return new Date(year, month - 1, day).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                    });
+                } catch { /* noop */ }
+            }
+        }
+        // Fallback: let Date try to parse; if invalid, show Unknown
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return "Unknown Date";
+        return d.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -45,16 +61,18 @@ export default function ArticlesSection({
 
     // Process recent posts for main articles
     const articles = useMemo(() => {
-        return (recentPosts || []).map((p) => ({
-            id: p._id,
-            title: p.title,
-            date: formatDate(p.publishedAt || p.createdAt),
-            author: getPostAuthorName(p),
-            excerpt: "",
-            image: p.bannerImageUrl || "/images/a1.webp",
-            tag: Array.isArray(p.tags) ? p.tags : [],
-            readTime: p.readingTimeMinutes ?? 0,
-        }));
+        return (recentPosts || []).map((p) => (
+            console.log('p', p),
+            {
+                id: p._id,
+                title: p.title,
+                date: formatDate(p.publishedAt || p.createdAt),
+                author: getPostAuthorName(p),
+                excerpt: "",
+                image: p.bannerImageUrl || "/images/a1.webp",
+                tag: Array.isArray(p.tags) ? p.tags : [],
+                readTime: p.readingTimeMinutes ?? 0,
+            }));
     }, [recentPosts]);
 
 
