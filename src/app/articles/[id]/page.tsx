@@ -244,7 +244,7 @@ export default function ArticlePage() {
                         author: post.author?.fullName ? { '@type': 'Person', name: post.author.fullName } : undefined,
                         mainEntityOfPage: {
                             '@type': 'WebPage',
-                            '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${postId}`,
+                            '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${buildSlugPath(post._id, post.title)}`,
                         },
                         publisher: {
                             '@type': 'Organization',
@@ -269,7 +269,7 @@ export default function ArticlePage() {
                             { '@type': 'ListItem', position: 1, name: 'Home', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/` },
                             { '@type': 'ListItem', position: 2, name: 'All Posts', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts` },
                             { '@type': 'ListItem', position: 3, name: post.category || 'Uncategorized', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts` },
-                            { '@type': 'ListItem', position: 4, name: post.title, item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${postId}` }
+                            { '@type': 'ListItem', position: 4, name: post.title, item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${buildSlugPath(post._id, post.title)}` }
                         ]
                     })
                 }}
@@ -292,10 +292,16 @@ export default function ArticlePage() {
                     <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: '#eef2ff', color: '#5559d1' }}>{(post.readingTimeMinutes || 0)} min read</span>
                     <span className="px-2.5 py-1 rounded-full text-xs font-semibold text-gray-600 bg-gray-100">{post.category || 'Uncategorized'}</span>
                     <span className="ml-2 text-xs text-gray-500">Share:</span>
-                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent((process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + `/articles/${postId}`)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>X</a>
-                    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent((process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + `/articles/${postId}`)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>Facebook</a>
-                    <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent((process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + `/articles/${postId}`)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>LinkedIn</a>
-                    <button onClick={() => { try { navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${postId}`); } catch { } }} className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)', color: '#fff', boxShadow: '0 10px 24px -12px rgba(114,114,255,.45)' }}>Copy link</button>
+                    {(() => {
+                        const slugUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${buildSlugPath(post._id, post.title)}`; return (
+                            <>
+                                <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(slugUrl)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>X</a>
+                                <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(slugUrl)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>Facebook</a>
+                                <a href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(slugUrl)}&title=${encodeURIComponent(post.title)}`} target="_blank" rel="noreferrer" className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: '#fff', border: '1px solid #e5e7eb', color: '#5559d1', boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>LinkedIn</a>
+                                <button onClick={() => { try { navigator.clipboard.writeText(slugUrl); } catch { } }} className="px-3 py-1.5 rounded-full text-xs font-semibold hover-float" style={{ background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)', color: '#fff', boxShadow: '0 10px 24px -12px rgba(114,114,255,.45)' }}>Copy link</button>
+                            </>
+                        );
+                    })()}
                 </div>
                 {post.subtitle && (
                     <div className="mx-auto" style={{ maxWidth: '740px' }}>
@@ -310,7 +316,7 @@ export default function ArticlePage() {
             {/* Banner */}
             {post.bannerImageUrl && (
                 <div className="relative w-full h-56 sm:h-72 md:h-96 rounded-2xl overflow-hidden">
-                    <Image src={post.bannerImageUrl} alt={post.title} fill className="object-cover" />
+                    <Image src={post.bannerImageUrl} alt={post.title} fill priority sizes="100vw" className="object-cover" />
                     <div className="absolute bottom-3 left-3 inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.85)', color: '#29294b', backdropFilter: 'blur(4px)' }}>
                         Main Image
                     </div>
@@ -324,18 +330,19 @@ export default function ArticlePage() {
                     {/* Sidebar */}
                     <div className="article-aside hidden lg:block" style={{ position: 'sticky', top: '70px', alignSelf: 'start' }}>
                         <div className="flex flex-col items-center gap-6">
-                            <div className="relative flex items-center justify-center text-center font-bold" style={{ width: 84, height: 84 }} aria-label="Reading progress">
-                                <div
-                                    className="absolute inset-0 rounded-full"
-                                    style={{
-                                        background: `conic-gradient(#5955d1 ${progress}%, #e5e7eb ${progress}% 100%)`,
-                                        filter: 'drop-shadow(0 4px 12px rgba(114,114,255,.25))'
-                                    }}
-                                />
-                                <div className="relative flex items-center justify-center rounded-full bg-white" style={{ width: 60, height: 60, color: '#29294b' }}>
-                                    <span className='px-1' style={{ fontSize: '0.8rem', fontWeight: 700 }}>
-                                        {post.readingTimeMinutes || 0} min
-                                    </span>
+                            <div className="relative flex items-center justify-center text-center font-bold" style={{ width: 100, height: 100 }} aria-label="Reading progress">
+                                {/* Soft glow backdrop */}
+                                <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 18px 42px -18px rgba(114,114,255,.45)', background: 'radial-gradient(closest-side, #ffffff 60%, transparent 61%), conic-gradient(#5955d1 0%, #7b78ed 35%, #9895ff 65%, #c7c6ff 100%)', opacity: .07 }} />
+                                {/* Progress arc */}
+                                <div className="absolute inset-0 rounded-full" style={{ background: `conic-gradient(#5955d1 ${progress}%, #e5e7eb ${progress}% 100%)` }} />
+                                {/* Inner cutout to form the ring */}
+                                <div className="absolute inset-2 rounded-full" style={{ background: '#ffffff' }} />
+                                {/* Inner disc with subtle inner shadow */}
+                                <div className="relative flex items-center justify-center rounded-full" style={{ width: 68, height: 68, background: '#ffffff', boxShadow: 'inset 0 1px 0 rgba(0,0,0,.04), 0 6px 14px -10px rgba(114,114,255,.45)' }}>
+                                    <div className="leading-tight" style={{ color: '#29294b' }}>
+                                        <div style={{ fontSize: '0.95rem', fontWeight: 800, letterSpacing: '-.02em' }}>{post.readingTimeMinutes || 0} min</div>
+                                        <div style={{ fontSize: '10px', fontWeight: 600, color: '#696981' }}>read</div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="flex flex-col items-center gap-4 text-gray-800">
@@ -441,7 +448,7 @@ export default function ArticlePage() {
                             <div className="group rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-7 transition-all hover:-translate-y-0.5 hover:shadow-lg reveal-on-scroll reveal">
                                 <div className="text-xs tracking-widest font-semibold uppercase mb-2" style={{ color: '#696981' }}>Previous Article</div>
                                 {(prevPost ? (
-                                    <Link href={`/articles/${prevPost._id}`} className="flex items-center gap-4">
+                                    <Link href={`/articles/${buildSlugPath(prevPost._id, prevPost.title)}`} className="flex items-center gap-4">
                                         <ChevronLeft className="w-4 h-4 text-[#5559d1]" />
                                         <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
                                             <Image src={prevPost.bannerImageUrl || "/images/a1.webp"} alt={prevPost.title} fill className="object-cover" />
@@ -462,7 +469,7 @@ export default function ArticlePage() {
                             <div className="group rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-7 transition-all hover:-translate-y-0.5 hover:shadow-lg reveal-on-scroll reveal">
                                 <div className="text-xs tracking-widest font-semibold uppercase mb-2" style={{ color: '#696981' }}>Next Article</div>
                                 {(nextPost ? (
-                                    <Link href={`/articles/${nextPost._id}`} className="flex items-center gap-4 justify-end">
+                                    <Link href={`/articles/${buildSlugPath(nextPost._id, nextPost.title)}`} className="flex items-center gap-4 justify-end">
                                         <div className="text-right text-[#29294b] font-semibold leading-snug group-hover:underline">
                                             {nextPost.title}
                                         </div>
