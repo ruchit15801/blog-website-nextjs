@@ -79,6 +79,7 @@ export default function AllPosts() {
                             token: token!,
                             authorId: userId, 
                         });
+                        console.log("user post fetched :-", res);
 
                         posts = res.data.map((p: UserPost) => ({
                             _id: p._id,
@@ -96,6 +97,7 @@ export default function AllPosts() {
                             readingTimeMinutes: p.readingTimeMinutes || 0,
                             slug: p.slug,
                         }));
+                        console.log("user posts :-", posts);
                     }
                 }
 

@@ -12,9 +12,7 @@ export default function Home() {
   const [recentMeta, setRecentMeta] = useState<{ total: number; page: number; limit: number; totalPages: number } | undefined>(undefined);
   const [authors, setAuthors] = useState<{ _id: string; fullName?: string; avatarUrl?: string }[]>([]);
   const [catOptions, setCatOptions] = useState<TrendingCategory[]>([]);
-  console.log(catOptions);
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
-  console.log(setSelectedCat);
   const [search] = useState("");
   const [page, setPage] = useState(1);
   const [limit] = useState(12);
@@ -45,6 +43,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     listAllHomePosts({ page, limit, sort: "random", category: selectedCat }).then((res) => {
+      console.log("All posts fetched:-", res);
       if (!active) return;
       setGrid(res.posts);
       setTotal(res.total);
@@ -64,13 +63,14 @@ export default function Home() {
   return (
     <div className="min-h-screen px-4 sm:px-4 md:px-6">
       <main>
-        <Hero />
+        {/* <Hero /> */}
+        <Hero selectedCat={selectedCat} onCategorySelect={setSelectedCat} />
 
         {/* Featured/Trending/Recent from API */}
         <ArticlesSection
           featuredPosts={featured}
           trendingPosts={trending}
-          recentPosts={recent}
+          recentPosts={grid}
           topAuthors={authors}
           // Pass recent pagination and a page setter to drive server pagination
           pagination={recentMeta}

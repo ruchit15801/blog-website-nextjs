@@ -6,7 +6,12 @@ import toast from "react-hot-toast";
 
 type RemoteCategory = TrendingCategory;
 
-export default function Hero() {
+type HeroProps = {
+    selectedCat?: string | null;
+    onCategorySelect?: (catId: string) => void;
+};
+
+export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
     const [categories, setCategories] = useState<RemoteCategory[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -16,7 +21,7 @@ export default function Hero() {
                 const { categories } = await listTrendingByCategory();
                 setCategories(categories);
             } catch (err) {
-                console.log("Failed to fetch trending categories",err);
+                console.log("Failed to fetch trending categories", err);
                 toast.error("Failed to fetch trending categories");
             } finally {
                 setLoading(false);
@@ -84,8 +89,9 @@ export default function Hero() {
                     <p>Loading...</p>
                 ) : (
                     <div className="trending-buttons-container mx-auto">
+                        
                         {/* First 6 categories */}
-                        {categories.slice(0, 6).map((cat) => (
+                        {/* {categories.slice(0, 6).map((cat) => (
                             <button
                                 key={cat._id}
                                 className="trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full"
@@ -104,11 +110,35 @@ export default function Hero() {
                                 </span>
                                 <span>{cat.name}</span>
                             </button>
+                        ))} */}
+
+                        {categories.slice(0, 6).map((cat) => (
+                            <button
+                                key={cat._id}
+                                className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${selectedCat === cat._id ? "bg-indigo-100" : ""
+                                    }`}
+                                onClick={() => onCategorySelect?.(cat._id)}
+                            >
+                                <span
+                                    className="inline-flex items-center justify-center rounded-full"
+                                    style={{ width: 28, height: 28, background: '#eef2ff' }}
+                                >
+                                    <Image
+                                        src={cat.imageUrl || "/images/about.webp"}
+                                        alt={cat.name}
+                                        width={20}
+                                        height={20}
+                                        className="rounded-full object-cover"
+                                    />
+                                </span>
+                                <span>{cat.name}</span>
+                            </button>
                         ))}
+
 
                         {/* Next 2 categories only */}
                         <div className="second-row flex justify-center gap-4 w-full mt-4">
-                            {categories.slice(6, 8).map((cat) => (
+                            {/* {categories.slice(6, 8).map((cat) => (
                                 <button
                                     key={cat._id}
                                     className="trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full"
@@ -127,11 +157,26 @@ export default function Hero() {
                                     </span>
                                     <span>{cat.name}</span>
                                 </button>
+                            ))} */}
+
+                            {categories.slice(6, 8).map((cat) => (
+                                <button
+                                    key={cat._id}
+                                    className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${selectedCat === cat._id ? "bg-indigo-100" : ""
+                                        }`}
+                                    onClick={() => onCategorySelect?.(cat._id)}
+                                >
+                                    <span className="inline-flex items-center justify-center rounded-full" style={{ width: 28, height: 28, background: '#eef2ff' }}>
+                                        <Image src={cat.imageUrl || "/images/aside.webp"} alt={cat.name} width={20} height={20} className="rounded-full object-cover" />
+                                    </span>
+                                    <span>{cat.name}</span>
+                                </button>
                             ))}
+
                         </div>
                     </div>
-
-                )}
+                    
+                )}       
             </section>
         </main>
     );

@@ -9,6 +9,7 @@ import { adminDeletePostById, fetchAdminScheduledPosts, publishAdminPostNow, typ
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
+import { fetchScheduledPosts } from "@/lib/api";
 
 export default function SchedulePosts() {
     const perPage = 6;
@@ -25,11 +26,30 @@ export default function SchedulePosts() {
         let active = true;
         setLoading(true);
         setError(null);
-        fetchAdminScheduledPosts({ page, limit: perPage, q: search || undefined })
-            .then((res) => { if (!active) return; setLivePosts(res.posts || []); })
-            .catch((e) => setError(e instanceof Error ? e.message : String(e)))
+
+        const role = (localStorage.getItem("role") || "").toLowerCase();
+        const token = localStorage.getItem("accessToken") || "";
+
+        const fetchFn =
+            role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
+        console.log("Fetching scheduled posts for:", role);
+
+        fetchFn({
+            page,
+            limit: perPage,
+            token,
+            q: search || undefined,
+            userId: role === "admin" ? undefined : localStorage.getItem("userId") || undefined,
+        })
+            .then((res) => {
+                if (!active) return;
+                setLivePosts(res.data || []);
+            }).catch((e) => setError(e instanceof Error ? e.message : String(e)))
             .finally(() => setLoading(false));
-        return () => { active = false; };
+
+        return () => {
+            active = false;
+        };
     }, [page, perPage, search]);
 
     const baseList = useMemo(() => {
@@ -37,9 +57,9 @@ export default function SchedulePosts() {
             id: p._id,
             title: p.title,
             date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
-            author: typeof p.author === "string" ? p.author : p.author?.fullName || "",
             excerpt: "",
-            image: p.bannerImageUrl || "/images/a1.webp",
+            image: p.bannerImageUrl || p.imageUrls?.[0] || "/images/a1.webp",
+            author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
             tag: p.tags || [],
             readTime: p.readingTimeMinutes || 0,
         }));
@@ -113,7 +133,10 @@ export default function SchedulePosts() {
                             type="text"
                             placeholder="Search posts..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setPage(1);
+                            }}
                         />
                     </div>
 

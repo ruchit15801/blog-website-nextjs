@@ -12,7 +12,7 @@ type Props = {
   showPreview?: boolean;
 };
 
-export default function TiptapEditor({ initialHtml = "<p></p>", onChange, showPreview = true }: Props) {
+export default function TiptapEditor({ initialHtml = "<p></p>", onChange}: Props) {
   const [contentHtml, setContentHtml] = useState(initialHtml);
   const [wordCount, setWordCount] = useState(0);
 
@@ -55,7 +55,7 @@ export default function TiptapEditor({ initialHtml = "<p></p>", onChange, showPr
   if (!editor) return null;
 
   return (
-    <div className="space-y-3 bg-white rounded-2xl shadow p-6 card-hover">
+    <div className="space-y-3 bg-white rounded-2xl shadow p-6 card-hover mt-4">
       <label className="text-sm font-semibold text-gray-700">Text Editor (HTML) *</label>
 
       <div className="top-0 z-20 mt-1 flex flex-wrap gap-2 bg-gradient-to-r from-purple-100 to-blue-50 p-2 rounded-xl border border-gray-200 mb-2 shadow-md">
@@ -90,12 +90,6 @@ export default function TiptapEditor({ initialHtml = "<p></p>", onChange, showPr
         :global(.prose p) { margin: 0.5rem 0; }
       `}</style>
 
-      {showPreview && (
-        <div className="rounded-xl border border-gray-300 p-4 bg-white shadow-md mt-3">
-          <div className="text-sm text-gray-500 mb-2">Live Preview</div>
-          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml }} />
-        </div>
-      )}
     </div>
   );
 }
