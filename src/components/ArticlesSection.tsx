@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { HomeAuthor, HomePost } from "@/lib/api";
+import { buildSlugPath } from "@/lib/slug";
 
 export default function ArticlesSection({
     featuredPosts,
@@ -48,7 +49,7 @@ export default function ArticlesSection({
             id: p._id,
             title: p.title,
             date: formatDate(p.publishedAt || p.createdAt),
-            author: getPostAuthorName(p), 
+            author: getPostAuthorName(p),
             excerpt: "",
             image: p.bannerImageUrl || "/images/a1.webp",
             tag: Array.isArray(p.tags) ? p.tags : [],
@@ -99,7 +100,7 @@ export default function ArticlesSection({
             <div className="lg:col-span-2 flex flex-col">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {paginatedArticles.map((a) => (
-                        <Link key={a.id} href={`/articles/${a.id}`}>
+                        <Link key={a.id} href={`/articles/${buildSlugPath(a.id, a.title)}`}>
                             <article className="flex flex-col overflow-hidden group cursor-pointer">
                                 {/* Image */}
                                 <div className="relative w-full h-56">
@@ -231,7 +232,7 @@ export default function ArticlesSection({
                         <h3 className="text-sm font-bold text-gray-500 uppercase mb-4">Trending Blogs</h3>
                         {(recentPosts || []).slice(0, 3).map((p) => (
                             <div key={p._id}>
-                                <Link href={`/articles/${p._id}`} className="flex items-center gap-2 font-medium text-blue-600 hover:underline">
+                                <Link href={`/articles/${buildSlugPath(p._id, p.title)}`} className="flex items-center gap-2 font-medium text-blue-600 hover:underline">
                                     {p.title}
                                     <ExternalLink className="w-4 h-4" strokeWidth={3} />
                                 </Link>

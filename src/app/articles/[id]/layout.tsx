@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { fetchSinglePostById } from "@/lib/adminClient";
+import { extractIdFromSlug } from "@/lib/slug";
 
 export async function generateMetadata(
     { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
     try {
         const { id } = await params;
-        if (!id) return {};
-        const res = await fetchSinglePostById(id);
+        const realId = extractIdFromSlug(id) || id;
+        if (!realId) return {};
+        const res = await fetchSinglePostById(realId);
         type PostShape = { title?: string; subtitle?: string; contentHtml?: string; bannerImageUrl?: string; imageUrls?: string[] } | null | undefined;
         const postCandidate = (res as Record<string, unknown>)?.post ?? (res as Record<string, unknown>)?.data ?? res;
         const post = postCandidate as PostShape;

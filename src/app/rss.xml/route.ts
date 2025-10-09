@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { listAllHomePosts } from "@/lib/api";
+import { buildSlugPath } from "@/lib/slug";
 
 function rss({ title, site, items }: { title: string; site: string; items: { title: string; link: string; description?: string }[] }) {
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -21,7 +22,7 @@ export async function GET() {
     const posts = res.posts as Array<{ _id: string; title?: string; bannerImageUrl?: string } & Record<string, unknown>>;
     items = posts.map(p => ({
       title: p.title || "Post",
-      link: `${site}/articles/${p._id}`,
+      link: `${site}/articles/${buildSlugPath(p._id, p.title)}`,
     }));
   } catch {
     items = [{ title: "Welcome to BlogCafeAI", link: `${site}/` }];

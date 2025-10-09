@@ -44,6 +44,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="" />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {/* Primary Meta Tags (defaults; page-level generateMetadata can override) */}
         <title>BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips</title>

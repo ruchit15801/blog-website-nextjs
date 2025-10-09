@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Clock, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, type HomePost, type TrendingCategory, type HomeAuthor } from "@/lib/api";
 import toast from "react-hot-toast";
+import { buildSlugPath } from "@/lib/slug";
 
 type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
 
@@ -143,7 +144,7 @@ export default function AllPostsPage() {
                         const authorName = typeof p.author === "string" ? p.author : (p.author?.fullName || "");
                         const date = new Date(p.publishedAt || p.createdAt || Date.now()).toDateString();
                         return (
-                            <Link key={p._id} href={`/articles/${p._id}`}>
+                            <Link key={p._id} href={`/articles/${buildSlugPath(p._id, p.title)}`}>
                                 <article className="flex flex-col overflow-hidden group">
                                     <div className="relative w-full h-56">
                                         <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl" />

@@ -2,10 +2,11 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams,} from "next/navigation";
+import { useParams, } from "next/navigation";
 import { Clock } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import { fetchAdminPosts, type RemotePost } from "@/lib/adminClient";
+import { buildSlugPath } from "@/lib/slug";
 
 export default function BlogIndex() {
     const { authorId } = useParams();
@@ -23,7 +24,7 @@ export default function BlogIndex() {
         let active = true;
         setLoading(true);
         setError(null);
-       fetchAdminPosts({ page, limit, userid: Array.isArray(authorId) ? authorId[0] : authorId || undefined })
+        fetchAdminPosts({ page, limit, userid: Array.isArray(authorId) ? authorId[0] : authorId || undefined })
             .then((res) => {
                 if (!active) return;
                 setPosts(res.posts || []);
@@ -85,7 +86,7 @@ export default function BlogIndex() {
                         const authorName = typeof p.author === "string" ? p.author : (p.author?.fullName || "");
                         const date = new Date(p.publishedAt || p.createdAt || Date.now()).toDateString();
                         return (
-                            <Link key={p._id} href={`/articles/${p._id}`}>
+                            <Link key={p._id} href={`/articles/${buildSlugPath(p._id, p.title)}`}>
                                 <article className="flex flex-col overflow-hidden group">
                                     <div className="relative w-full h-56">
                                         <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl" />

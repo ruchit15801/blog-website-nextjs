@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { listAllHomePosts } from "@/lib/api";
+import { buildSlugPath } from "@/lib/slug";
 
 function xml(items: string) {
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -14,8 +15,8 @@ export async function GET() {
   let postUrls: string[] = [];
   try {
     const res = await listAllHomePosts({ page: 1, limit: 200, sort: "latest" });
-    const items = res.posts as Array<{ _id: string }>;
-    postUrls = items.map(p => `/articles/${p._id}`).filter(Boolean);
+    const items = res.posts as Array<{ _id: string; title?: string }>;
+    postUrls = items.map(p => `/articles/${buildSlugPath(p._id, p.title)}`).filter(Boolean);
   } catch {
     postUrls = [];
   }

@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import Loader from "@/components/Loader";
 import { fetchSinglePostById } from "@/lib/adminClient";
 import { listAllHomePosts, type HomePost } from "@/lib/api";
+import { buildSlugPath, extractIdFromSlug } from "@/lib/slug";
 import { TwitterIcon, FacebookIcon, InstagramIcon, LinkedinIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import Script from "next/script";
@@ -37,7 +38,10 @@ export default function ArticlePage() {
     const [nextPost, setNextPost] = useState<HomePost | null>(null);
 
     const params = useParams();
-    const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+    const router = useRouter();
+    // Support both legacy id route and SEO slug route "title-slug-<id>"
+    const raw = Array.isArray(params?.id) ? params.id[0] : params?.id;
+    const postId = extractIdFromSlug(raw) || undefined;
 
     useEffect(() => {
         if (!postId) return;
@@ -54,7 +58,16 @@ export default function ArticlePage() {
                 if (!maybePost || typeof maybePost !== "object") {
                     throw new Error("Post not found");
                 }
-                setPost(maybePost as RemotePost);
+                const normalized = maybePost as RemotePost;
+                setPost(normalized);
+                // If route is legacy (no slug), push pretty slug for SEO
+                const current = raw || "";
+                if (normalized?._id && normalized?.title) {
+                    const desired = buildSlugPath(normalized._id, normalized.title);
+                    if (current !== desired) {
+                        router.replace(`/articles/${desired}`);
+                    }
+                }
             } catch (err) {
                 const msg = err instanceof Error ? err.message : String(err);
                 setError(msg);
@@ -65,7 +78,7 @@ export default function ArticlePage() {
         };
 
         loadPost();
-    }, [postId]);
+    }, [postId, raw, router]);
 
     // Fetch neighbors (best-effort) once post is loaded
     useEffect(() => {
