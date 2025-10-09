@@ -206,7 +206,17 @@ export default function ArticlePage() {
     const skipIndexes = new Set<number>();
 
     return (
-        <div className="mx-auto max-w-7xl space-y-8 px-8">
+        <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 md:px-8">
+            {/* Ultra-thin top progress bar for mobile */}
+            <div
+                className="fixed top-0 left-0 right-0 z-40 h-[2px] md:h-[2px]"
+                style={{
+                    background: `linear-gradient(90deg, #9895ff 0%, #514dcc 100%)`,
+                    transform: `scaleX(${Math.max(0, Math.min(100, progress)) / 100})`,
+                    transformOrigin: '0 0',
+                    opacity: 0.9,
+                }}
+            />
             {/* JSON-LD Article schema */}
             <Script id="ld-article" type="application/ld+json" strategy="afterInteractive"
                 dangerouslySetInnerHTML={{
@@ -286,7 +296,7 @@ export default function ArticlePage() {
 
             {/* Banner */}
             {post.bannerImageUrl && (
-                <div className="relative w-full h-150 rounded-2xl overflow-hidden">
+                <div className="relative w-full h-56 sm:h-72 md:h-96 rounded-2xl overflow-hidden">
                     <Image src={post.bannerImageUrl} alt={post.title} fill className="object-cover" />
                     <div className="absolute bottom-3 left-3 inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.85)', color: '#29294b', backdropFilter: 'blur(4px)' }}>
                         Main Image
@@ -297,9 +307,9 @@ export default function ArticlePage() {
 
             {/* Main Layout */}
             <div className="flex justify-center">
-                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 w-full max-w-5xl mx-auto px-0 sm:px-2">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 w-full max-w-5xl mx-auto px-0 sm:px-2 pt-2 sm:pt-4">
                     {/* Sidebar */}
-                    <div style={{ position: 'sticky', top: '70px', alignSelf: 'start' }}>
+                    <div className="article-aside hidden lg:block" style={{ position: 'sticky', top: '70px', alignSelf: 'start' }}>
                         <div className="flex flex-col items-center gap-6">
                             <div className="relative flex items-center justify-center text-center font-bold" style={{ width: 84, height: 84 }} aria-label="Reading progress">
                                 <div
@@ -364,13 +374,13 @@ export default function ArticlePage() {
                                             ) {
                                                 skipIndexes.add(index + 1);
                                                 return (
-                                                    <div key={index} className="flex gap-4 my-6 reveal-on-scroll reveal">
-                                                        <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
+                                                    <div key={index} className="flex flex-col md:flex-row gap-4 my-6 reveal-on-scroll reveal">
+                                                        <div className="relative w-full md:w-1/2 h-56 sm:h-64 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
                                                             <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
                                                             <span className="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#29294b' }}>Image</span>
                                                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
                                                         </div>
-                                                        <div className="relative w-1/2 h-56 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
+                                                        <div className="relative w-full md:w-1/2 h-56 sm:h-64 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
                                                             <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
                                                             <span className="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#29294b' }}>Image</span>
                                                             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />

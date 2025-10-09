@@ -123,6 +123,11 @@ h1, h2, h3, h4, h5, h6 {
 .reveal { opacity: 0; transform: translateY(14px); }
 .reveal.revealed { opacity: 1; transform: none; animation: revealUp 600ms cubic-bezier(.21,.61,.35,1) both; }
 
+/* Force-hide article sidebar (reading-time circle) on small/medium screens */
+@media (max-width: 1023px) {
+  .article-aside { display: none !important; }
+}
+
 /* 16️⃣ Link underline animation */
 .link-underline { position: relative; text-decoration: none; }
 .link-underline::after { content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 2px; background: currentColor; transition: right 250ms ease; }
