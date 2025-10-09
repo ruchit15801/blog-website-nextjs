@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Hero from "@/components/Hero";
 import ArticlesSection from "@/components/ArticlesSection";
 import { getHomeOverview, listAllHomePosts, listTrendingByCategory, type HomePost, type TrendingCategory } from "@/lib/api";
+import Pagination from "@/components/Pagination";
 
 export default function Home() {
 
@@ -63,7 +64,11 @@ export default function Home() {
     <div className="min-h-screen px-4 sm:px-4 md:px-6">
       <main>
         {/* <Hero /> */}
-        <Hero selectedCat={selectedCat} onCategorySelect={setSelectedCat} />
+        <Hero selectedCat={selectedCat}
+          onCategorySelect={(catId) => {
+            setSelectedCat(catId);
+            setPage(1);
+          }} />
 
         {/* Featured/Trending/Recent from API */}
         <ArticlesSection

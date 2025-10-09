@@ -140,9 +140,12 @@ export default function ArticlesSection({
                                         }
                                     </div>
                                     {/* Read Time */}
-                                    <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/10 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity font-bold">
-                                        <Clock className="w-5 h-5" />
-                                        <span>{a.readTime} min read</span>
+                                    <div
+                                        className={`absolute top-3 right-3 flex items-center gap-1 text-white text-xs px-3 py-1 rounded-xl
+                                                transition-all duration-300 ease-in-out font-bold
+                                                ${(Array.isArray(a.tag) ? a.tag.length > 0 : Boolean(a.tag)) ? 'bg-black/70': 'bg-black/20'} opacity-0 group-hover:opacity-100 max-w-[120px] overflow-hidden text-ellipsis whitespace-nowrap`}>
+                                        <Clock className="w-4 h-4 flex-shrink-0" />
+                                        <span className="truncate">{a.readTime} min read</span>
                                     </div>
                                 </div>
                                 {/* Content */}

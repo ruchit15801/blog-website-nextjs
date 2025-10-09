@@ -112,7 +112,7 @@ export default function Navbar() {
                                     alt={user.name}
                                     width={36}
                                     height={36}
-                                    className="rounded-full"
+                                    className="about_author_img"
                                 />
                                 <span className="font-medium text-black hover:text-indigo-600">{user.name}</span>
                                 <svg

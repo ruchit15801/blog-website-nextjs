@@ -18,7 +18,7 @@ type RemotePost = {
     imageUrls?: string[];
     category?: string;
     tags?: string[];
-    author?: { fullName: string };
+    author?: { fullName: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, linkedinUrl: string };
     publishedAt?: string;
     readingTimeMinutes?: string;
 };
@@ -214,19 +214,27 @@ export default function PostPage({
                                 </div>
 
                                 {/* Social Icons */}
-                                <div className="flex flex-col items-center gap-4 text-gray-800">
-                                    <a href="#" aria-label="Twitter" className="hover:text-blue-600 transition-colors">
-                                        <TwitterIcon />
-                                    </a>
-                                    <a href="#" aria-label="Facebook" className="hover:text-sky-500 transition-colors">
-                                        <FacebookIcon />
-                                    </a>
-                                    <a href="#" aria-label="Instagram" className="hover:text-pink-500 transition-colors">
-                                        <InstagramIcon />
-                                    </a>
-                                    <a href="#" aria-label="LinkedIn" className="hover:text-blue-700 transition-colors">
-                                        <LinkedinIcon />
-                                    </a>
+                                <div className="flex flex-col items-center gap-6 text-gray-800">
+                                    {post.author?.twitterUrl && (
+                                        <a href={post.author.twitterUrl} target="_blank" rel="noreferrer" aria-label="Twitter" className="hover:text-blue-600 transition-colors">
+                                            <TwitterIcon />
+                                        </a>
+                                    )}
+                                    {post.author?.facebookUrl && (
+                                        <a href={post.author.facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-sky-500 transition-colors">
+                                            <FacebookIcon />
+                                        </a>
+                                    )}
+                                    {post.author?.instagramUrl && (
+                                        <a href={post.author.instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-pink-500 transition-colors">
+                                            <InstagramIcon />
+                                        </a>
+                                    )}
+                                    {post.author?.linkedinUrl && (
+                                        <a href={post.author.linkedinUrl} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="hover:text-blue-700 transition-colors">
+                                            <LinkedinIcon />
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         </div>
