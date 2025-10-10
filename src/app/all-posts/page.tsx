@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Clock, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Clock, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown } from "lucide-react";
 import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, type HomePost, type TrendingCategory, type HomeAuthor } from "@/lib/api";
 import toast from "react-hot-toast";
 import { buildSlugPath } from "@/lib/slug";
@@ -24,6 +24,15 @@ export default function AllPostsPage() {
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<"latest" | "oldest" | "random">("latest");
     const [authors, setAuthors] = useState<SidebarAuthor[]>([]);
+    // Custom dropdown state
+    const sortOptions: Array<{ value: "latest" | "oldest" | "random"; label: string }> = [
+        { value: "latest", label: "Latest" },
+        { value: "oldest", label: "Oldest" },
+        { value: "random", label: "Random" },
+    ];
+    const perPageOptions = [6, 12, 24];
+    const [sortOpen, setSortOpen] = useState(false);
+    const [perOpen, setPerOpen] = useState(false);
 
     useEffect(() => {
         let active = true;
@@ -53,6 +62,27 @@ export default function AllPostsPage() {
             }).finally(() => setLoading(false));
         return () => { active = false; };
     }, [page, limit, sort, selectedCat]);
+
+    // Smooth reveal for cards
+    useEffect(() => {
+        const nodes = document.querySelectorAll('.reveal-on-scroll');
+        if (!nodes.length) return;
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('revealed');
+                }
+            });
+        }, { rootMargin: '0px 0px -5% 0px', threshold: 0.08 });
+        nodes.forEach((n) => io.observe(n));
+        return () => io.disconnect();
+    }, [posts.length, search]);
+
+    // Debounce search typing for better UX
+    useEffect(() => {
+        const t = setTimeout(() => { /* trigger filter already updates state */ }, 200);
+        return () => clearTimeout(t);
+    }, [search]);
 
     // authors now loaded from API
 
@@ -119,21 +149,66 @@ export default function AllPostsPage() {
             <section className="lg:col-span-2">
                 {/* Controls */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-4">
-                    <div className="relative w-full md:w-80">
+                    <div className="relative w-full md:w-96">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search posts..." className="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" />
+                        <input
+                            value={search}
+                            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                            placeholder="Search posts..."
+                            className="w-full rounded-xl pl-10 pr-3 py-2.5 border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1] focus:border-transparent transition"
+                        />
                     </div>
                     <div className="flex items-center gap-2">
-                        <select value={sort} onChange={(e) => { const v = e.target.value as "latest" | "oldest" | "random"; setSort(v); setPage(1); }} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]">
-                            <option value="latest">Latest</option>
-                            <option value="oldest">Oldest</option>
-                            <option value="random">Random</option>
-                        </select>
-                        <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]">
-                            <option value={6}>6 / page</option>
-                            <option value={12}>12 / page</option>
-                            <option value={24}>24 / page</option>
-                        </select>
+                        {/* Sort dropdown */}
+                        <div className="relative" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setSortOpen(false); }}>
+                            <button
+                                type="button"
+                                className="rounded-xl px-3 py-2.5 border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1] transition flex items-center gap-2"
+                                onClick={() => setSortOpen((v) => !v)}
+                            >
+                                {sortOptions.find(o => o.value === sort)?.label || "Latest"}
+                                <ChevronDown className="w-4 h-4 text-gray-400" />
+                            </button>
+                            {sortOpen && (
+                                <div className="absolute z-20 mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-lg p-1">
+                                    {sortOptions.map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            type="button"
+                                            className={`w-full text-left px-3 py-2 rounded-lg transition ${sort === opt.value ? "bg-[#eef2ff] text-[#5559d1]" : "hover:bg-gray-50"}`}
+                                            onClick={() => { setSort(opt.value); setPage(1); setSortOpen(false); }}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        {/* Per-page dropdown */}
+                        <div className="relative" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setPerOpen(false); }}>
+                            <button
+                                type="button"
+                                className="rounded-xl px-3 py-2.5 border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1] transition flex items-center gap-2"
+                                onClick={() => setPerOpen((v) => !v)}
+                            >
+                                {limit} / page
+                                <ChevronDown className="w-4 h-4 text-gray-400" />
+                            </button>
+                            {perOpen && (
+                                <div className="absolute z-20 mt-1 w-36 bg-white border border-gray-200 rounded-xl shadow-lg p-1">
+                                    {perPageOptions.map((opt) => (
+                                        <button
+                                            key={opt}
+                                            type="button"
+                                            className={`w-full text-left px-3 py-2 rounded-lg transition ${limit === opt ? "bg-[#eef2ff] text-[#5559d1]" : "hover:bg-gray-50"}`}
+                                            onClick={() => { setLimit(opt); setPage(1); setPerOpen(false); }}
+                                        >
+                                            {opt} / page
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -145,36 +220,32 @@ export default function AllPostsPage() {
                         </div>
                     )}
                     {error && !loading && <div className="col-span-full text-center text-red-500 py-10">{error}</div>}
-                    {!loading && !error && filtered.map((p) => {
+                    {!loading && !error && filtered.map((p, i) => {
                         const authorName = typeof p.author === "string" ? p.author : (p.author?.fullName || "");
                         const date = new Date(p.publishedAt || p.createdAt || Date.now()).toDateString();
                         return (
                             <Link key={p._id} href={`/articles/${buildSlugPath(p._id, p.title)}`}>
-                                <article className="flex flex-col overflow-hidden group">
+                                <article className="flex flex-col overflow-hidden group rounded-2xl bg-white shadow ring-1 ring-black/5 hover:-translate-y-0.5 transition-all hover:shadow-lg hover-glow reveal-on-scroll reveal" style={{ transitionDelay: `${i * 40}ms` }}>
                                     <div className="relative w-full h-56">
-                                        <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl" />
-                                        <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/10 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl hover-zoom" />
+                                        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                        <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/30 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
                                             <Clock className="w-5 h-5" />
                                             <span>{p.readingTimeMinutes ?? 0} min read</span>
                                         </div>
                                     </div>
-                                    <div className="py-4 px-1 flex flex-col gap-2">
-                                        <div className="flex items-center text-sm text-gray-500 gap-1">
-                                            <span className="font-medium text-gray-700" style={{ color: '#5559d1' }}>{authorName}</span>
-                                            <span>on {date}</span>
+                                    <div className="py-4 px-4 flex flex-col gap-2">
+                                        <div className="flex items-center text-sm text-gray-500 gap-2">
+                                            <span className="font-semibold" style={{ color: '#5559d1' }}>{authorName}</span>
+                                            <span className="text-gray-500">on {date}</span>
                                         </div>
                                         <h2 className="text-lg font-bold" style={{ color: '#29294b' }}>{p.title}</h2>
                                         <div className="flex flex-wrap gap-2 mt-1">
                                             {Array.isArray(p.tags) && p.tags.slice(0, 3).map((t) => (
                                                 <span
                                                     key={t}
-                                                    className="text-xs font-semibold px-3 py-1 rounded-full hover-float"
-                                                    style={{
-                                                        background: '#fff',
-                                                        color: '#29294b',
-                                                        boxShadow: '0px 5px 20px 0px rgba(114,114,255,.12)',
-                                                        letterSpacing: '.05em'
-                                                    }}
+                                                    className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                                                    style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}
                                                 >
                                                     #{" "}{t}
                                                 </span>
