@@ -109,7 +109,7 @@ h1, h2, h3, h4, h5, h6 {
 /* 14️⃣ Subtle hover and focus animations */
 .hover-float { transition: transform 250ms ease, box-shadow 250ms ease; }
 .hover-float:hover { transform: translateY(-4px); box-shadow: 0 10px 24px -12px color-mix(in oklab, var(--brand-muted-blue), black 55%); }
-.hover-zoom { transition: transform 360ms cubic-bezier(.21,.61,.35,1), filter 360ms ease; will-change: transform; }
+.hover-zoom { transition: transform 360ms cubic-bezier(.21,.61,.35,1), filter 360ms ease; will-change: transform; backface-visibility: hidden; transform: translateZ(0); }
 .hover-zoom:hover { transform: translateZ(0) scale(1.035); filter: saturate(1.02); }
 .hover-glow { transition: box-shadow 250ms ease; }
 .hover-glow:hover { box-shadow: 0 0 0 6px color-mix(in oklab, var(--ring), transparent 85%); }
@@ -120,8 +120,12 @@ h1, h2, h3, h4, h5, h6 {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.reveal { opacity: 0; transform: translateY(14px); }
-.reveal.revealed { opacity: 1; transform: none; animation: revealUp 600ms cubic-bezier(.21,.61,.35,1) both; }
+.reveal { opacity: 0; transform: translateY(14px); will-change: opacity, transform; }
+.reveal.revealed { opacity: 1; transform: none; animation: revealUp 520ms cubic-bezier(.22,.55,.36,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-zoom, .hover-float, .hover-glow, .reveal { transition: none !important; animation: none !important; transform: none !important; }
+}
 
 /* Force-hide article sidebar (reading-time circle) on small/medium screens */
 @media (max-width: 1023px) {

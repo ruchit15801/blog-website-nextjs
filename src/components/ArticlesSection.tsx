@@ -110,33 +110,49 @@ export default function ArticlesSection({
         else setCurrentPage(page);
     };
 
+    // Scroll reveal animations for cards
+    useEffect(() => {
+        const nodes = document.querySelectorAll('.reveal-on-scroll');
+        if (!nodes.length) return;
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('revealed');
+                }
+            });
+        }, { rootMargin: '0px 0px -5% 0px', threshold: 0.08 });
+        nodes.forEach((n) => io.observe(n));
+        return () => io.disconnect();
+    }, [paginatedArticles.length]);
+
     return (
         <main className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* ===== Main Content ===== */}
             <div className="lg:col-span-2 flex flex-col">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {paginatedArticles.map((a) => (
+                    {paginatedArticles.map((a, i) => (
                         <Link key={a.id} href={`/articles/${buildSlugPath(a.id, a.title)}`}>
-                            <article className="flex flex-col overflow-hidden group cursor-pointer">
+                            <article className="flex flex-col overflow-hidden group cursor-pointer rounded-2xl bg-white shadow ring-1 ring-black/5 hover:-translate-y-0.5 transition-all hover:shadow-lg hover-glow reveal-on-scroll reveal" style={{ transitionDelay: `${i * 40}ms` }}>
                                 {/* Image */}
                                 <div className="relative w-full h-56">
                                     <Image
                                         src={a.image}
                                         alt={a.title}
                                         fill
-                                        className="object-cover rounded-2xl"
+                                        className="object-cover rounded-2xl hover-zoom"
                                         loading="lazy"
                                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     />
+                                    <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent" />
                                     {/* Tags */}
                                     <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                                         {Array.isArray(a.tag)
                                             ? a.tag.slice(0, 2).map((t, i) => (
-                                                <span key={i} className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">
+                                                <span key={i} className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>
                                                     {t}
                                                 </span>
                                             ))
-                                            : <span className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{a.tag}</span>
+                                            : <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{a.tag}</span>
                                         }
                                     </div>
                                     {/* Read Time */}
@@ -149,12 +165,12 @@ export default function ArticlesSection({
                                     </div>
                                 </div>
                                 {/* Content */}
-                                <div className="py-4 px-1 flex flex-col gap-2">
-                                    <div className="flex items-center text-sm text-gray-500 gap-1">
-                                        <span className="font-medium text-gray-700">{a.author}</span>
-                                        <span>on {a.date}</span>
+                                <div className="py-4 px-4 flex flex-col gap-2">
+                                    <div className="flex items-center text-sm text-gray-500 gap-2">
+                                        <span className="font-semibold" style={{ color: '#5559d1' }}>{a.author}</span>
+                                        <span className="text-gray-500">on {a.date}</span>
                                     </div>
-                                    <h2 className="text-lg font-bold text-gray-800">{a.title}</h2>
+                                    <h2 className="text-lg font-bold" style={{ color: '#29294b' }}>{a.title}</h2>
                                     <p className="text-gray-600 text-sm">{a.excerpt}</p>
                                 </div>
                             </article>
