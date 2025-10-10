@@ -134,12 +134,17 @@ export default function SchedulePosts() {
     return (
         <DashboardLayout>
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-3xl font-bold text-gray-800">Scheduled Posts</h1>
+            <div className="flex flex-col lg:flex-row justify-between items-center mb-6 gap-4">
+                {/* Title + Subtitle */}
+                <div className="w-full lg:w-auto text-center lg:text-left">
+                    <h1 className="text-3xl font-bold text-gray-800">Scheduled Posts</h1>
+                    <p className="text-gray-500 mt-1">Manage scheduled posts</p>
+                </div>
 
-                <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
+                {/* Search + Sort + Create */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto mt-4 lg:mt-0 flex-wrap sm:flex-nowrap">
                     {/* Search */}
-                    <div className="custom-search">
+                    <div className="custom-search w-full sm:w-64">
                         <Search />
                         <input
                             type="text"
@@ -149,51 +154,73 @@ export default function SchedulePosts() {
                                 setSearch(e.target.value);
                                 setPage(1);
                             }}
+                            className="w-full mt-2 sm:mt-0 px-3 h-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
 
                     {/* Sort */}
-                    <div className="custom-dropdown">
+                    <div className="custom-dropdown w-full sm:w-auto relative">
                         <button
                             onClick={() => setSortDropdownOpen(!sortDropdownOpen)}
-                            className="flex items-center gap-2">
+                            className="flex items-center justify-between w-full sm:w-auto px-3 h-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 gap-2"
+                        >
                             {sortOrder === "latest" ? "Latest" : "Oldest"}
-                            <ChevronDown className={`w-4 h-4 transition-transform ${sortDropdownOpen ? "rotate-180" : ""}`} />
+                            <ChevronDown
+                                className={`w-4 h-4 transition-transform ${sortDropdownOpen ? "rotate-180" : ""}`}
+                            />
                         </button>
 
                         {sortDropdownOpen && (
-                            <div className="options">
+                            <div className="absolute mt-1 w-full sm:w-32 bg-white border border-gray-200 rounded-md shadow-lg z-20">
                                 <div
                                     className={`option ${sortOrder === "latest" ? "selected" : ""}`}
                                     onClick={() => {
                                         setSortOrder("latest");
                                         setSortDropdownOpen(false);
-                                    }}> Latest </div>
+                                    }}
+                                >
+                                    Latest
+                                </div>
                                 <div
                                     className={`option ${sortOrder === "oldest" ? "selected" : ""}`}
                                     onClick={() => {
                                         setSortOrder("oldest");
                                         setSortDropdownOpen(false);
-                                    }}> Oldest </div>
+                                    }}
+                                >
+                                    Oldest
+                                </div>
                             </div>
                         )}
                     </div>
 
                     {/* Create Schedule Button */}
-                    <Link href="/DashBoard/Create_schedule_post" className="Create_Schedule px-4 rounded-lg transition" style={{ padding: '11px 10px' }}>Create Schedule Post</Link>
+                    <Link
+                        href="/DashBoard/Create_schedule_post"
+                        className="Create_Schedule px-4 py-2 rounded-lg text-white text-center transition  sm:w-auto"
+                        style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
+                    >
+                        Create Schedule Post
+                    </Link>
                 </div>
             </div>
 
             {/* Posts Grid */}
-            <main className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading && (
-                    <div className="col-span-full text-center py-16"><Loader inline label="Loading scheduled posts" /></div>
+                    <div className="col-span-full text-center py-16">
+                        <Loader inline label="Loading scheduled posts" />
+                    </div>
                 )}
                 {error && !loading && (
                     <div className="col-span-full text-center py-16 text-red-500">{error}</div>
                 )}
                 {!loading && !error && paginated.map((p) => (
-                    <article key={p.id} onClick={() => router.push(`/DashBoard/Post/${p.id}/`)} className="relative group flex flex-col overflow-hidden transition bg-white px-4 pt-4 rounded-2xl">
+                    <article
+                        key={p.id}
+                        onClick={() => router.push(`/DashBoard/Post/${p.id}/`)}
+                        className="relative group flex flex-col overflow-hidden transition bg-white px-4 pt-4 rounded-2xl cursor-pointer"
+                    >
                         <div className="relative w-full h-56">
                             <Image src={p.image} alt={p.title} fill className="object-cover rounded-2xl" />
 
@@ -215,18 +242,16 @@ export default function SchedulePosts() {
                                     )}
                             </div>
 
-                            {/* 3-dot menu (hover only) */}
-                            <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition" onClick={(e) => e.stopPropagation()}>
-                                <summary
-                                    className="list-none cursor-pointer p-2 bg-black/20 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
+                            {/* 3-dot menu */}
+                            <details
+                                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <summary className="list-none cursor-pointer p-2 bg-black/20 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
                                     <MoreHorizontal className="w-3 h-3" />
                                 </summary>
 
                                 <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-md z-10">
-                                    {/* <button onClick={() => alert(`Edit ${p.title}`)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">
-                                        Edit
-                                    </button> */}
-
                                     <button
                                         onClick={() => {
                                             const originalPost = livePosts.find(lp => lp._id === p.id);
@@ -237,14 +262,16 @@ export default function SchedulePosts() {
                                     >
                                         Edit
                                     </button>
-
                                     <button
                                         onClick={() => handlePublishNow(p.id, p.title)}
                                         className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-green-600"
                                     >
                                         Publish Now
                                     </button>
-                                    <button onClick={() => handleDelete(p.id)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">
+                                    <button
+                                        onClick={() => handleDelete(p.id)}
+                                        className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600"
+                                    >
                                         Delete
                                     </button>
                                 </div>
@@ -272,14 +299,11 @@ export default function SchedulePosts() {
             {/* Pagination */}
             {totalPages > 1 && (
                 <div className="mt-10">
-                    <Pagination
-                        page={page}
-                        totalPages={totalPages}
-                        onChange={(p) => setPage(p)}
-                    />
+                    <Pagination page={page} totalPages={totalPages} onChange={(p) => setPage(p)} />
                 </div>
             )}
-
         </DashboardLayout>
     );
+
+
 }

@@ -185,53 +185,86 @@ export default function PostPage({
             <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
                 {/* Banner */}
                 {post.bannerImageUrl && (
-                    <div className="relative w-full h-160 sm:h-80 md:h-96 lg:h-[28rem] rounded-2xl overflow-hidden">
-                        <Image src={post.bannerImageUrl} alt={post.title} fill className="object-cover" />
+                    <div className="relative w-full h-56 sm:h-72 md:h-96 lg:h-[28rem] rounded-2xl overflow-hidden">
+                        <Image
+                            src={post.bannerImageUrl}
+                            alt={post.title}
+                            fill
+                            className="object-cover"
+                        />
                     </div>
                 )}
 
-                {/* Main Layout: Left 60% | Right 40% */}
+                {/* Main Layout */}
                 <div className="flex justify-center">
-                    <div className="flex flex-col lg:flex-row gap-2 w-full max-w-4xl mx-auto">
-                        {/* Sidebar (10%) */}
-                        <div className="w-full sm:w-1/4 lg:w-1/5 flex-shrink-0" style={{ position: 'sticky', top: '70px', alignSelf: 'start' }}>
-                            <div className="flex gap-6  sm:flex-col sm:items-center justify-around sm:justify-start">
+                    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-5xl mx-auto">
+                        {/* Sidebar */}
+                        <div
+                            className="w-full sm:w-auto lg:w-1/5 flex-shrink-0 flex justify-center lg:block mb-4 lg:mb-0"
+                            style={{ position: "sticky", top: "80px", alignSelf: "start" }}>
+                            <div className="flex gap-6 sm:flex-row lg:flex-col sm:items-center justify-center lg:justify-start">
                                 {/* Reading Time Circle */}
-                                <div className="relative flex items-center justify-center text-center font-bold rounded-full" style={{ width: '96px', height: '96px' }}>
-                                    <div className="flex items-center justify-center" style={{
-                                        width: '70px',
-                                        height: '70px',
-                                        boxShadow: '0px 5px 20px 0px rgba(114, 114, 255, 0.15)',
-                                        transition: '.25s',
-                                        color: '#29294b',
-                                        background: '#fff',
-                                        borderRadius: '9999px'
-                                    }}>
-                                        <span className="px-2 text-sm font-bold" style={{ fontSize: '0.85rem', fontWeight: 700 }}>
+                                <div
+                                    className="relative flex items-center justify-center text-center font-bold rounded-full"
+                                    style={{ width: "90px", height: "90px" }}>
+                                    <div
+                                        className="flex items-center justify-center text-gray-800"
+                                        style={{
+                                            position: 'sticky',
+                                            top: "100px",
+                                            width: "70px",
+                                            height: "70px",
+                                            boxShadow: "0px 5px 20px rgba(114, 114, 255, 0.15)",
+                                            background: "#fff",
+                                            borderRadius: "9999px",
+                                            transition: ".25s",
+                                        }}>
+                                        <span
+                                            className="text-sm font-bold px-2"
+                                            style={{ fontSize: "0.85rem" }}>
                                             {post.readingTimeMinutes || 0} min read
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Social Icons */}
-                                <div className="flex flex-col items-center gap-6 text-gray-800">
+                                <div className="flex flex-row sm:flex-row lg:flex-col items-center gap-4 text-gray-800">
                                     {post.author?.twitterUrl && (
-                                        <a href={post.author.twitterUrl} target="_blank" rel="noreferrer" aria-label="Twitter" className="hover:text-blue-600 transition-colors">
-                                            <TwitterIcon />
-                                        </a>
+                                        <a
+                                            href={post.author.twitterUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            aria-label="Twitter"
+                                            className="hover:text-blue-600 transition-colors">
+                                            <TwitterIcon /></a>
                                     )}
                                     {post.author?.facebookUrl && (
-                                        <a href={post.author.facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-sky-500 transition-colors">
+                                        <a
+                                            href={post.author.facebookUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            aria-label="Facebook"
+                                            className="hover:text-sky-500 transition-colors">
                                             <FacebookIcon />
                                         </a>
                                     )}
                                     {post.author?.instagramUrl && (
-                                        <a href={post.author.instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-pink-500 transition-colors">
+                                        <a
+                                            href={post.author.instagramUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            aria-label="Instagram"
+                                            className="hover:text-pink-500 transition-colors">
                                             <InstagramIcon />
                                         </a>
                                     )}
                                     {post.author?.linkedinUrl && (
-                                        <a href={post.author.linkedinUrl} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="hover:text-blue-700 transition-colors">
+                                        <a
+                                            href={post.author.linkedinUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            aria-label="LinkedIn"
+                                            className="hover:text-blue-700 transition-colors">
                                             <LinkedinIcon />
                                         </a>
                                     )}
@@ -239,17 +272,20 @@ export default function PostPage({
                             </div>
                         </div>
 
-                        {/* Content */}
-                        <div className="w-full sm:w-3/4 lg:w-4/5 flex flex-col">
+                        {/* Main Content */}
+                        <div className="w-full lg:w-4/5 flex flex-col space-y-4">
                             {post.subtitle && (
-                                <h2 className="text-xl sm:text-2xl font-semibold text-gray-700">{post.subtitle}</h2>
+                                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700 text-center lg:text-left">
+                                    {post.subtitle}
+                                </h2>
                             )}
 
-                            {renderContentBlocks(contentBlocks)}
+                            <div className="text-base sm:text-lg leading-relaxed text-gray-800">
+                                {renderContentBlocks(contentBlocks)}
+                            </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </DashboardLayout>
     );

@@ -1,5 +1,5 @@
 "use client";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
   const [scrollY, setScrollY] = useState(0);
   const [showButton, setShowButton] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,7 +18,6 @@ export default function Footer() {
       setScrollY(scrollPercent);
       setShowButton(scrollTop > 200);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -27,26 +27,36 @@ export default function Footer() {
   const circumference = 2 * Math.PI * 45;
   const offset = ((100 - scrollY) / 100) * circumference;
 
+  const toggleDropdown = (section: string) => {
+    setOpenDropdown(openDropdown === section ? null : section);
+  };
+
   return (
     <>
-      {/* Newsletter section removed as requested */}
-
-      <footer className="footer text-black">
-        {/* ========= TOP / INNER ========= */}
-        <div className="footer-item-inner mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 text-sm">
+      <footer className="footer text-black pt-10 pb-6 bg-white border-t border-gray-200">
+        <div className="footer-item-inner mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-20 text-sm max-w-7xl">
           {/* ===== LEFT SIDE ===== */}
-          <div className="footer-item-inner-items">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="footer-item-inner-items text-center sm:text-center md:text-left flex flex-col items-center md:items-start">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
               <Link href="/" className="navbar-logo">
-                <Image src="/images/BlogCafe_Logo.svg" alt="BlogCafeAI" width={130} height={130} priority />
+                <Image
+                  src="/images/BlogCafe_Logo.svg"
+                  alt="BlogCafeAI"
+                  width={130}
+                  height={130}
+                  priority
+                />
               </Link>
             </div>
 
-            <p className="mb-4 opacity-80">
-              We believe stories are bridges. Through heartfelt reflections and powerful narratives, we connect people, cultures, and ideas delivering a world of perspectives to enlighten minds and enrich souls everywhere.
+            <p className="mb-4 opacity-80 text-sm sm:text-base text-center md:text-left max-w-md">
+              We believe stories are bridges. Through heartfelt reflections and
+              powerful narratives, we connect people, cultures, and ideas
+              delivering a world of perspectives to enlighten minds and enrich
+              souls everywhere.
             </p>
 
-            <div className="social-icon flex gap-4 my-2">
+            <div className="social-icon flex justify-center md:justify-start gap-4 my-2">
               {/* social icons */}
               <a href="#" aria-label="Facebook" className="hover:opacity-80">
                 <svg width={24} height={24} fill="none" viewBox="0 0 24 24">
@@ -72,11 +82,28 @@ export default function Footer() {
           </div>
 
           {/* ===== RIGHT SIDE ===== */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 text-center sm:text-left mt-5">
             {/* === Site === */}
-            <div>
-              <span className="home-page-list uppercase block text-base font-semibold mb-3">Site</span>
-              <ul className="home-page-sub-menu space-y-2 opacity-80">
+            <div className="text-left">
+              <button
+                onClick={() => toggleDropdown("site")}
+                className="flex justify-between items-center w-full sm:cursor-default">
+                <span className="home-page-list uppercase text-base font-semibold mb-3 sm:mb-0">
+                  Site
+                </span>
+                <span className="sm:hidden">
+                  {openDropdown === "site" ? (
+                    <ChevronUp size={20} />
+                  ) : (
+                    <ChevronDown size={20} />
+                  )}
+                </span>
+              </button>
+              <ul
+                className={`transition-all duration-300 overflow-hidden ${openDropdown === "site" || typeof window === "undefined"
+                  ? "max-h-40 opacity-100 mt-2 mb-5"
+                  : "max-h-0 opacity-0"
+                  } home-page-sub-menu sm:max-h-none sm:opacity-100 sm:mt-3 space-y-2 opacity-80`}>
                 <li><Link href="/" className="hover:underline">Home</Link></li>
                 <li><Link href="/all-posts" className="hover:underline">Blogs</Link></li>
                 <li><Link href="/about" className="hover:underline">About</Link></li>
@@ -85,9 +112,24 @@ export default function Footer() {
             </div>
 
             {/* === Legal === */}
-            <div>
-              <span className="home-page-list uppercase block text-base font-semibold mb-3">Legal</span>
-              <ul className="home-page-sub-menu space-y-2 opacity-80">
+            <div className="text-left">
+              <button
+                onClick={() => toggleDropdown("legal")}
+                className="flex justify-between items-center w-full sm:cursor-default">
+                <span className="home-page-list uppercase text-base font-semibold mb-3 sm:mb-0">
+                  Legal
+                </span>
+                <span className="sm:hidden">
+                  {openDropdown === "legal" ? (
+                    <ChevronUp size={20} />
+                  ) : (
+                    <ChevronDown size={20} />
+                  )}
+                </span>
+              </button>
+              <ul
+                className={`transition-all duration-300 overflow-hidden ${openDropdown === "legal" ? "max-h-40 opacity-100 mt-2  mb-5" : "max-h-0 opacity-0"
+                  } home-page-sub-menu sm:max-h-none sm:opacity-100 sm:mt-3 space-y-2 opacity-80`}>
                 <li><Link href="/privacy-policy" className="hover:underline">Privacy Policy</Link></li>
                 <li><Link href="/cookie-policy" className="hover:underline">Cookie Policy</Link></li>
                 <li><Link href="/disclaimer" className="hover:underline">Disclaimer</Link></li>
@@ -95,9 +137,24 @@ export default function Footer() {
             </div>
 
             {/* === Account === */}
-            <div>
-              <span className="home-page-list uppercase block text-base font-semibold mb-3">Account</span>
-              <ul className="home-page-sub-menu space-y-2 opacity-80">
+            <div className="text-left">
+              <button
+                onClick={() => toggleDropdown("account")}
+                className="flex justify-between items-center w-full sm:cursor-default">
+                <span className="home-page-list uppercase text-base font-semibold mb-3 sm:mb-0">
+                  Account
+                </span>
+                <span className="sm:hidden">
+                  {openDropdown === "account" ? (
+                    <ChevronUp size={20} />
+                  ) : (
+                    <ChevronDown size={20} />
+                  )}
+                </span>
+              </button>
+              <ul
+                className={`transition-all duration-300 overflow-hidden ${openDropdown === "account" ? "max-h-40 opacity-100 mt-2" : "max-h-0 opacity-0"
+                  } home-page-sub-menu sm:max-h-none sm:opacity-100 sm:mt-3 space-y-2 opacity-80`}>
                 <li><Link href="/auth" className="hover:underline">Create Account</Link></li>
                 <li><Link href="/auth" className="hover:underline">Sign In</Link></li>
               </ul>
@@ -105,7 +162,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* ========= BOTTOM / COPYRIGHT ========= */}
+        {/* ===== COPYRIGHT ===== */}
         <div className="footer-item-bottom">
           <div className="px-4 sm:px-8 text-sm opacity-60">
             © {year} – BlogCafeAI. All rights reserved.
@@ -113,12 +170,11 @@ export default function Footer() {
         </div>
       </footer>
 
+      {/* ===== Scroll to top ===== */}
       {showButton && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-50"
-          style={{ cursor: 'pointer' }}
-        >
+          className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center z-50">
           <svg className="w-13 h-13 absolute" viewBox="0 0 100 100">
             <circle
               cx="50"

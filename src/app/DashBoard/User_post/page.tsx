@@ -4,7 +4,13 @@ import { MoreHorizontal, Search, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
-import { adminDeletePostById, fetchUserAllPosts, UserPost, type RemoteUser } from "@/lib/adminClient";
+import {
+    adminDeletePostById,
+    fetchAdminUsers,
+    fetchUserAllPosts,
+    UserPost,
+    type RemoteUser
+} from "@/lib/adminClient";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
@@ -22,6 +28,8 @@ type UiPost = {
 
 export default function UserPosts() {
     const router = useRouter();
+
+    // --- STATES ---
     const [search, setSearch] = useState("");
     const [selectedUser, setSelectedUser] = useState<string>("all");
     const [page, setPage] = useState(1);
@@ -31,17 +39,29 @@ export default function UserPosts() {
     const [items, setItems] = useState<UiPost[]>([]);
     const [, setTotal] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    const [userOptions] = useState<RemoteUser[]>([]);
+    const [userOptions, setUserOptions] = useState<RemoteUser[]>([]);
     const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
     const [isLimitDropdownOpen, setLimitDropdownOpen] = useState(false);
 
+    // --- FETCH USERS ---
     useEffect(() => {
         let active = true;
-        const controller = new AbortController();
-        // const signal = controller.signal;
-        setLoading(true);
-        setError(null);
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
+        fetchAdminUsers({ page: 1, limit: 100 }, token)
+            .then(res => {
+                if (!active) return;
+                setUserOptions(res.users || []);
+            })
+            .catch(console.error);
+
+        return () => { active = false; };
+    }, []);
+
+    // --- FETCH POSTS ---
+    useEffect(() => {
+        let active = true;
         const token = localStorage.getItem('token');
         if (!token) {
             setError('Token not found');
@@ -49,24 +69,18 @@ export default function UserPosts() {
             return;
         }
 
+        setLoading(true);
+        setError(null);
+
         const authorId = selectedUser !== 'all' ? selectedUser : undefined;
 
-        fetchUserAllPosts({
-            page,
-            limit,
-            token,
-            search: search || undefined,
-            authorId,
-        })
-            .then((res) => {
+        fetchUserAllPosts({ page, limit, token, search: search || undefined, authorId })
+            .then(res => {
                 if (!active) return;
-
                 const mapped: UiPost[] = res.data.map((p: UserPost) => ({
                     id: p._id,
                     title: p.title,
-                    authorName: typeof p.author === 'string'
-                        ? p.author
-                        : p.author?.fullName || 'Unknown',
+                    authorName: typeof p.author === 'string' ? p.author : p.author?.fullName || 'Unknown',
                     date: p.publishedAt || p.createdAt || new Date().toISOString(),
                     image: p.bannerImageUrl || '/images/a1.webp',
                     tag: p.tags || [],
@@ -77,29 +91,25 @@ export default function UserPosts() {
                 setTotal(res.meta.total || mapped.length);
                 setTotalPages(Math.ceil((res.meta.total || mapped.length) / limit));
             })
-            .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-            .finally(() => {
-                if (active) setLoading(false);
-            });
+            .catch(e => setError(e instanceof Error ? e.message : String(e)))
+            .finally(() => { if (active) setLoading(false); });
 
-        return () => { active = false; controller.abort(); };
+        return () => { active = false; };
     }, [page, limit, search, selectedUser]);
 
-    // Debounce search input to reduce request spam
+    // --- DEBOUNCE SEARCH ---
     useEffect(() => {
         const t = setTimeout(() => { setPage(1); }, 250);
         return () => clearTimeout(t);
     }, [search]);
 
-
+    // --- DELETE POST ---
     const handleDelete = async (postId: string) => {
-        const confirmed = window.confirm("Are you sure you want to delete this post?");
-        if (!confirmed) return;
-
+        if (!window.confirm("Are you sure you want to delete this post?")) return;
         try {
             await adminDeletePostById(postId);
             setItems(prev => prev.filter(p => p.id !== postId));
-            toast.success(`Post deleted successfully!`);
+            toast.success("Post deleted successfully!");
         } catch (err) {
             console.error(err);
             toast.error("Failed to delete post");
@@ -109,41 +119,45 @@ export default function UserPosts() {
     return (
         <DashboardLayout>
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-3xl font-bold text-gray-800">User Posts</h1>
+            <div className="flex flex-col lg:flex-row justify-between items-center mb-6 gap-4">
+                <div className="w-full lg:w-auto text-center lg:text-left">
+                    <h1 className="text-3xl font-bold text-gray-800">User Posts</h1>
+                    <p className="text-gray-500 mt-1">Manage user posts</p>
+                </div>
 
-                <div className="flex flex-wrap gap-3 items-center">
+                {/* Search + Filter + Limit */}
+                <div className="flex flex-col sm:flex-row flex-wrap gap-3 items-center w-full lg:w-auto mt-4 lg:mt-0">
                     {/* Search */}
-                    <div className="custom-search flex-1 min-w-[12rem] md:w-64">
+                    <div className="custom-search flex-1 min-w-[12rem] md:w-64 flex items-center gap-2">
                         <Search />
                         <input
                             type="text"
                             placeholder="Search posts..."
                             value={search}
                             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                            className="w-full px-3 h-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
 
                     {/* User Filter */}
-                    <div className="custom-dropdown w-48 relative">
+                    <div className="custom-dropdown w-full sm:w-48 relative">
                         <button
                             onClick={() => setUserDropdownOpen(!isUserDropdownOpen)}
-                            className="flex items-center justify-between w-full"
+                            className="flex items-center justify-between w-full px-3 h-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                         >
-                            {userOptions.find(u => u._id === selectedUser)?.fullName || "All Users"}
-                            <ChevronDown
-                                className={`w-4 h-4 ml-2 transition-transform ${isUserDropdownOpen ? "rotate-180" : ""}`}
-                            />
+                            {selectedUser === "all"
+                                ? "All Users"
+                                : userOptions.find(u => u._id === selectedUser)?.fullName || "Unknown User"}
+                            <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isUserDropdownOpen ? "rotate-180" : ""}`} />
                         </button>
                         {isUserDropdownOpen && (
-                            <div className="options">
+                            <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 max-h-60 overflow-auto">
                                 <div
                                     className={`option ${selectedUser === "all" ? "selected" : ""}`}
-                                    onClick={() => { setSelectedUser("all"); setUserDropdownOpen(false); }}
-                                >
+                                    onClick={() => { setSelectedUser("all"); setUserDropdownOpen(false); }}>
                                     All Users
                                 </div>
-                                {userOptions.map((u: RemoteUser) => (
+                                {userOptions.map(u => (
                                     <div
                                         key={u._id}
                                         className={`option ${selectedUser === u._id ? "selected" : ""}`}
@@ -157,19 +171,17 @@ export default function UserPosts() {
                     </div>
 
                     {/* Page Size */}
-                    <div className="custom-dropdown w-32 relative">
+                    <div className="custom-dropdown w-full sm:w-32 relative">
                         <button
                             onClick={() => setLimitDropdownOpen(!isLimitDropdownOpen)}
-                            className="flex items-center justify-between w-full"
+                            className="flex items-center justify-between w-full px-3 h-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                         >
                             {limit} / page
-                            <ChevronDown
-                                className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""}`}
-                            />
+                            <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""}`} />
                         </button>
                         {isLimitDropdownOpen && (
-                            <div className="options">
-                                {[6, 12, 24].map((l) => (
+                            <div className="absolute mt-1 w-full sm:w-32 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                                {[6, 12, 24].map(l => (
                                     <div
                                         key={l}
                                         className={`option ${limit === l ? "selected" : ""}`}
@@ -185,27 +197,30 @@ export default function UserPosts() {
             </div>
 
             {/* Posts Grid */}
-            <main className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {loading && (
-                    <div className="col-span-full text-center py-10"><Loader inline label="Loading posts" /></div>
-                )}
-                {error && !loading && (
-                    <div className="col-span-full text-center text-red-500 py-10">{error}</div>
-                )}
-                {!loading && !error && items.map((p) => (
-                    <article key={p.id} onClick={() => router.push(`/DashBoard/Post/${p.id}/`)} className="relative group flex flex-col overflow-hidden rounded-2xl transition bg-white px-4 pt-4 rounded-2xl">
+            <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {loading && <div className="col-span-full text-center py-10"><Loader inline label="Loading posts" /></div>}
+                {error && !loading && <div className="col-span-full text-center text-red-500 py-10">{error}</div>}
+                {!loading && !error && items.map(p => (
+                    <article
+                        key={p.id}
+                        onClick={() => router.push(`/DashBoard/Post/${p.id}/`)}
+                        className="relative group flex flex-col overflow-hidden rounded-2xl transition bg-white px-4 pt-4 cursor-pointer"
+                    >
                         <div className="relative w-full h-56">
                             <Image src={p.image} alt={p.title} fill className="object-cover rounded-2xl" />
+
                             {/* Tags */}
                             {p.tag && (
                                 <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-                                    {Array.isArray(p.tag) ? p.tag.slice(0, 2).map((t, i) => (
-                                        <span key={i} className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{t}</span>
-                                    )) : (
-                                        <span className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{p.tag}</span>
-                                    )}
+                                    {Array.isArray(p.tag)
+                                        ? p.tag.slice(0, 2).map((t, i) => (
+                                            <span key={i} className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{t}</span>
+                                        ))
+                                        : <span className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{p.tag}</span>
+                                    }
                                 </div>
                             )}
+
                             {/* 3-dot menu */}
                             <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition" onClick={(e) => e.stopPropagation()}>
                                 <summary className="list-none cursor-pointer p-2 bg-black/20 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
@@ -229,24 +244,15 @@ export default function UserPosts() {
                     </article>
                 ))}
 
-                {!loading && !error && items.length === 0 && (
-                    <div className="col-span-full text-center text-gray-500 py-10">
-                        No posts found.
-                    </div>
-                )}
+                {!loading && !error && items.length === 0 && <div className="col-span-full text-center text-gray-500 py-10">No posts found.</div>}
             </main>
 
             {/* Pagination */}
             {totalPages > 1 && (
                 <div className="mt-10">
-                    <Pagination
-                        page={page}
-                        totalPages={totalPages}
-                        onChange={(p) => setPage(p)}
-                    />
+                    <Pagination page={page} totalPages={totalPages} onChange={setPage} />
                 </div>
             )}
-
         </DashboardLayout>
     );
 }

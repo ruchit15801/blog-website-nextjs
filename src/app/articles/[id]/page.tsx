@@ -328,7 +328,7 @@ export default function ArticlePage() {
             <div className="flex justify-center">
                 <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 w-full max-w-5xl mx-auto px-0 sm:px-2 pt-2 sm:pt-4">
                     {/* Sidebar */}
-                    <div className="article-aside hidden lg:block" style={{ position: 'sticky', top: '70px', alignSelf: 'start' }}>
+                    <div className="article-aside hidden lg:block" style={{ position: 'sticky', top: '78px', alignSelf: 'start' }}>
                         <div className="flex flex-col items-center gap-6">
                             <div className="relative flex items-center justify-center text-center font-bold" style={{ width: 100, height: 100 }} aria-label="Reading progress">
                                 {/* Soft glow backdrop */}
@@ -345,7 +345,7 @@ export default function ArticlePage() {
                                     </div>
                                 </div>
                             </div>
-                        
+
                             <div className="flex flex-col items-center gap-6 text-gray-800">
                                 {post.author?.twitterUrl && (
                                     <a href={post.author.twitterUrl} target="_blank" rel="noreferrer" aria-label="Twitter" className="hover:text-blue-600 transition-colors">
@@ -448,7 +448,32 @@ export default function ArticlePage() {
                                 <div className="text-base font-semibold" style={{ color: '#29294b' }}>{post.author?.fullName || "Unknown Author"}</div>
                                 <div className="text-sm text-gray-500">Published on {formattedDate}</div>
                             </div>
-                            <div className="hidden sm:block text-sm text-gray-500">Category: {post.category || 'Uncategorized'}</div>
+                            <div className="hidden sm:inline-flex flex-wrap  text-sm text-gray-500">
+                                {Array.isArray(post.tags)
+                                    ? post.tags.slice(0, 2).map((t, i) => (
+                                        <span
+                                            key={i}
+                                            className="inline-block bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-md uppercase me-2"
+                                            style={{
+                                                boxShadow: '0px 3px 13px rgba(114, 114, 255, 0.25)'
+                                            }}
+                                        >
+                                            {t}
+                                        </span>
+                                    ))
+                                    : (
+                                        <span
+                                            className="inline-block bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-md uppercase"
+                                            style={{
+                                                boxShadow: '0 3px 13px rgba(114, 114, 255, 0.25)'
+                                            }}
+                                        >
+                                            {post.tags}
+                                        </span>
+                                    )
+                                }
+                            </div>
+
                         </div>
 
                         {/* Prev/Next cards */}
