@@ -4,7 +4,7 @@ import { MoreHorizontal, Search, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
-import { adminDeletePostById, fetchUserAllPosts, UserPost,type RemoteUser } from "@/lib/adminClient";
+import { adminDeletePostById, fetchUserAllPosts, UserPost, type RemoteUser } from "@/lib/adminClient";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
@@ -31,12 +31,14 @@ export default function UserPosts() {
     const [items, setItems] = useState<UiPost[]>([]);
     const [, setTotal] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    const [userOptions, setUserOptions] = useState<RemoteUser[]>([]);
+    const [userOptions] = useState<RemoteUser[]>([]);
     const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
     const [isLimitDropdownOpen, setLimitDropdownOpen] = useState(false);
 
     useEffect(() => {
         let active = true;
+        const controller = new AbortController();
+        // const signal = controller.signal;
         setLoading(true);
         setError(null);
 
@@ -80,8 +82,14 @@ export default function UserPosts() {
                 if (active) setLoading(false);
             });
 
-        return () => { active = false; };
+        return () => { active = false; controller.abort(); };
     }, [page, limit, search, selectedUser]);
+
+    // Debounce search input to reduce request spam
+    useEffect(() => {
+        const t = setTimeout(() => { setPage(1); }, 250);
+        return () => clearTimeout(t);
+    }, [search]);
 
 
     const handleDelete = async (postId: string) => {
