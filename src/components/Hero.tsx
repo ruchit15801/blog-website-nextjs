@@ -40,29 +40,21 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                 }} />
 
                 <div className="relative max-w-5xl mx-auto">
-                    <h1
-                        className="text-5xl sm:text-6xl font-bold leading-tight mb-5"
-                        style={{
-                            fontSize: "3.25rem",
-                            fontWeight: 700,
-                            letterSpacing: "-.05em",
-                            color: "#29294b",
-                        }}
-                    >
-                        Whispers of{" "}
-                        <span
-                            className="text-gradient"
-                            style={{
-                                background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                display: "inline-block",
-                            }}
+                    <div className="fx2-wrap mb-5" style={{ display: "inline-block" }}>
+                        {/* Luxury side accents */}
+                        <span aria-hidden className="fx2-orb" style={{ width: 90, height: 90, left: -60, top: -10 }} />
+                        <span aria-hidden className="fx2-orb" style={{ width: 70, height: 70, right: -40, top: -20, animationDelay: '1.2s' }} />
+                        <span aria-hidden className="fx2-orb" style={{ width: 56, height: 56, left: -24, bottom: -14, animationDelay: '2.1s' }} />
+                        <h1
+                            className="fx2-title text-5xl sm:text-6xl font-extrabold leading-tight"
+                            style={{ fontSize: "3.25rem", letterSpacing: "-.05em" }}
                         >
-                            Life
-                        </span>
-                        : Tales that Touch the Soul
-                    </h1>
+                            Whispers of Life: Tales that Touch the Soul
+                        </h1>
+                        <span aria-hidden className="fx2-streak"></span>
+                    </div>
+
+
 
                     <p
                         className="text-lg sm:text-xl mx-auto"
