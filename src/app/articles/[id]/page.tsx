@@ -21,7 +21,7 @@ type RemotePost = {
     imageUrls?: string[];
     category?: string;
     tags?: string[];
-    author?: { fullName: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, linkedinUrl: string };
+    author?: { fullName: string, avatarUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, linkedinUrl: string };
     publishedAt?: string;
     createdAt?: string;
     readingTimeMinutes?: string;
@@ -441,8 +441,27 @@ export default function ArticlePage() {
                         {/* Author section */}
                         <div className="mt-8 rounded-2xl bg-white shadow ring-1 ring-black/5 p-5 sm:p-6 md:p-8 flex items-center gap-4 reveal-on-scroll reveal">
                             <div className="relative w-12 h-12 rounded-full overflow-hidden bg-[#eef2ff] flex items-center justify-center text-[#5559d1] font-bold">
-                                {post.author?.fullName ? (post.author.fullName.split(' ').map(s => s[0]).join('').slice(0, 2)) : 'AU'}
+                                {post.author?.avatarUrl ? (
+                                    <Image
+                                        src={post.author.avatarUrl}
+                                        alt={post.author.fullName || "Author"}
+                                        width={40}
+                                        height={40}
+                                        className="about_author_img object-cover"
+                                    />
+                                ) : (
+                                    <span>
+                                        {post.author?.fullName
+                                            ? post.author.fullName
+                                                .split(' ')
+                                                .map(s => s[0])
+                                                .join('')
+                                                .slice(0, 2)
+                                            : 'AU'}
+                                    </span>
+                                )}
                             </div>
+
                             <div className="flex-1">
                                 <div className="text-sm text-gray-500">Written by</div>
                                 <div className="text-base font-semibold" style={{ color: '#29294b' }}>{post.author?.fullName || "Unknown Author"}</div>

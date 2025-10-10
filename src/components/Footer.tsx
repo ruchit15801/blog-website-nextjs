@@ -163,11 +163,12 @@ export default function Footer() {
         </div>
 
         {/* ===== COPYRIGHT ===== */}
-        <div className="footer-item-bottom">
-          <div className="px-4 sm:px-8 text-sm opacity-60">
+        <div className="footer-item-bottom mt-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 text-sm opacity-60 text-center md:text-left">
             © {year} – BlogCafeAI. All rights reserved.
           </div>
         </div>
+
       </footer>
 
       {/* ===== Scroll to top ===== */}
