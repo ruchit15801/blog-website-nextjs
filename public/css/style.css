@@ -484,5 +484,7 @@
   color: #6366f1;
 }
 .about_author_img{
+  width: 40px;
+  height: 40px;
   border-radius: 50% !important;
 }

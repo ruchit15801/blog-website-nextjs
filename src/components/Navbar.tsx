@@ -110,9 +110,9 @@ export default function Navbar() {
                                 <Image
                                     src={user.avatar}
                                     alt={user.name}
-                                    width={36}
-                                    height={36}
-                                    className="about_author_img"
+                                    width={40}
+                                    height={40}
+                                    className="about_author_img object-cover"
                                 />
                                 <span className="font-medium text-black hover:text-indigo-600">{user.name}</span>
                                 <svg

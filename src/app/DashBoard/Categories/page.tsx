@@ -95,7 +95,7 @@ export default function Categories() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!form.name || !form.shortName) {
-           toast.error("Name and Short Name are required");
+            toast.error("Name and Short Name are required");
             return;
         }
         try {
@@ -157,7 +157,7 @@ export default function Categories() {
 
             setForm({ id: 0, name: "", shortName: "", description: "", avatar: "" });
         } catch (err: unknown) {
-           toast.error(err instanceof Error ? err.message : "Something went wrong");
+            toast.error(err instanceof Error ? err.message : "Something went wrong");
         } finally {
             setCreating(false);
         }
@@ -198,33 +198,28 @@ export default function Categories() {
     return (
         <DashboardLayout>
             {/* Header + Search + Create */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-3xl font-bold text-gray-800">Categories</h1>
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="custom-search w-full md:w-64">
+            <div className="flex flex-col lg:flex-row justify-between items-center mb-6 gap-4">
+                <h1 className="text-3xl font-bold text-gray-800 text-center lg:text-left w-full lg:w-auto">Categories</h1>
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto mt-3 lg:mt-0">
+                    <div className="custom-search w-full sm:w-64">
                         <Search />
                         <input
                             type="text"
                             placeholder="Search categories..."
                             value={search}
-                            onChange={(e) => {
-                                setSearch(e.target.value);
-                                setPage(1);
-                            }}
+                            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                            className="w-full mt-2 sm:mt-0 px-3 h-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     </div>
                     <button
                         onClick={() => setShowCreate(true)}
-                        className="px-4 py-3 rounded-lg text-white transition font-medium"
-                        style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
-                    >
-                        Create Category
-                    </button>
+                        className="px-4 py-3 rounded-lg text-white transition font-medium  sm:w-auto"
+                        style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>Create Category</button>
                 </div>
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading && <div className="col-span-full text-center py-10"><Loader inline label="Loading categories" /></div>}
                 {error && <div className="col-span-full text-center text-red-500 py-4">{error}</div>}
                 {!loading && paginated.map(cat => (
@@ -235,7 +230,7 @@ export default function Categories() {
 
             {/* Modal */}
             {showCreate && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
                     <div className="absolute inset-0 bg-black/40" onClick={() => setShowCreate(false)} />
                     <div className="relative z-10 w-full max-w-xl bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 card-hover">
                         <div className="flex items-center justify-between mb-4">
@@ -246,24 +241,47 @@ export default function Categories() {
                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="flex flex-col gap-2 flex-1">
                                     <label className="font-medium">Category Name</label>
-                                    <input type="text" value={form.name} onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px' }} />
+                                    <input
+                                        type="text"
+                                        value={form.name}
+                                        onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))}
+                                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+                                        style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px' }}
+                                    />
                                 </div>
                                 <div className="flex flex-col gap-2 flex-1">
                                     <label className="font-medium">Slug</label>
-                                    <input type="text" value={form.shortName} onChange={(e) => setForm(p => ({ ...p, shortName: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px' }} />
+                                    <input
+                                        type="text"
+                                        value={form.shortName}
+                                        onChange={(e) => setForm(p => ({ ...p, shortName: e.target.value }))}
+                                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+                                        style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px' }}
+                                    />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="font-medium">Description</label>
-                                <textarea value={form.description} onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))} className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" />
+                                <textarea
+                                    value={form.description}
+                                    onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))}
+                                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
+                                />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="font-medium">Image</label>
-                                <input id="cat-image-input" type="file" accept="image/*" className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1] w-60" />
+                                <input
+                                    id="cat-image-input"
+                                    type="file"
+                                    accept="image/*"
+                                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1] w-full sm:w-60"
+                                />
                             </div>
-                            <div className="flex justify-end gap-2">
-                                <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg border border-gray-300">Cancel</button>
-                                <button type="submit" disabled={creating} className="px-4 py-2 rounded-lg text-white disabled:opacity-60" style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>{creating ? (editId ? "Updating..." : "Creating...") : (editId ? "Update" : "Create")}</button>
+                            <div className="flex flex-col sm:flex-row justify-end gap-2 mt-2">
+                                <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg border border-gray-300 w-full sm:w-auto">Cancel</button>
+                                <button type="submit" disabled={creating} className="px-4 py-2 rounded-lg text-white disabled:opacity-60 w-full sm:w-auto" style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
+                                    {creating ? (editId ? "Updating..." : "Creating...") : (editId ? "Update" : "Create")}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -280,7 +298,6 @@ export default function Categories() {
                     />
                 </div>
             )}
-
         </DashboardLayout>
     );
 }
