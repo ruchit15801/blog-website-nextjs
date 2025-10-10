@@ -125,7 +125,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: <Calendar />, label: "Schedule Post", path: "/DashBoard/Schedule_post" },
     { icon: <Clipboard />, label: "User Posts", path: "/DashBoard/User_post" },
     { icon: <Tag />, label: "Categories", path: "/DashBoard/Categories" },
-    { icon: <Settings />, label: "Setting", path: "/DashBoard/UserProfile" },
+    { icon: <Settings />, label: "Profile", path: "/DashBoard/UserProfile" },
   ];
 
   const userMenu = [
@@ -133,7 +133,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: <BarChart3 />, label: "Create Post", path: "/DashBoard/Create_post" },
     { icon: <FileText />, label: "See Posts", path: "/DashBoard/See_all_post" },
     { icon: <Calendar />, label: "Schedule Post", path: "/DashBoard/Schedule_post" },
-    { icon: <Settings />, label: "Setting", path: "/DashBoard/UserProfile" },
+    { icon: <Settings />, label: "Profile", path: "/DashBoard/UserProfile" },
   ];
 
   const menus = role === "admin" ? adminMenu : userMenu;
