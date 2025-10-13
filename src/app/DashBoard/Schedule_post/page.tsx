@@ -171,7 +171,7 @@ export default function SchedulePosts() {
                         </button>
 
                         {sortDropdownOpen && (
-                            <div className="absolute mt-1 w-full sm:w-32 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                            <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
                                 <div
                                     className={`option ${sortOrder === "latest" ? "selected" : ""}`}
                                     onClick={() => {

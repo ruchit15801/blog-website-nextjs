@@ -64,8 +64,7 @@ export default function Navbar() {
                 <button
                     className="icon-btn md:hidden rounded-lg p-2 border border-gray-200"
                     aria-label="Toggle menu"
-                    onClick={() => setOpen((v) => !v)}
-                >
+                    onClick={() => setOpen((v) => !v)}>
                     <svg width="24" height="24" viewBox="0 0 24 24">
                         <path d="M4 7h16M4 12h16M4 17h16" stroke="#29294b" strokeWidth="2" strokeLinecap="round" />
                     </svg>
@@ -80,8 +79,7 @@ export default function Navbar() {
                                 <Link
                                     href={link}
                                     className={`nav-link ${pathname === link ? "active" : ""} hover:bg-gray-100 rounded-lg px-2 py-2`}
-                                    onClick={() => setOpen(false)}
-                                >
+                                    onClick={() => setOpen(false)}>
                                     {names[idx]}
                                 </Link>
                             </li>
@@ -94,8 +92,7 @@ export default function Navbar() {
                     {!user && (
                         <Link
                             href="/auth"
-                            className="buy-btn px-4 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition"
-                        >
+                            className="buy-btn px-4 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition">
                             Sign Up
                         </Link>
                     )}
@@ -105,8 +102,7 @@ export default function Navbar() {
                             {/* Avatar + Name Button */}
                             <button
                                 className="flex items-center gap-2  px-3 py-1.5 hover:bg-gray-100 hover:shadow transition-all duration-200 rounded-md"
-                                onClick={() => setUserMenuOpen((v) => !v)}
-                            >
+                                onClick={() => setUserMenuOpen((v) => !v)}>
                                 <Image
                                     src={user.avatar}
                                     alt={user.name}
@@ -117,8 +113,7 @@ export default function Navbar() {
                                 <span className="font-medium text-black hover:text-indigo-600">{user.name}</span>
                                 <svg
                                     className={`w-4 h-4 text-black hover:text-indigo-600 transition-transform duration-200 ${userMenuOpen ? "rotate-180" : ""}`}
-                                    fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"
-                                >
+                                    fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
@@ -129,8 +124,7 @@ export default function Navbar() {
                                     <Link
                                         href="/DashBoard"
                                         className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
-                                        onClick={() => setUserMenuOpen(false)}
-                                    >
+                                        onClick={() => setUserMenuOpen(false)}>
                                         <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M3 6h18M3 18h18" />
                                         </svg>
@@ -138,8 +132,7 @@ export default function Navbar() {
                                     </Link>
                                     <button
                                         onClick={handleLogout}
-                                        className="flex items-center gap-2 w-full px-4 py-3 text-sm bg-red-500 hover:bg-red-700 text-white transition"
-                                    >
+                                        className="flex items-center gap-2 w-full px-4 py-3 text-sm bg-red-500 hover:bg-red-700 text-white transition">
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7" />
                                         </svg>
@@ -149,7 +142,6 @@ export default function Navbar() {
                             )}
                         </div>
                     )}
-
                 </div>
             </nav>
 
@@ -182,8 +174,7 @@ export default function Navbar() {
                                 </Link>
                                 <button
                                     onClick={handleLogout}
-                                    className="mt-1 px-4 py-2 rounded-lg text-center bg-red-500 text-white hover:bg-red-600"
-                                >
+                                    className="mt-1 px-4 py-2 rounded-lg text-center bg-red-500 text-white hover:bg-red-600">
                                     Logout
                                 </button>
                             </>

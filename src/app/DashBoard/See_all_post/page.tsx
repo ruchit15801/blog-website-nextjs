@@ -192,7 +192,7 @@ export default function AllPosts() {
                         </button>
 
                         {open && (
-                            <div className="absolute mt-1 w-full sm:w-40 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                            <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
                                 <div
                                     className={`option px-4 py-2 text-sm cursor-pointer ${sortOrder === "latest" ? "bg-gray-100 font-semibold" : ""}`}
                                     onClick={() => { setSortOrder("latest"); setOpen(false); }}>
@@ -210,7 +210,7 @@ export default function AllPosts() {
             </div>
 
             {/* Posts Grid */}
-            <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-3 flex flex-col">
                     <div className={isSearchActive ? "flex flex-col gap-6" : "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"}>
                         {loading && (

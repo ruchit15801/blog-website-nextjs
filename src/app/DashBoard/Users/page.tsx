@@ -180,7 +180,7 @@ export default function UsersPage() {
                 className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""}`}/>
             </button>
             {isLimitDropdownOpen && (
-              <div className="absolute mt-1 w-full sm:w-32 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+              <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
                 {[5, 10, 20, 50].map((l) => (
                   <div
                     key={l}

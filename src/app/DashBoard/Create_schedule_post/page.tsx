@@ -14,6 +14,7 @@ import DashboardLayout from "../DashBoardLayout";
 import Loader from "@/components/Loader";
 import toast from "react-hot-toast";
 import { createUserScheduledPost, updatePost } from "@/lib/api";
+import { RefreshCw } from "lucide-react";
 
 type CategoryType = { _id: string; name: string };
 
@@ -24,7 +25,6 @@ export default function CreateSchedulePost() {
         const params = new URLSearchParams(window.location.search);
         setPostId(params.get("id"));
     }, []);
-
 
     const [token, setToken] = useState<string>("");
     const [title, setTitle] = useState("");
@@ -49,9 +49,7 @@ export default function CreateSchedulePost() {
     const [contentHtml, setContentHtml] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    // word count handled by TiptapEditor
-
-    // Load admin token
+    // Load token
     useEffect(() => {
         const existing = getAdminToken() || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
         if (existing) setToken(existing);
@@ -72,22 +70,18 @@ export default function CreateSchedulePost() {
         } finally {
             setCatsLoading(false);
         }
-    }, [token]); // include token as dependency
+    }, [token]);
 
-    // Now use it in useEffect
     useEffect(() => {
         if (token && token.length > 10) loadCategories();
-    }, [token, loadCategories]); // include loadCategories
+    }, [token, loadCategories]);
 
-
-    // When categories load, pre-fill categoryName if editing
     useEffect(() => {
         if (categoryId && categories.length > 0) {
             const cat = categories.find(c => c._id === categoryId);
             if (cat) setCategoryName(cat.name);
         }
     }, [categories, categoryId]);
-
 
     // Load post if editing
     useEffect(() => {
@@ -106,19 +100,11 @@ export default function CreateSchedulePost() {
                 setScheduleDate(post.publishedAt ? post.publishedAt.slice(0, 16) : "");
                 setContentHtml(post.contentHtml || "");
                 if (editorRef.current) editorRef.current.innerHTML = post.contentHtml || "";
-
-                // Banner preview
                 if (post.bannerImageUrl) setBannerPreviewUrl(post.bannerImageUrl);
+                if (post.imageUrls && Array.isArray(post.imageUrls)) setImagePreviewUrls(post.imageUrls);
 
-                // Image previews
-                if (post.imageUrls && Array.isArray(post.imageUrls)) {
-                    setImagePreviewUrls(post.imageUrls);
-                }
-
-                // Category pre-fill
                 const catName = categories.find(c => c._id === post.category)?.name || "";
                 setCategoryName(catName);
-
 
             } catch (err) {
                 console.error(err);
@@ -130,47 +116,6 @@ export default function CreateSchedulePost() {
 
         loadPost();
     }, [token, postId, categories]);
-
-    // After both categories and post are loaded
-    useEffect(() => {
-        if (categories.length === 0) return;
-        if (postId && token) {
-            const loadPost = async () => {
-                try {
-                    setSubmitting(true);
-                    const res = await fetchPostById(postId, token);
-                    const post = res.post;
-                    if (!post) return;
-
-                    setTitle(post.title);
-                    setSubtitle(post.subtitle || "");
-                    setTagsList(post.tags || []);
-                    setScheduleDate(post.publishedAt ? post.publishedAt.slice(0, 16) : "");
-                    setContentHtml(post.contentHtml || "");
-                    if (editorRef.current) editorRef.current.innerHTML = post.contentHtml || "";
-
-                    if (post.bannerImageUrl) setBannerPreviewUrl(post.bannerImageUrl);
-                    if (post.imageUrls && Array.isArray(post.imageUrls)) setImagePreviewUrls(post.imageUrls);
-
-                    if (post.category) {
-                        setCategoryId(post.category);
-                        const cat = categories.find(c => c._id === post.category);
-                        if (cat) setCategoryName(cat.name);
-                    }
-
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    setSubmitting(false);
-                }
-            };
-            loadPost();
-        }
-    }, [categories, postId, token]);
-
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const exec = (_cmd: string, _value?: string) => { /* handled by TiptapEditor */ };
 
     const addTag = (value: string) => {
         const v = value.trim();
@@ -219,38 +164,23 @@ export default function CreateSchedulePost() {
             };
 
             if (postId) {
-                // EDIT MODE
                 if (role === "admin") {
                     await adminUpdatePostById(postId, postData, token);
                 } else {
-                    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
-                    if (!userId) {
-                        toast.error("User not found in localStorage");
-                        return;
-                    }
-
-                    await updatePost(
-                        postId,
-                        postData,
-                        token,
-                    );
-
+                    if (!userId) { toast.error("User not found"); return; }
+                    await updatePost(postId, postData, token);
                 }
                 toast.success("Scheduled post updated successfully!");
             } else {
-                // CREATE MODE
                 if (role === "admin") {
                     await createScheduledPost(postData);
-                    toast.success("Scheduled post created successfully (Admin)!");
                 } else {
                     if (!userId) { toast.error("User not found."); return; }
                     await createUserScheduledPost(postData, token, userId);
-                    toast.success("Scheduled post created successfully (User)!");
                 }
-
+                toast.success("Scheduled post saved successfully!");
             }
 
-            // redirect
             setTimeout(() => { window.location.href = "/DashBoard/Schedule_post"; }, 600);
 
         } catch (err: unknown) {
@@ -295,8 +225,8 @@ export default function CreateSchedulePost() {
                 {/* Form */}
                 <form id="schedule-post-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Left side */}
-                    <div className="space-y-5 w-full">
-                        {/* Title */}
+                    <div className="space-y-5 bg-white rounded-2xl shadow p-6 card-hover">
+                        {/* Title & Subtitle */}
                         <div className="space-y-1">
                             <label className="text-sm font-semibold">Title *</label>
                             <input
@@ -306,8 +236,6 @@ export default function CreateSchedulePost() {
                                 className="w-full mt-1 px-3 h-11 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
                         </div>
-
-                        {/* Subtitle */}
                         <div className="space-y-1">
                             <label className="text-sm font-semibold">Subtitle</label>
                             <input
@@ -320,11 +248,16 @@ export default function CreateSchedulePost() {
 
                         {/* Category */}
                         <div className="space-y-1 relative">
-                            <label className="text-sm font-semibold">Category</label>
-                            <button
-                                type="button"
-                                className="btn btn-secondary mb-2 sm:mb-0"
-                                onClick={loadCategories}>Refresh</button>
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm font-semibold text-gray-800">Category</label>
+                                <button
+                                    type="button"
+                                    onClick={loadCategories}
+                                    className="flex items-center justify-center p-2 mb-1 rounded-md border border-gray-300 bg-white hover:bg-indigo-50 hover:border-indigo-400 shadow-sm transition-all duration-200 group"
+                                    title="Refresh categories">
+                                    <RefreshCw className="w-4 h-4 text-indigo-600 group-hover:rotate-180 transition-transform duration-300" />
+                                </button>
+                            </div>
                             <div className="relative w-full mt-1">
                                 <button
                                     type="button"
@@ -383,7 +316,7 @@ export default function CreateSchedulePost() {
                             />
                             <div className="flex flex-wrap gap-2 my-2">
                                 {tagsList.map((tag, idx) => (
-                                    <span key={idx} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                                    <span key={idx} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow-sm">
                                         {tag}
                                         <button
                                             type="button"
@@ -397,11 +330,11 @@ export default function CreateSchedulePost() {
                         {/* Images */}
                         <div className="space-y-2">
                             <label className="text-sm font-semibold block">Images</label>
-                            <div className="relative flex flex-col items-center w-full max-w-full sm:max-w-md p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition">
+                            <div className="relative flex flex-col items-center w-full max-w-full sm:max-w-md p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition hover:border-blue-400">
                                 {imagePreviewUrls.length > 0 && (
                                     <div className="w-full flex flex-wrap gap-3 mb-3 justify-center">
                                         {imagePreviewUrls.map((url, idx) => (
-                                            <div key={idx} className="relative w-20 h-20 rounded-md border border-gray-300">
+                                            <div key={idx} className="relative w-20 h-20 rounded-md border border-gray-300 shadow-sm">
                                                 <Image src={url} alt={`preview-${idx}`} fill className="object-cover rounded-md" sizes="80px" />
                                                 <button
                                                     type="button"
@@ -433,7 +366,7 @@ export default function CreateSchedulePost() {
                             <label className="text-sm font-semibold block">Banner Image</label>
                             <div className="relative flex flex-col items-center w-full max-w-full sm:max-w-md p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 transition hover:border-blue-400">
                                 {bannerPreviewUrl && (
-                                    <div className="relative w-32 h-20 rounded-lg border border-gray-300 mb-3">
+                                    <div className="relative w-32 h-20 rounded-lg border border-gray-300 mb-3 shadow-sm">
                                         <Image src={bannerPreviewUrl} alt="banner" fill className="object-cover rounded-lg" />
                                         <button
                                             type="button"

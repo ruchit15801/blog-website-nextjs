@@ -21,10 +21,12 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, icon, color }: StatCardProps) => (
-  <div className="bg-white shadow rounded-2xl p-6 flex flex-col items-center justify-center">
-    <div className={`p-4 rounded-full mb-3 ${color}`}>{icon}</div>
-    <span className="text-3xl font-bold">{value}</span>
-    <span className="text-gray-500 mt-1">{title}</span>
+  <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col items-center justify-center transform hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+    <div className={`p-4 rounded-full mb-4 flex items-center justify-center ${color} shadow-inner`}>
+      {icon}
+    </div>
+    <span className="text-3xl font-extrabold text-gray-900">{value}</span>
+    <span className="text-gray-500 mt-2 text-sm">{title}</span>
   </div>
 );
 
@@ -34,9 +36,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user"; // store role in localStorage
+  const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
 
-  // Save profile info to localStorage whenever it updates
   useEffect(() => {
     if (!profile) return;
     localStorage.setItem(
@@ -51,7 +52,6 @@ export default function DashboardPage() {
     window.dispatchEvent(new Event("storage"));
   }, [profile]);
 
-  // Load dashboard data (profile + stats) based on role
   useEffect(() => {
     if (!token) {
       toast.error("User token missing. Please login again.");
@@ -67,18 +67,14 @@ export default function DashboardPage() {
         let stats: AdminDashboardData | UserDashboardData;
 
         if (role === "admin") {
-          // Admin API calls
           me = await fetchAdminMeProfile(token);
           stats = await fetchAdminDashboard(token);
         } else {
-          // User API calls
           me = await fetchMyProfile(token);
           stats = await fetchUserDashboard(token);
         }
 
         if (!active) return;
-
-        // Set data in state
         setProfile(me);
         setDashboard(stats);
       } catch (err) {
@@ -94,35 +90,31 @@ export default function DashboardPage() {
     };
   }, [token, role]);
 
-
-
   if (loading) return <Loader inline label="Loading dashboard..." />;
 
   const isAdmin = profile?.role === "admin";
 
-  // Admin Stats
   const statsAdmin = [
-    { title: "My Posts", value: (dashboard as AdminDashboardData)?.myPosts ?? 0, icon: <BarChart3 size={28} />, color: "bg-blue-100 text-blue-600" },
-    { title: "Total Users", value: (dashboard as AdminDashboardData)?.users ?? 0, icon: <Users size={28} />, color: "bg-pink-100 text-pink-600" },
-    { title: "Scheduled Posts", value: (dashboard as AdminDashboardData)?.scheduledPosts ?? 0, icon: <Calendar size={28} />, color: "bg-yellow-100 text-yellow-600" },
-    { title: "Categories", value: (dashboard as AdminDashboardData)?.categories ?? 0, icon: <MessageSquare size={28} />, color: "bg-green-100 text-green-600" },
-    { title: "Total Posts", value: (dashboard as AdminDashboardData)?.posts ?? 0, icon: <BarChart3 size={28} />, color: "bg-purple-100 text-purple-600" },
-    { title: "Published Posts", value: (dashboard as AdminDashboardData)?.publishedPosts ?? 0, icon: <Users size={28} />, color: "bg-indigo-100 text-indigo-600" },
+    { title: "My Posts", value: (dashboard as AdminDashboardData)?.myPosts ?? 0, icon: <BarChart3 size={28} />, color: "bg-gradient-to-tr from-blue-200 to-blue-400 text-blue-700" },
+    { title: "Total Users", value: (dashboard as AdminDashboardData)?.users ?? 0, icon: <Users size={28} />, color: "bg-gradient-to-tr from-pink-200 to-pink-400 text-pink-700" },
+    { title: "Scheduled Posts", value: (dashboard as AdminDashboardData)?.scheduledPosts ?? 0, icon: <Calendar size={28} />, color: "bg-gradient-to-tr from-yellow-200 to-yellow-400 text-yellow-700" },
+    { title: "Categories", value: (dashboard as AdminDashboardData)?.categories ?? 0, icon: <MessageSquare size={28} />, color: "bg-gradient-to-tr from-green-200 to-green-400 text-green-700" },
+    { title: "Total Posts", value: (dashboard as AdminDashboardData)?.posts ?? 0, icon: <BarChart3 size={28} />, color: "bg-gradient-to-tr from-purple-200 to-purple-400 text-purple-700" },
+    { title: "Published Posts", value: (dashboard as AdminDashboardData)?.publishedPosts ?? 0, icon: <Users size={28} />, color: "bg-gradient-to-tr from-indigo-200 to-indigo-400 text-indigo-700" },
   ];
 
-  // User Stats (from API)
   const statsUser = [
-    { title: "My Posts", value: (dashboard as UserDashboardData)?.myPosts ?? 0, icon: <BarChart3 size={28} />, color: "bg-blue-100 text-blue-600" },
-    { title: "Scheduled Posts", value: (dashboard as UserDashboardData)?.scheduledPosts ?? 0, icon: <Calendar size={28} />, color: "bg-yellow-100 text-yellow-600" },
-    { title: "My Likes", value: (dashboard as UserDashboardData)?.likes ?? 0, icon: <Users size={28} />, color: "bg-pink-100 text-pink-600" },
-    { title: "My Comments", value: (dashboard as UserDashboardData)?.comments ?? 0, icon: <MessageSquare size={28} />, color: "bg-green-100 text-green-600" },
+    { title: "My Posts", value: (dashboard as UserDashboardData)?.myPosts ?? 0, icon: <BarChart3 size={28} />, color: "bg-gradient-to-tr from-blue-200 to-blue-400 text-blue-700" },
+    { title: "Scheduled Posts", value: (dashboard as UserDashboardData)?.scheduledPosts ?? 0, icon: <Calendar size={28} />, color: "bg-gradient-to-tr from-yellow-200 to-yellow-400 text-yellow-700" },
+    { title: "My Likes", value: (dashboard as UserDashboardData)?.likes ?? 0, icon: <Users size={28} />, color: "bg-gradient-to-tr from-pink-200 to-pink-400 text-pink-700" },
+    { title: "My Comments", value: (dashboard as UserDashboardData)?.comments ?? 0, icon: <MessageSquare size={28} />, color: "bg-gradient-to-tr from-green-200 to-green-400 text-green-700" },
   ];
 
   const statsToShow = isAdmin ? statsAdmin : statsUser;
 
   return (
     <DashboardLayout>
-      <h1 className="text-3xl font-semibold mb-6">Dashboard</h1>
+      <h1 className="text-4xl font-bold mb-8 text-gray-900">Dashboard</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {statsToShow.map((stat) => (
           <StatCard key={stat.title} {...stat} />
@@ -131,4 +123,3 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
-

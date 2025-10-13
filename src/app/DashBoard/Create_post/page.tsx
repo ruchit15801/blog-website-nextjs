@@ -7,6 +7,7 @@ import { adminUpdatePostById, createRemotePost, fetchCategories, fetchPostById, 
 import DashboardLayout from "../DashBoardLayout";
 import toast from "react-hot-toast";
 import { createPost, updatePost } from "@/lib/api";
+import { RefreshCw } from "lucide-react";
 
 type CategoryType = { _id: string; name: string };
 type PostType = {
@@ -225,7 +226,8 @@ export default function AdminLayout() {
 
     return (
         <DashboardLayout>
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-10">
+            <div className="space-y-5 bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all p-6">
+
 
                 {/* Header */}
                 <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -237,7 +239,7 @@ export default function AdminLayout() {
                         <button type="button" className="btn btn-secondary shine" onClick={() => setShowPreview(v => !v)}>
                             {showPreview ? "Hide Preview" : "Show Preview"}
                         </button>
-                        <button type="submit" form="new-post-form" disabled={submitting} className="btn btn-primary shine disabled:opacity-60">
+                        <button type="submit" form="new-post-form" disabled={submitting} className="btn btn-primary shine disabled:opacity-50  text-white font-semibold px-6 py-2 rounded-2xl shadow-md hover:scale-105 transition-transform">
                             {submitting ? (editPost ? "Updating..." : "Publishing...") : (editPost ? "Update Post" : "Publish Post")}
                         </button>
                     </div>
@@ -270,8 +272,18 @@ export default function AdminLayout() {
 
                         {/* Category */}
                         <div className="space-y-1 relative">
-                            <label className="text-sm font-semibold">Category</label>
-                            <button type="button" className="btn btn-secondary mt-1" onClick={loadCategories}>Refresh</button>
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm font-semibold text-gray-800">Category</label>
+                                <button
+                                    type="button"
+                                    onClick={loadCategories}
+                                    className="flex items-center justify-center p-2 rounded-md border border-gray-300 bg-white hover:bg-indigo-50 hover:border-indigo-400 shadow-sm transition-all duration-200 group"
+                                    title="Refresh categories">
+                                    <RefreshCw className="w-4 h-4 text-indigo-600 group-hover:rotate-180 transition-transform duration-300" />
+                                </button>
+                            </div>
+
+
                             <div className="relative w-full mt-2">
                                 <button
                                     type="button"
@@ -288,7 +300,7 @@ export default function AdminLayout() {
                                             value={catSearch}
                                             onChange={(e) => setCatSearch(e.target.value)}
                                             placeholder="Search categories..."
-                                            className="w-full px-3 h-10 rounded-t-lg border-b border-gray-300 focus:outline-none"/>
+                                            className="w-full px-3 h-10 rounded-t-lg border-b border-gray-300 focus:outline-none" />
                                         {categories.filter(c => c.name.toLowerCase().includes(catSearch.toLowerCase()))
                                             .map(c => (
                                                 <div key={c.name} className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
@@ -315,10 +327,10 @@ export default function AdminLayout() {
                                 onChange={(e) => setTagInput(e.target.value)}
                                 onKeyDown={handleTagKeyDown}
                                 placeholder="Type a tag and press Enter"
-                                className="w-full px-3 h-11 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-1"/>
+                                className="w-full px-3 h-11 rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 mt-1 shadow-inner" />
                             <div className="flex flex-wrap gap-2 my-2">
                                 {tagsList.map((tag, idx) => (
-                                    <span key={idx} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                                    <span key={idx} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow-sm">
                                         {tag}
                                         <button type="button" onClick={() => removeTag(idx)} className="ml-1 text-blue-500 hover:text-blue-700 focus:outline-none">×</button>
                                     </span>

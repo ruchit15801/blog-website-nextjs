@@ -14,6 +14,7 @@ import {
   Tag,
   Clipboard,
   Settings,
+  MessageCircle,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
@@ -21,6 +22,7 @@ import {
   type AdminMeProfile,
 } from "@/lib/adminClient";
 import { fetchMyProfile, MeProfile } from "@/lib/api";
+import { logoutAndRedirect } from "@/lib/auth";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -39,6 +41,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -121,10 +124,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: <Home />, label: "Dashboard", path: "/DashBoard" },
     { icon: <BarChart3 />, label: "Create Posts", path: "/DashBoard/Create_post" },
     { icon: <FileText />, label: "See Posts", path: "/DashBoard/See_all_post" },
-    { icon: <Users />, label: "Users", path: "/DashBoard/Users" },
     { icon: <Calendar />, label: "Schedule Post", path: "/DashBoard/Schedule_post" },
-    { icon: <Clipboard />, label: "User Posts", path: "/DashBoard/User_post" },
     { icon: <Tag />, label: "Categories", path: "/DashBoard/Categories" },
+    { icon: <Users />, label: "Users", path: "/DashBoard/Users" },
+    { icon: <Clipboard />, label: "User Posts", path: "/DashBoard/User_post" },
+    { icon: <MessageCircle  />, label: "Contact Us", path: "/DashBoard/Admin_contact_us" },
     { icon: <Settings />, label: "Profile", path: "/DashBoard/UserProfile" },
   ];
 
@@ -138,29 +142,70 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const menus = role === "admin" ? adminMenu : userMenu;
 
+  const handleLogout = () => logoutAndRedirect();
+
   return (
     <div className="relative flex min-h-screen bg-gray-100 dashboard-skin overflow-x-hidden">
-      <aside className={`bg-white shadow-md flex flex-col p-4 fixed top-0 left-0 h-screen overflow-auto transition-transform duration-200 w-64 z-30 ${open ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <Link href="/" className="navbar-logo">
-          <Image src="/images/BlogCafe_Logo.svg" alt="BlogCafeAI" width={130} height={130} priority />
+      {/* Sidebar */}
+      <aside
+        className={`bg-gradient-to-b from-white to-gray-50 shadow-lg flex flex-col p-4 fixed top-0 left-0 h-screen overflow-y-auto overflow-x-hidden transition-transform duration-300 w-64 z-30 ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 custom-scrollbar`}>
+
+        {/* Logo */}
+        <Link href="/" className="flex items-center justify-center mb-8">
+          <Image
+            src="/images/BlogCafe_Logo.svg"
+            alt="BlogCafeAI"
+            width={140}
+            height={140}
+            priority
+            className="hover:scale-105 transition-transform"
+          />
         </Link>
 
-        <nav className="flex flex-col gap-2 mt-6">
-          {menus.map((item) => (
-            <Link
-              key={item.label}
-              href={item.path}
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition font-medium text-gray-700 ${pathname === item.path
-                ? "bg-blue-100 text-blue-600"
-                : "hover:bg-gray-100"
-                }`}
-              onClick={() => setOpen(false)}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </Link>
-          ))}
+        {/* Navigation Menu */}
+        <nav className="flex flex-col gap-3 mt-4">
+          {menus.map((item) => {
+            const isActive = pathname === item.path;
+            return (
+              <Link
+                key={item.label}
+                href={item.path}
+                className={`group flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-colors duration-300 ${isActive
+                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white !text-white shadow-md"
+                  : "text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:!text-white hover:shadow-md"
+                  }`}
+
+                onClick={() => setOpen(false)}>
+                <span
+                  className={`transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"
+                    }`}>
+                  {item.icon}
+                </span>
+                <span className="truncate">{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
+
+        {/* Footer / User Role */}
+        {user && (
+          <div className="mt-auto pt-6 border-t border-gray-200">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+              <div className="w-10 h-10 relative rounded-full overflow-hidden border border-gray-300 shadow-sm">
+                <Image
+                  src={user.avatar || "/images/default-avatar.png"}
+                  alt={user.fullName}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex flex-col truncate">
+                <span className="font-medium text-gray-700 truncate">{user.fullName}</span>
+                <span className="text-xs text-gray-500 truncate">{user.role.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* Backdrop for mobile menu */}
@@ -174,25 +219,80 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#29294b" strokeWidth="2" strokeLinecap="round" /></svg>
           </button>
           <div className="flex items-center gap-4 ml-auto">
-            {user && (
-              <>
-                <div className="flex flex-col text-right">
-                  <span className="font-medium text-gray-700">
-                    {user.fullName}
-                  </span>
-                  <span className="text-sm text-gray-500">{user.email}</span>
-                </div>
+            <header className="bg-white shadow flex justify-between items-center px-4 md:px-6 h-16 sticky top-0 z-20">
+              <button
+                className="md:hidden p-2 rounded-lg border border-gray-200"
+                onClick={() => setOpen((v) => !v)}
+                aria-label="Toggle sidebar">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke="#29294b"
+                  strokeWidth="2"
+                  strokeLinecap="round">
+                  <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+              </button>
 
-                <div className="w-10 h-10 relative rounded-full overflow-hidden">
-                  <Image
-                    src={user.avatar || "/images/default-avatar.png"}
-                    alt={user.fullName || "User"}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </>
-            )}
+              {/* Right Section */}
+              <div className="flex items-center gap-4 ml-auto relative">
+                {user && (
+                  <>
+                    {/* User Info clickable area */}
+                    <div
+                      className="flex items-center gap-3 cursor-pointer select-none"
+                      onClick={() => setDropdownOpen((prev) => !prev)}>
+                      <div className="flex flex-col text-right">
+                        <span className="font-medium text-gray-700">{user.fullName}</span>
+                        <span className="text-sm text-gray-500">{user.email}</span>
+                      </div>
+
+                      <div className="w-10 h-10 relative rounded-full overflow-hidden border border-gray-200 hover:shadow-md transition">
+                        <Image
+                          src={user.avatar || "/images/default-avatar.png"}
+                          alt={user.fullName || "User"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+
+                      {/* Dropdown Arrow */}
+                      <svg
+                        className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""
+                          }`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+
+                    {/* Dropdown */}
+                    {dropdownOpen && (
+                      <div className="absolute top-14 right-0 w-52 bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden animate-fadeIn">
+                        <Link
+                          href="/"
+                          className="flex items-center gap-2 px-4 py-4 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                          onClick={() => setDropdownOpen(false)}>
+                          🏠 <span>Home</span>
+                        </Link>
+
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-2 w-full px-4 py-4 text-sm bg-red-500 hover:bg-red-700 text-white transition">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7" />
+                          </svg> <span>Logout</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </header>
+
           </div>
         </header>
 
