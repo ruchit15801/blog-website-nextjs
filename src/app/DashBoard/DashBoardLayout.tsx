@@ -128,7 +128,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: <Tag />, label: "Categories", path: "/DashBoard/Categories" },
     { icon: <Users />, label: "Users", path: "/DashBoard/Users" },
     { icon: <Clipboard />, label: "User Posts", path: "/DashBoard/User_post" },
-    { icon: <MessageCircle  />, label: "Contact Us", path: "/DashBoard/Admin_contact_us" },
+    { icon: <MessageCircle />, label: "Contact Us", path: "/DashBoard/Admin_contact_us" },
     { icon: <Settings />, label: "Profile", path: "/DashBoard/UserProfile" },
   ];
 
@@ -145,7 +145,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const handleLogout = () => logoutAndRedirect();
 
   return (
-    <div className="relative flex min-h-screen bg-gray-100 dashboard-skin overflow-x-hidden">
+    <div className="relative flex min-h-screen bg-gray-50 dashboard-skin overflow-x-hidden">
       {/* Sidebar */}
       <aside
         className={`bg-gradient-to-b from-white to-gray-50 shadow-lg flex flex-col p-4 fixed top-0 left-0 h-screen overflow-y-auto overflow-x-hidden transition-transform duration-300 w-64 z-30 ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 custom-scrollbar`}>
@@ -163,7 +163,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </Link>
 
         {/* Navigation Menu */}
-        <nav className="flex flex-col gap-3 mt-4">
+        <nav className="flex flex-col gap-3">
           {menus.map((item) => {
             const isActive = pathname === item.path;
             return (
@@ -215,88 +215,78 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       <div className="flex-1 md:ml-64 flex flex-col min-w-0">
         <header className="bg-white shadow flex justify-between items-center px-4 md:px-6 h-16 sticky top-0 z-20">
-          <button className="md:hidden p-2 rounded-lg border border-gray-200" onClick={() => setOpen(v => !v)} aria-label="Toggle sidebar">
-            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="#29294b" strokeWidth="2" strokeLinecap="round" /></svg>
+          <button
+            className="md:hidden p-2 rounded-lg border border-gray-200"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle sidebar">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke="#29294b"
+              strokeWidth="2"
+              strokeLinecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
           </button>
-          <div className="flex items-center gap-4 ml-auto">
-            <header className="bg-white shadow flex justify-between items-center px-4 md:px-6 h-16 sticky top-0 z-20">
-              <button
-                className="md:hidden p-2 rounded-lg border border-gray-200"
-                onClick={() => setOpen((v) => !v)}
-                aria-label="Toggle sidebar">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  stroke="#29294b"
-                  strokeWidth="2"
-                  strokeLinecap="round">
-                  <path d="M4 7h16M4 12h16M4 17h16" />
-                </svg>
-              </button>
+          {/* Right Section */}
+          <div className="flex items-center gap-4 ml-auto relative">
+            {user && (
+              <>
+                {/* User Info clickable area */}
+                <div
+                  className="flex items-center gap-3 cursor-pointer select-none"
+                  onClick={() => setDropdownOpen((prev) => !prev)}>
+                  <div className="flex flex-col text-right">
+                    <span className="font-medium text-gray-700">{user.fullName}</span>
+                    <span className="text-sm text-gray-500">{user.email}</span>
+                  </div>
 
-              {/* Right Section */}
-              <div className="flex items-center gap-4 ml-auto relative">
-                {user && (
-                  <>
-                    {/* User Info clickable area */}
-                    <div
-                      className="flex items-center gap-3 cursor-pointer select-none"
-                      onClick={() => setDropdownOpen((prev) => !prev)}>
-                      <div className="flex flex-col text-right">
-                        <span className="font-medium text-gray-700">{user.fullName}</span>
-                        <span className="text-sm text-gray-500">{user.email}</span>
-                      </div>
+                  <div className="w-10 h-10 relative rounded-full overflow-hidden border border-gray-200 hover:shadow-md transition">
+                    <Image
+                      src={user.avatar || "/images/default-avatar.png"}
+                      alt={user.fullName || "User"}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
 
-                      <div className="w-10 h-10 relative rounded-full overflow-hidden border border-gray-200 hover:shadow-md transition">
-                        <Image
-                          src={user.avatar || "/images/default-avatar.png"}
-                          alt={user.fullName || "User"}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
+                  {/* Dropdown Arrow */}
+                  <svg
+                    className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""
+                      }`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
 
-                      {/* Dropdown Arrow */}
-                      <svg
-                        className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""
-                          }`}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                {/* Dropdown */}
+                {dropdownOpen && (
+                  <div className="absolute top-14 right-0 w-52 bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden animate-fadeIn">
+                    <Link
+                      href="/"
+                      className="flex items-center gap-2 px-4 py-4 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                      onClick={() => setDropdownOpen(false)}>
+                      🏠 <span>Home</span>
+                    </Link>
 
-                    {/* Dropdown */}
-                    {dropdownOpen && (
-                      <div className="absolute top-14 right-0 w-52 bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden animate-fadeIn">
-                        <Link
-                          href="/"
-                          className="flex items-center gap-2 px-4 py-4 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
-                          onClick={() => setDropdownOpen(false)}>
-                          🏠 <span>Home</span>
-                        </Link>
-
-                        <button
-                          onClick={handleLogout}
-                          className="flex items-center gap-2 w-full px-4 py-4 text-sm bg-red-500 hover:bg-red-700 text-white transition">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7" />
-                          </svg> <span>Logout</span>
-                        </button>
-                      </div>
-                    )}
-                  </>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full px-4 py-4 text-sm bg-red-500 hover:bg-red-700 text-white transition">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7" />
+                      </svg> <span>Logout</span>
+                    </button>
+                  </div>
                 )}
-              </div>
-            </header>
-
+              </>
+            )}
           </div>
         </header>
-
-        <main className="flex-1 p-4 md:p-8">{children}</main>
+        <main className="flex-1 p-2" style={{ background: 'linear-gradient( 180deg, var(--cs-light-site-background-start, #fdfdff) 0%,var(--cs-light-site-background-end, #f8f7ff) 100%)' }}>{children}</main>
       </div>
     </div>
   );

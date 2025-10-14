@@ -152,7 +152,7 @@ export default function UserProfileWithCategories() {
             <div className="flex justify-end mb-4">
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-1.5 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium transition">
+                    className="flex items-center gap-2 px-4 py-1.5 rounded-md bg-red-600 hover:bg-red-700 hover:scale-105 text-white font-medium transition">
                     <LogOutIcon className="w-5 h-5" />
                     Logout
                 </button>
@@ -318,7 +318,7 @@ export default function UserProfileWithCategories() {
                     </div>
 
                     <div className="mt-4">
-                        <button onClick={saveLinks} disabled={loading} className="btn btn-primary">
+                        <button onClick={saveLinks} disabled={loading} className="btn btn-primary shine hover:scale-102">
                             Save Links
                         </button>
                     </div>

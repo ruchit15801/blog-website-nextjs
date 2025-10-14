@@ -12,6 +12,7 @@ import {
 import Loader from "@/components/Loader";
 import toast from "react-hot-toast";
 import { fetchMyProfile, fetchUserDashboard, MeProfile, UserDashboardData } from "@/lib/api";
+import Link from "next/link";
 
 interface StatCardProps {
   title: string;
@@ -114,7 +115,26 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <h1 className="text-4xl font-bold mb-8 text-gray-900">Dashboard</h1>
+      <div
+        className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 px-8 py-12 rounded-xl text-white shadow-lg"
+        style={{ background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)' }}
+      >
+        <div className="text-center lg:text-left">
+          <h1 className="text-4xl font-bold">Dashboard</h1>
+          <p className="mt-2 text-gray-200">Welcome back, {profile?.fullName}</p>
+        </div>
+
+        <div className="flex gap-3 mt-4 lg:mt-0">
+          <button className="px-4 py-2 rounded-lg bg-white text-purple-700 font-semibold hover:bg-purple-100 transition">
+            <Link href='/DashBoard/Create_post'>Add Post</Link>
+          </button>
+          {isAdmin && (
+            <button className="px-4 py-2 rounded-lg bg-white text-blue-700 font-semibold hover:bg-blue-100 transition">
+              <Link href='/DashBoard/Users'> View Users</Link>
+            </button>
+          )}
+        </div>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {statsToShow.map((stat) => (
           <StatCard key={stat.title} {...stat} />

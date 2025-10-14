@@ -274,6 +274,11 @@ export default function PostPage({
 
                         {/* Main Content */}
                         <div className="w-full lg:w-4/5 flex flex-col space-y-4">
+                            {post.publishedAt && (
+                                <div className="text-sm text-indigo-600 font-medium">
+                                    Published At : {new Date(post.publishedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                                </div>
+                            )}
                             {post.subtitle && (
                                 <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700 text-center lg:text-left">
                                     {post.subtitle}
