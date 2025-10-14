@@ -215,7 +215,7 @@ export default function CreateSchedulePost() {
                             type="submit"
                             form="schedule-post-form"
                             disabled={submitting}
-                            className="px-4 py-2 rounded-lg text-white transition font-medium w-full sm:w-auto"
+                            className="px-4 py-2 rounded-lg text-white transition font-medium w-full shine hover:scale-105 sm:w-auto"
                             style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
                             {submitting ? "Saving..." : "Save Schedule"}
                         </button>

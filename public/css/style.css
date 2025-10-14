@@ -102,7 +102,7 @@
   cursor: pointer;
 }
 
-.buy-btn , .submit-button ,.discover ,.submit_comment , .view_comment ,.Create_Schedule ,.Add_Categories{
+.buy-btn , .submit-button ,.discover ,.submit_comment , .view_comment ,.Add_Categories{
   background: linear-gradient(180deg, #9895ff 0%, #514dcc 100%);
   color: white;
   padding: 0.5rem 1rem;
@@ -112,6 +112,20 @@
   display: inline-block;
   transition: transform 0.2s, opacity 0.2s;
 }
+.create_schedule {
+  background:  #c7c4fd ;
+  color: #514dcc !important; 
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.create_schedule:hover {
+  transform: scale(1.02);
+}
+
 .discover1{
   background: #fff;
   color: #514dcc;
@@ -490,7 +504,7 @@
 }
 /* ==== Custom Scrollbar Theme (matches your gradient) ==== */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -508,10 +522,9 @@
   background: linear-gradient(180deg, rgb(130, 127, 255) 0%, rgb(70, 67, 190) 100%);
 }
 
-/* Firefox support */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgb(152, 149, 255) #e9e8ff;
+  scrollbar-color: rgb(65, 43, 230 ,0.68) #e9e8ff;
 }
 
 .force-white-hover:hover {

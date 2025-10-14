@@ -8,7 +8,7 @@ export function saveAdminToken(token: string) {
 
 export function getAdminToken(): string | null {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("admin_token");
+    return localStorage.getItem("token");
 }
 
 export async function createRemotePost(payload: {
@@ -313,6 +313,7 @@ export async function updateAdminUser(
 
     return data.user as RemoteUser;
 }
+
 export async function deleteAdminUser(
     userId: string,
     tokenOverride?: string
@@ -674,92 +675,115 @@ export async function fetchAdminDashboard(tokenOverride?: string): Promise<Admin
 
 // lib/api.ts
 export type UserPost = {
-  _id: string;
-  title: string;
-  bannerImageUrl?: string;
-  createdAt: string;
-  publishedAt?: string;
-  author: { _id: string; fullName: string } | string;
-  contentHtml?: string;
-  tags?: string[];
-  readingTimeMinutes?: number;
-  slug?: string;
+    _id: string;
+    title: string;
+    bannerImageUrl?: string;
+    createdAt: string;
+    publishedAt?: string;
+    author: { _id: string; fullName: string } | string;
+    contentHtml?: string;
+    tags?: string[];
+    readingTimeMinutes?: number;
+    slug?: string;
 };
 
 export type FetchPostsParams = {
-  page?: number;
-  limit?: number;
-  token: string;
-  category?: string;
-  tag?: string;
-  search?: string;
-  authorId?: string; // optional: pass if you want a single user
-  sort?: 'latest' | 'trending' | 'featured';
+    page?: number;
+    limit?: number;
+    token: string;
+    category?: string;
+    tag?: string;
+    search?: string;
+    authorId?: string; // optional: pass if you want a single user
+    sort?: 'latest' | 'trending' | 'featured';
 };
 
 export async function fetchUserAllPosts(params: FetchPostsParams) {
-  const { token, ...rest } = params;
-  const base = process.env.NEXT_PUBLIC_API_URL || '';
-  const url = new URL(`${base}/posts`);
+    const { token, ...rest } = params;
+    const base = process.env.NEXT_PUBLIC_API_URL || '';
+    const url = new URL(`${base}/posts`);
 
-  // Add query parameters dynamically
-  Object.entries(rest).forEach(([key, value]) => {
-    if (value) url.searchParams.set(key, String(value));
-  });
+    // Add query parameters dynamically
+    Object.entries(rest).forEach(([key, value]) => {
+        if (value) url.searchParams.set(key, String(value));
+    });
 
-  const res = await fetch(url.toString(), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+    const res = await fetch(url.toString(), {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
 
-  if (!res.ok) throw new Error('Failed to fetch posts');
+    if (!res.ok) throw new Error('Failed to fetch posts');
 
-  // Response expected: { success: true, data: UserPost[], meta: { page, limit, total } }
-  const json = await res.json();
-  return json;
+    // Response expected: { success: true, data: UserPost[], meta: { page, limit, total } }
+    const json = await res.json();
+    return json;
 }
 
 
 export type ContactMessage = {
-  _id: string;
-  name: string;
-  email: string;
-  message: string;
-  status: "new" | "read";
-  createdAt: string;
+    _id: string;
+    name: string;
+    email: string;
+    message: string;
+    status: "new" | "read";
+    createdAt: string;
 };
 
 export async function fetchContactMessages({
-  token,
-  page = 1,
-  limit = 20,
-  status,
-  q,
+    token,
+    page = 1,
+    limit = 20,
+    status,
+    q,
 }: {
-  token: string;
-  page?: number;
-  limit?: number;
-  status?: "new" | "read";
-  q?: string;
+    token: string;
+    page?: number;
+    limit?: number;
+    status?: "new" | "read";
+    q?: string;
 }) {
-  if (!token) throw new Error("Admin token missing");
+    if (!token) throw new Error("Admin token missing");
 
-  const base = process.env.NEXT_PUBLIC_API_URL || "";
-  const url = new URL(`${base}/admin/contacts`);
+    const base = process.env.NEXT_PUBLIC_API_URL || "";
+    const url = new URL(`${base}/admin/contacts`);
 
-  if (page) url.searchParams.set("page", String(page));
-  if (limit) url.searchParams.set("limit", String(limit));
-  if (status) url.searchParams.set("status", status);
-  if (q) url.searchParams.set("q", q);
+    if (page) url.searchParams.set("page", String(page));
+    if (limit) url.searchParams.set("limit", String(limit));
+    if (status) url.searchParams.set("status", status);
+    if (q) url.searchParams.set("q", q);
 
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+    const res = await fetch(url.toString(), {
+        headers: { Authorization: `Bearer ${token}` },
+    });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch contact messages: ${res.status}`);
-  }
+    if (!res.ok) {
+        throw new Error(`Failed to fetch contact messages: ${res.status}`);
+    }
 
-  return res.json(); 
+    return res.json();
+}
+
+export async function fetchContactMessageById({ id, token }: { id: string; token: string }) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/contacts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch contact message");
+    const json = await res.json();
+    return json.data;
+}
+
+export async function markContactMessageRead(id: string, token: string) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/contacts/${id}/read`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!res.ok) throw new Error("Failed to mark message as read");
+    return await res.json();
 }
