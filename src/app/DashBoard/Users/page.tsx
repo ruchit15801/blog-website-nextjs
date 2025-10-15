@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Pencil, Trash, Search, ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Loader from "@/components/Loader";
-import { fetchAdminUsers, RemoteUser, updateAdminUser, deleteAdminUser } from "@/lib/adminClient";
+import { fetchAdminUsers, RemoteUser, deleteAdminUser, getAdminToken } from "@/lib/adminClient";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
 
@@ -27,7 +27,15 @@ export default function UsersPage() {
 
   // Modal & Edit
   const [showModal, setShowModal] = useState(false);
-  const [editUser, setEditUser] = useState<RemoteUser | null>(null);
+  // Define a temporary type for edit state
+  type EditableUser = RemoteUser & {
+    avatarFile?: File;
+    avatarPreview?: string;
+  };
+
+  const [editUser, setEditUser] = useState<EditableUser | null>(null);
+
+  // const [editUser, setEditUser] = useState<RemoteUser | null>(null);
   const [updating, setUpdating] = useState(false);
 
   const loadUsers = useCallback(() => {
@@ -66,7 +74,10 @@ export default function UsersPage() {
   }, [users, searchTerm, filter]);
 
   const handleEdit = (user: RemoteUser) => {
-    setEditUser(user);
+    setEditUser({
+      ...user,
+      avatarPreview: user.avatarUrl || user.avatar || "/images/default-avatar.png",
+    } as EditableUser);
     setShowModal(true);
   };
 
@@ -91,8 +102,22 @@ export default function UsersPage() {
 
     try {
       setUpdating(true);
-      const { _id, fullName, role } = editUser;
-      await updateAdminUser(_id, { fullName, role });
+
+      const formData = new FormData();
+      formData.append("fullName", editUser.fullName || "");
+      formData.append("role", editUser.role || "");
+      if (editUser.avatarFile) formData.append("avatar", editUser.avatarFile);
+
+      const token = getAdminToken();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${editUser._id}`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` }, // browser handles FormData Content-Type
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error?.message || "Update failed");
+
       toast.success("User updated successfully!");
       loadUsers();
       setShowModal(false);
@@ -110,7 +135,7 @@ export default function UsersPage() {
     <DashboardLayout>
       <div className="flex flex-col shadow-xl pb-8">
         {/* Heading + Search + Filters */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-white px-8 py-12" style={{ background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)' , borderTopLeftRadius : '10px' ,borderTopRightRadius : '10px'}}>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-white px-8 py-12" style={{ background: 'linear-gradient(180deg, #9895ff 0%, #514dcc 100%)', borderTopLeftRadius: '10px', borderTopRightRadius: '10px' }}>
           {/* Title */}
           <div className="text-center lg:text-left w-full lg:w-auto">
             <h1 className="text-3xl font-bold text-white">Users</h1>
@@ -149,11 +174,11 @@ export default function UsersPage() {
                   className={`w-4 h-4 ml-2 transition-transform ${isFilterDropdownOpen ? "rotate-180" : ""}`} />
               </button>
               {isFilterDropdownOpen && (
-                <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                <div className="absolute mt-1 w-full sm:w-48 bg-white rounded-md shadow-lg z-20">
                   {filterOptions.map((f) => (
                     <div
                       key={f}
-                      className={`option ${filter === f ? "selected" : ""}`}
+                      className={`option rounded-md ${filter === f ? "selected" : ""}`}
                       onClick={() => {
                         setFilter(f);
                         setFilterDropdownOpen(false);
@@ -181,11 +206,11 @@ export default function UsersPage() {
                   className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""}`} />
               </button>
               {isLimitDropdownOpen && (
-                <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                <div className="absolute mt-1 w-full sm:w-48 bg-white rounded-md shadow-lg z-20">
                   {[5, 10, 20, 50].map((l) => (
                     <div
                       key={l}
-                      className={`option ${limit === l ? "selected" : ""}`}
+                      className={`option rounded-md ${limit === l ? "selected" : ""}`}
                       onClick={() => {
                         setLimit(l);
                         setPage(1);
@@ -330,6 +355,43 @@ export default function UsersPage() {
             <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
               <h2 className="text-xl font-semibold mb-4">Edit User</h2>
               <form className="flex flex-col gap-4" onSubmit={handleUpdateSubmit}>
+
+                {/* Avatar Preview + Edit Icon */}
+                <div className="flex flex-col gap-2 items-center relative">
+                  <div className="w-20 h-20 relative rounded-full overflow-hidden mb-2">
+                    <Image
+                      src={editUser.avatarPreview || editUser.avatarUrl || "/images/default-avatar.png"}
+                      alt={editUser.fullName || "User"}
+                      width={80}
+                      height={80}
+                      className="object-cover rounded-full"
+                    />
+                  </div>
+
+                  {/* Edit Icon outside avatar */}
+                  <label className="absolute bottom-6 left-48 translate-x-1/2 translate-y-1/2 z-50 bg-indigo-400 text-white rounded-full p-2 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M16.5 3.5a2.121 2.121 0 113 3L7 19H4v-3L16.5 3.5z" />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setEditUser({
+                            ...editUser,
+                            avatarFile: file,
+                            avatarPreview: URL.createObjectURL(file),
+                          } as EditableUser);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
+                {/* Full Name */}
                 <div className="flex flex-col gap-2">
                   <label className="font-medium">Full Name</label>
                   <input
@@ -340,13 +402,27 @@ export default function UsersPage() {
                     required
                   />
                 </div>
+
+                {/* Email (readonly) */}
                 <div className="flex flex-col gap-2">
                   <label className="font-medium">Email</label>
-                  <input type="email" value={editUser.email} disabled className="border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed w-full" />
+                  <input
+                    type="email"
+                    value={editUser.email}
+                    disabled
+                    className="border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 cursor-not-allowed w-full"
+                  />
                 </div>
+
+                {/* Buttons */}
                 <div className="flex justify-end gap-2 mt-4">
                   <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-lg border">Cancel</button>
-                  <button type="submit" disabled={updating} className="px-4 py-2 rounded-lg text-white disabled:opacity-60" style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
+                  <button
+                    type="submit"
+                    disabled={updating}
+                    className="px-4 py-2 rounded-lg text-white disabled:opacity-60"
+                    style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
+                  >
                     {updating ? "Updating..." : "Update"}
                   </button>
                 </div>
@@ -354,6 +430,8 @@ export default function UsersPage() {
             </div>
           </div>
         )}
+
+
       </div>
     </DashboardLayout>
   );
