@@ -98,11 +98,26 @@ export default async function ArticleIdLayout(
                     url,
                 } as Record<string, unknown>;
 
+                // BreadcrumbList for richer snippets
+                const breadcrumbLd = {
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: "Home", item: site + "/" },
+                        { "@type": "ListItem", position: 2, name: "Blog", item: site + "/blog" },
+                        { "@type": "ListItem", position: 3, name: post.title || "Article", item: url }
+                    ]
+                } as Record<string, unknown>;
+
                 return (
                     <>
                         <script
                             type="application/ld+json"
                             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                        />
+                        <script
+                            type="application/ld+json"
+                            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
                         />
                         {children}
                     </>

@@ -53,6 +53,17 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png" />
         <link rel="shortcut icon" href="/images/favicon.png" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/images/favicon-48.png" />
+        <link rel="icon" type="image/png" sizes="72x72" href="/images/favicon-72.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96.png" />
+        <link rel="icon" type="image/png" sizes="120x120" href="/images/favicon-120.png" />
+        <link rel="icon" type="image/png" sizes="144x144" href="/images/favicon-144.png" />
+        <link rel="icon" type="image/png" sizes="152x152" href="/images/favicon-152.png" />
+        <link rel="icon" type="image/png" sizes="167x167" href="/images/favicon-167.png" />
+        <link rel="icon" type="image/png" sizes="180x180" href="/images/favicon-180.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/images/favicon-192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/images/favicon-512.png" />
+        <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/images/favicon.png" />
         <link rel="mask-icon" href="/images/favicon.png" color="#000000" />
         <meta name="theme-color" content="#000000" />
