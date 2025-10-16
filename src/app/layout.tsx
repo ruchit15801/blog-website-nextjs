@@ -52,9 +52,13 @@ export default function RootLayout({
         <link rel="icon" href="/images/favicon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png" />
+        <link rel="shortcut icon" href="/images/favicon.png" />
         <link rel="apple-touch-icon" href="/images/favicon.png" />
         <link rel="mask-icon" href="/images/favicon.png" color="#000000" />
         <meta name="theme-color" content="#000000" />
+        <meta name="application-name" content="BlogCafeAI" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="alternate" type="application/rss+xml" title="BlogCafeAI RSS" href="/rss.xml" />
         {/* Primary Meta Tags (defaults; page-level generateMetadata can override) */}
         <title>BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips</title>
         <meta name="title" content="BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips" />
@@ -125,6 +129,23 @@ export default function RootLayout({
                 'https://www.instagram.com/',
                 'https://www.linkedin.com/'
               ],
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts?search={search_term_string}`,
+                'query-input': 'required name=search_term_string'
+              }
+            }),
+          }}
+        />
+        {/* WebSite JSON-LD for sitelinks searchbox */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'BlogCafeAI',
+              url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com',
               potentialAction: {
                 '@type': 'SearchAction',
                 target: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts?search={search_term_string}`,
