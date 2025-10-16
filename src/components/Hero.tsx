@@ -58,8 +58,7 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
 
                     <p
                         className="text-lg sm:text-xl mx-auto"
-                        style={{ color: "#696981", maxWidth: 720 }}
-                    >
+                        style={{ color: "#696981", maxWidth: 720 }}>
                         Discover stories woven with emotion, wisdom, and wonder crafted to inspire, heal, and connect hearts across the world.
                     </p>
                 </div>
@@ -73,8 +72,7 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                         fontSize: "12px",
                         lineHeight: "1.2",
                         fontWeight: 800,
-                    }}
-                >
+                    }}>
                     Explore Trending Topics
                 </h5>
 
@@ -87,12 +85,10 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                         <button
                             key="all"
                             className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${!selectedCat ? "bg-indigo-100" : ""}`}
-                            onClick={() => onCategorySelect?.(null)}
-                        >
+                            onClick={() => onCategorySelect?.(null)}>
                             <span
                                 className="inline-flex items-center justify-center rounded-full"
-                                style={{ width: 28, height: 28, background: '#eef2ff' }}
-                            >
+                                style={{ width: 28, height: 28, background: '#eef2ff' }}>
                                 🌐
                             </span>
                             <span>All</span>
@@ -103,12 +99,10 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                             <button
                                 key={cat._id}
                                 className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${selectedCat === cat._id ? "bg-indigo-100" : ""}`}
-                                onClick={() => onCategorySelect?.(cat._id)}
-                            >
+                                onClick={() => onCategorySelect?.(cat._id)}>
                                 <span
                                     className="inline-flex items-center justify-center rounded-full"
-                                    style={{ width: 28, height: 28, background: '#eef2ff' }}
-                                >
+                                    style={{ width: 28, height: 28, background: '#eef2ff' }}>
                                     <Image
                                         src={cat.imageUrl || "/images/about.webp"}
                                         alt={cat.name}
@@ -127,8 +121,7 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                                 <button
                                     key={cat._id}
                                     className={`trending-btn shadow flex items-center gap-2 px-4 py-2 rounded-full ${selectedCat === cat._id ? "bg-indigo-100" : ""}`}
-                                    onClick={() => onCategorySelect?.(cat._id)}
-                                >
+                                    onClick={() => onCategorySelect?.(cat._id)}>
                                     <span className="inline-flex items-center justify-center rounded-full" style={{ width: 28, height: 28, background: '#eef2ff' }}>
                                         <Image src={cat.imageUrl || "/images/aside.webp"} alt={cat.name} width={20} height={20} className="rounded-full object-cover" />
                                     </span>

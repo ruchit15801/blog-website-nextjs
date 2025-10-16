@@ -189,8 +189,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Footer / User Role */}
         {user && (
-          <div className="mt-auto pt-6 border-t border-gray-200">
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition">
+          <div className="mt-auto pt-2">
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 bg-gray-100 transition">
               <div className="w-10 h-10 relative rounded-full overflow-hidden border border-gray-300 shadow-sm">
                 <Image
                   src={user.avatar || "/images/default-avatar.png"}
@@ -265,7 +265,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
                 {/* Dropdown */}
                 {dropdownOpen && (
-                  <div className="absolute top-14 right-0 w-52 bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden animate-fadeIn">
+                  <div className="absolute top-14 right-0 w-52 bg-white shadow-lg rounded-xl overflow-hidden animate-fadeIn">
                     <Link
                       href="/"
                       className="flex items-center gap-2 px-4 py-4 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition"

@@ -8,7 +8,7 @@ import Loader from "@/components/Loader";
 import { fetchSinglePostById } from "@/lib/adminClient";
 import { listAllHomePosts, type HomePost } from "@/lib/api";
 import { buildSlugPath, extractIdFromSlug } from "@/lib/slug";
-import { TwitterIcon, FacebookIcon, InstagramIcon, LinkedinIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { FacebookIcon, InstagramIcon, LinkedinIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import Script from "next/script";
 
@@ -349,7 +349,7 @@ export default function ArticlePage() {
                             <div className="flex flex-col items-center gap-6 text-gray-800">
                                 {post.author?.twitterUrl && (
                                     <a href={post.author.twitterUrl} target="_blank" rel="noreferrer" aria-label="Twitter" className="hover:text-blue-600 transition-colors">
-                                        <TwitterIcon />
+                                        <svg width="24" height="24" viewBox="0 0 24 24" ><path d="M13.982 10.622 20.54 3h-1.554l-5.693 6.618L8.745 3H3.5l6.876 10.007L3.5 21h1.554l6.012-6.989L15.868 21h5.245l-7.131-10.378Zm-2.128 2.474-.697-.997-5.543-7.93H8l4.474 6.4.697.996 5.815 8.318h-2.387l-4.745-6.787Z" /></svg>
                                     </a>
                                 )}
                                 {post.author?.facebookUrl && (

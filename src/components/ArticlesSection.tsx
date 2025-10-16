@@ -73,7 +73,6 @@ export default function ArticlesSection({
         }));
     }, [recentPosts]);
 
-
     // Process featured posts for slider
     const slider = useMemo(() => {
         return (featuredPosts || []).map((p) => ({
@@ -110,7 +109,6 @@ export default function ArticlesSection({
         else setCurrentPage(page);
     };
 
-    // Scroll reveal animations for cards
     useEffect(() => {
         const nodes = document.querySelectorAll('.reveal-on-scroll');
         if (!nodes.length) return;
@@ -123,7 +121,12 @@ export default function ArticlesSection({
         }, { rootMargin: '0px 0px -5% 0px', threshold: 0.08 });
         nodes.forEach((n) => io.observe(n));
         return () => io.disconnect();
-    }, [paginatedArticles.length]);
+    }, [paginatedArticles, currentPage]);
+
+    useEffect(() => {
+        setIndex(0);
+        setCurrentPage(1);
+    }, [recentPosts]);
 
     return (
         <main className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">

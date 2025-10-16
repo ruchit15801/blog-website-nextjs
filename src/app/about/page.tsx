@@ -1,5 +1,5 @@
 import Image from "next/image";
-import aboutImg from "@/../public/images/a10.webp";
+import aboutImg from "../../../public/images/about_img_3.jpeg";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Linkedin, MapPin, Mail } from "lucide-react";
 

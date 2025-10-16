@@ -1,6 +1,6 @@
 "use client";
 
-import { Facebook, Instagram, Linkedin, LogOutIcon, PencilIcon, Twitter, XIcon } from "lucide-react";
+import { Facebook, Instagram, Linkedin, LogOutIcon, PencilIcon, XIcon } from "lucide-react";
 import DashboardLayout from "../DashBoardLayout";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -207,7 +207,7 @@ export default function UserProfileWithCategories() {
                         {/* Twitter */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl border border-gray-200 hover:shadow-sm transition w-full">
                             <span className="w-9 h-9 rounded-full bg-[#1DA1F2]/10 flex items-center justify-center">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.27 4.27 0 0 0 1.88-2.36 8.49 8.49 0 0 1-2.71 1.04A4.24 4.24 0 0 0 12 8.42a12 12 0 0 1-8.72-4.42 4.24 4.24 0 0 0 1.31 5.65 4.2 4.2 0 0 1-1.92-.53v.05c0 2.06 1.46 3.78 3.4 4.17-.36.1-.74.16-1.13.16-.27 0-.54-.03-.8-.08a4.25 4.25 0 0 0 3.96 2.94A8.5 8.5 0 0 1 2 18.58a12 12 0 0 0 6.49 1.9c7.79 0 12.06-6.45 12.06-12.04v-.55A8.48 8.48 0 0 0 22.46 6z" /></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1DA1F2"><path d="M13.982 10.622 20.54 3h-1.554l-5.693 6.618L8.745 3H3.5l6.876 10.007L3.5 21h1.554l6.012-6.989L15.868 21h5.245l-7.131-10.378Zm-2.128 2.474-.697-.997-5.543-7.93H8l4.474 6.4.697.996 5.815 8.318h-2.387l-4.745-6.787Z" /></svg>
                             </span>
 
                             <div className="flex-1 flex flex-col w-full">
@@ -223,7 +223,7 @@ export default function UserProfileWithCategories() {
                             {socialLinks.twitter && (
                                 <div className="flex items-center gap-2 ml-auto mt-2 sm:mt-0">
                                     <a href={socialLinks.twitter} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition">
-                                        <Twitter className="w-4 h-4" />
+                                        <svg width="18" height="18" viewBox="0 0 24 24" ><path d="M13.982 10.622 20.54 3h-1.554l-5.693 6.618L8.745 3H3.5l6.876 10.007L3.5 21h1.554l6.012-6.989L15.868 21h5.245l-7.131-10.378Zm-2.128 2.474-.697-.997-5.543-7.93H8l4.474 6.4.697.996 5.815 8.318h-2.387l-4.745-6.787Z" /></svg>
                                     </a>
                                     <button onClick={() => removeLink('twitter')} className="p-2 rounded-full text-white" style={{ background: 'linear-gradient(180deg, #ff7b7b 0%, #ef4444 100%)' }}>
                                         <XIcon className="w-4 h-4" />

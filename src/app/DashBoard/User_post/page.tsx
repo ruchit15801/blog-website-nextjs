@@ -21,6 +21,7 @@ type UiPost = {
     authorName: string;
     date: string;
     excerpt: string;
+    publishedAt: string;
     image: string;
     tag: string[] | string;
     readTime: number;
@@ -81,9 +82,10 @@ export default function UserPosts() {
                     id: p._id,
                     title: p.title,
                     authorName: typeof p.author === 'string' ? p.author : p.author?.fullName || 'Unknown',
-                    date: p.publishedAt || p.createdAt || new Date().toISOString(),
+                    date: p.createdAt || new Date().toISOString(),
                     image: p.bannerImageUrl || '/images/a1.webp',
                     tag: p.tags || [],
+                    publishedAt: p.publishedAt,
                     readTime: p.readingTimeMinutes || 0,
                 }));
 
@@ -185,7 +187,7 @@ export default function UserPosts() {
                                     {[6, 12, 24].map(l => (
                                         <div
                                             key={l}
-                                            className={`option ${limit === l ? "selected" : ""}`}
+                                            className={`option rounded-md ${limit === l ? "selected" : ""}`}
                                             onClick={() => { setLimit(l); setLimitDropdownOpen(false); }}
                                         >
                                             {l} / page
@@ -240,6 +242,11 @@ export default function UserPosts() {
                                     <span>on {new Date(p.date).toLocaleDateString()}</span>
                                 </div>
                                 <h2 className="text-lg font-bold text-gray-800">{p.title}</h2>
+                                {p.publishedAt && (
+                                    <div className="text-sm text-indigo-600 font-medium">
+                                        Published At : {new Date(p.publishedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+                                    </div>
+                                )}
                                 {p.excerpt && <p className="text-gray-600 text-sm">{p.excerpt}</p>}
                             </div>
                         </article>

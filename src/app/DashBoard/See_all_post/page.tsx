@@ -110,7 +110,7 @@ export default function AllPosts() {
         return livePosts.map((p: RemotePost) => ({
             id: p._id,
             title: p.title,
-            date: new Date(p.publishedAt || p.createdAt || Date.now()).toDateString(),
+            date: new Date(p.createdAt || Date.now()).toDateString(),
             author: typeof p.author === "string" ? p.author : (p.author?.fullName || ""),
             excerpt: "",
             image: p.bannerImageUrl || "/images/a1.webp",
@@ -193,7 +193,7 @@ export default function AllPosts() {
                             </button>
 
                             {open && (
-                                <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                                <div className="absolute mt-1 w-full sm:w-48 bg-white rounded-md shadow-lg z-20">
                                     <div
                                         className={`option px-4 py-2 text-sm cursor-pointer ${sortOrder === "latest" ? "bg-gray-100 font-semibold" : ""}`}
                                         onClick={() => { setSortOrder("latest"); setOpen(false); }}>
@@ -249,13 +249,6 @@ export default function AllPosts() {
                                                 : <span className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{a.tag}</span>
                                             }
                                         </div>
-                                        {/* <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                                        {Array.isArray(a.tag) ? a.tag.slice(0, 2).map((t, i) => (
-                                            <span key={i} className="bg-indigo-100 text-indigo-500 text-xs font-semibold px-2 py-1 rounded-md uppercase">{t}</span>
-                                        )) : (
-                                            <span className="bg-indigo-100 text-indigo-500 text-xs font-semibold px-2 py-1 rounded-md uppercase">{a.tag}</span>
-                                        )}
-                                    </div> */}
 
                                         {/* Hover Menu */}
                                         <details

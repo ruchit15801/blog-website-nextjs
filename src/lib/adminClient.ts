@@ -287,20 +287,32 @@ export async function fetchAdminUsers(
 }
 export async function updateAdminUser(
     userId: string,
-    input: Partial<RemoteUser>,
+    input: Partial<RemoteUser> & { avatarFile?: File },
     tokenOverride?: string
 ): Promise<RemoteUser> {
     const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
+
+    let body: BodyInit;
+    const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+
+    if (input.avatarFile) {
+        const formData = new FormData();
+        if (input.fullName) formData.append("fullName", input.fullName);
+        if (input.role) formData.append("role", input.role);
+        formData.append("avatar", input.avatarFile);
+        body = formData;
+    } else {
+        body = JSON.stringify(input);
+        headers["Content-Type"] = "application/json";
+    }
+
     const res = await fetch(`${base}/admin/users/${userId}`, {
         method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(input),
+        headers,
+        body,
     });
 
     if (!res.ok) {
@@ -765,15 +777,15 @@ export async function fetchContactMessages({
     return res.json();
 }
 
-export async function fetchContactMessageById({ id, token }: { id: string; token: string }) {
+export async function fetchContactMessageById({ id, token }: { id: string, token: string }) {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/contacts/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
-
-    if (!res.ok) throw new Error("Failed to fetch contact message");
-    const json = await res.json();
-    return json.data;
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error.message);
+    return data.data;
 }
+
 
 export async function markContactMessageRead(id: string, token: string) {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/contacts/${id}/read`, {
@@ -786,4 +798,36 @@ export async function markContactMessageRead(id: string, token: string) {
 
     if (!res.ok) throw new Error("Failed to mark message as read");
     return await res.json();
+}
+
+export async function replyToContactMessage({
+    id,
+    token,
+    subject,
+    messageHtml,
+}: {
+    id: string;
+    token: string;
+    subject: string;
+    messageHtml: string;
+}) {
+    if (!token) throw new Error("Admin token missing");
+    if (!id) throw new Error("Message ID missing");
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/contacts/${id}/reply`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ subject, messageHtml }),
+    });
+
+    if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Failed to reply to contact: ${res.status} ${errText}`);
+    }
+
+    const json = await res.json();
+    return json;
 }

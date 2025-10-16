@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import Loader from "@/components/Loader";
 import toast from "react-hot-toast";
 import Pagination from "@/components/Pagination";
-import { fetchContactMessages, ContactMessage, markContactMessageRead } from "@/lib/adminClient";
+import { fetchContactMessages, ContactMessage, markContactMessageRead, replyToContactMessage } from "@/lib/adminClient";
 import { useRouter } from "next/navigation";
 
 export default function ContactUsAdminPage() {
@@ -20,14 +20,13 @@ export default function ContactUsAdminPage() {
     const [limit, setLimit] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const router = useRouter();
-
+    const [sendingEmail, setSendingEmail] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
     const [subject, setSubject] = useState("");
     const [emailBody, setEmailBody] = useState("");
     const [expandedMessages, setExpandedMessages] = useState<string[]>([]);
 
-    // Helper to toggle expand/collapse
     const toggleMessage = (id: string) => {
         setExpandedMessages((prev) =>
             prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]
@@ -59,14 +58,38 @@ export default function ContactUsAdminPage() {
     const handleSendEmail = async () => {
         if (!token || !selectedMessage) return;
 
+        if (!subject.trim() || !emailBody.trim()) {
+            toast.error("Subject and message cannot be empty");
+            return;
+        }
+
         try {
-            toast.success("Email sent successfully!");
-            setModalOpen(false);
-            setSubject("");
-            setEmailBody("");
+            setSendingEmail(true);
+            const res = await replyToContactMessage({
+                id: selectedMessage._id,
+                token,
+                subject,
+                messageHtml: emailBody,
+            });
+
+            if (res.success) {
+                toast.success("Email sent successfully!");
+                setModalOpen(false);
+                setSubject("");
+                setEmailBody("");
+                setMessages((prev) =>
+                    prev.map((m) =>
+                        m._id === selectedMessage._id ? { ...m, status: "read" } : m
+                    )
+                );
+            } else {
+                toast.error("Failed to send email");
+            }
         } catch (err: unknown) {
-            console.log(err);
+            console.error(err);
             toast.error("Failed to send email");
+        } finally {
+            setSendingEmail(false);
         }
     };
 
@@ -111,7 +134,7 @@ export default function ContactUsAdminPage() {
                                         {[5, 10, 20, 50].map((l) => (
                                             <div
                                                 key={l}
-                                                className={`option ${limit === l ? "selected" : ""}`}
+                                                className={`option rounded-md ${limit === l ? "selected" : ""}`}
                                                 onClick={() => {
                                                     setLimit(l);
                                                     setPage(1);
@@ -128,7 +151,7 @@ export default function ContactUsAdminPage() {
                 </div>
 
                 {/* Table view */}
-                <div className="hidden lg:block overflow-x-auto  border border-gray-200">
+                <div className="hidden lg:block overflow-x-auto">
                     <table className="table-auto w-full text-left text-sm">
                         <thead className="text-white" style={{ background: "linear-gradient(180deg, #9895ff 100%, #514dcc 0%)" }}>
                             <tr>
@@ -177,8 +200,7 @@ export default function ContactUsAdminPage() {
                                         }
                                         router.push(`/DashBoard/Admin_contact_detail_page/${msg._id}`);
                                     }}
-                                    className="border-b border-gray-200 hover:bg-gray-50 transition"
-                                >
+                                    className="border-b border-gray-200 hover:bg-gray-50 transition">
 
                                     <td className="px-4 py-3">{index + 1 + (page - 1) * limit}</td>
                                     <td className="px-4 py-3">{msg.name}</td>
@@ -301,26 +323,56 @@ export default function ContactUsAdminPage() {
                 {/* Email Modal */}
                 {modalOpen && selectedMessage && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
-                        <div className="absolute inset-0 bg-black/40" onClick={() => setModalOpen(false)} />
-                        <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
-                            <h2 className="text-xl font-semibold mb-4">Send Email to {selectedMessage.name}</h2>
-                            <input
-                                type="text"
-                                placeholder="Subject"
-                                value={subject}
-                                onChange={(e) => setSubject(e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2 mb-3"
-                            />
-                            <textarea
-                                placeholder="Message"
-                                value={emailBody}
-                                onChange={(e) => setEmailBody(e.target.value)}
-                                className="w-full border rounded-lg px-3 py-2 mb-3 h-32"
-                            />
-                            <div className="flex justify-end gap-2">
-                                <button className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 shine hover:scale-103 hover:text-white" onClick={() => setModalOpen(false)}>Cancel</button>
-                                <button className="px-4 py-2 bg-indigo-500 text-white rounded shine hover:scale-103 hover:bg-indigo-600" onClick={handleSendEmail}>Send</button>
-                            </div>
+                        {/* Overlay */}
+                        <div
+                            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+                            onClick={() => setModalOpen(false)} />
+
+                        {/* Modal Container */}
+                        <div className="relative z-10 w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 animate-fadeIn">
+                            <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+                                Send Email to <span className="text-indigo-500">{selectedMessage.name}</span>
+                            </h2>
+
+                            {/* Form */}
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    handleSendEmail();
+                                }}
+                                className="flex flex-col gap-4">
+                                <input
+                                    type="text"
+                                    placeholder="Subject"
+                                    value={subject}
+                                    onChange={(e) => setSubject(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-700 dark:text-gray-100 transition"
+                                    required
+                                />
+                                <textarea
+                                    placeholder="Message"
+                                    value={emailBody}
+                                    onChange={(e) => setEmailBody(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 h-36 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-700 dark:text-gray-100 transition resize-none"
+                                    required
+                                />
+
+                                {/* Buttons */}
+                                <div className="flex justify-end gap-3">
+                                    <button
+                                        type="button"
+                                        className="px-5 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-shadow shadow-sm"
+                                        onClick={() => setModalOpen(false)}>
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl hover:scale-105 hover:shadow-lg transition-all shadow-md"
+                                        disabled={sendingEmail}>
+                                        {sendingEmail ? "Sending..." : "Send"}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 )}
