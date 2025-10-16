@@ -90,6 +90,24 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+        {/* SiteNavigationElement JSON-LD helps Google understand main navigation */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'SiteNavigationElement',
+              name: ['Home', 'Blog', 'All Posts', 'About', 'Contact'],
+              url: [
+                (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + '/',
+                (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + '/blog',
+                (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + '/all-posts',
+                (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + '/about',
+                (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + '/contact'
+              ]
+            })
+          }}
+        />
         {/* Google Analytics */}
         <Script
           id="ga-external"

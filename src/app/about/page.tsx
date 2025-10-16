@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import aboutImg from "../../../public/images/about_img_3.jpeg";
 import Link from "next/link";
 import { Facebook, Twitter, Instagram, Linkedin, MapPin, Mail } from "lucide-react";
+
+export const metadata: Metadata = {
+    title: "About BlogCafeAI — Our Story & Mission",
+    description: "Learn about BlogCafeAI: our mission, community, and platform empowering writers to share stories, tutorials, and insights.",
+    alternates: { canonical: (process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com") + "/about" },
+};
 
 export default function AboutPage() {
     return (
