@@ -64,8 +64,7 @@ export async function createRemotePost(payload: {
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to create post: ${res.status} ${text}`);
+        throw new Error(`Failed to create post`);
     }
     return res.json();
 }
@@ -116,8 +115,7 @@ export async function createScheduledPost(payload: {
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to create scheduled post: ${res.status} ${text}`);
+        throw new Error(`Failed to create scheduled post`);
     }
     return res.json();
 }
@@ -144,8 +142,7 @@ export async function publishAdminPostNow(
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to publish post: ${res.status} ${text}`);
+        throw new Error(`Failed to publish post`);
     }
 
     const data = await res.json();
@@ -167,8 +164,7 @@ export async function fetchCategories(tokenOverride?: string): Promise<RemoteCat
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const res = await fetch(`${base}/categories`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to load categories: ${res.status} ${text}`);
+        throw new Error(`Failed to load categories`);
     }
     const data: unknown = await res.json();
     // Flexible shapes: array | {data: array} | {categories: array} | {result: array}
@@ -182,13 +178,14 @@ export async function fetchCategories(tokenOverride?: string): Promise<RemoteCat
     return [];
 }
 
-export async function updateCategory(id: string, payload: { name?: string; description?: string; imageFile?: File }) {
+export async function updateCategory(id: string, payload: { name?: string; slug?: string; description?: string; imageFile?: File }) {
     const token = getAdminToken();
     if (!token) throw new Error("Admin token missing. Please login as admin.");
 
     const form = new FormData();
-    if (payload.name) form.append("name", payload.name);
-    if (payload.description) form.append("description", payload.description);
+    if (payload.name) form.append("name", payload.name || '');
+    if (payload.slug) form.append("slug", payload.slug || '');
+    if (payload.description) form.append("description", payload.description || '');
     if (payload.imageFile) form.append("image", payload.imageFile);
 
     const base = process.env.NEXT_PUBLIC_API_URL || "";
@@ -199,8 +196,7 @@ export async function updateCategory(id: string, payload: { name?: string; descr
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to update category: ${res.status} ${text}`);
+        throw new Error(`Failed to update category`);
     }
 
     return res.json();
@@ -217,8 +213,7 @@ export async function deleteCategory(id: string) {
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to delete category: ${res.status} ${text}`);
+        throw new Error(`Failed to delete category`);
     }
 
     return res.json();
@@ -264,8 +259,7 @@ export async function fetchAdminUsers(
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to load users: ${res.status} ${text}`);
+        throw new Error(`Failed to load users`);
     }
 
     const data: unknown = await res.json();
@@ -316,8 +310,7 @@ export async function updateAdminUser(
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to update user: ${res.status} ${text}`);
+        throw new Error(`Failed to update user`);
     }
 
     const data = await res.json();
@@ -340,8 +333,7 @@ export async function deleteAdminUser(
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to delete user: ${res.status} ${text}`);
+        throw new Error(`Failed to delete user`);
     }
 
     const data = await res.json();
@@ -397,8 +389,7 @@ export async function fetchAdminPosts(
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to load posts: ${res.status} ${text}`);
+        throw new Error(`Failed to load posts`);
     }
 
     const data: unknown = await res.json();
@@ -440,8 +431,7 @@ export async function adminUpdatePostById(
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to update post: ${res.status} ${text}`);
+        throw new Error(`Failed to update post`);
     }
 
     const data: AdminUpdateResponse = await res.json();
@@ -464,8 +454,7 @@ export async function adminDeletePostById(postId: string, tokenOverride?: string
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to delete post: ${res.status} ${text}`);
+        throw new Error(`Failed to delete post`);
     }
 
     const data: AdminDeleteResponse = await res.json();
@@ -501,8 +490,7 @@ export async function fetchAdminScheduledPosts(
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to load scheduled posts: ${res.status} ${text}`);
+        throw new Error(`Failed to load scheduled posts`);
     }
 
     const dataObj = (await res.json()) as {
@@ -544,8 +532,7 @@ export async function fetchAdminMeProfile(tokenOverride?: string): Promise<Admin
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const res = await fetch(`${base}/admin/me/profile`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to load profile: ${res.status} ${text}`);
+        throw new Error(`Failed to load profile`);
     }
     const data: unknown = await res.json();
     if (data && typeof data === "object") {
@@ -606,12 +593,11 @@ export async function fetchPostById(id: string, token: string) {
         if (!res.ok) {
             const errorData = await res.json();
             const msg = errorData?.error?.message || "Failed to fetch post";
-            toast.error(msg); // toast me show
+            toast.error(msg); 
             throw new Error(msg);
         }
 
         const data = await res.json();
-        toast.success("Post loaded successfully!");
         return data;
     } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -669,8 +655,7 @@ export async function fetchAdminDashboard(tokenOverride?: string): Promise<Admin
     });
 
     if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Failed to fetch dashboard: ${res.status} ${text}`);
+        throw new Error(`Failed to fetch dashboard`);
     }
 
     const data: unknown = await res.json();
@@ -740,6 +725,7 @@ export type ContactMessage = {
     email: string;
     message: string;
     status: "new" | "read";
+    avatar : string;
     createdAt: string;
 };
 
@@ -824,8 +810,7 @@ export async function replyToContactMessage({
     });
 
     if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Failed to reply to contact: ${res.status} ${errText}`);
+        throw new Error(`Failed to reply to contact`);
     }
 
     const json = await res.json();

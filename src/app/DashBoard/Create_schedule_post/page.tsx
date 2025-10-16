@@ -121,6 +121,15 @@ export default function CreateSchedulePost() {
         const v = value.trim();
         if (v && !tagsList.includes(v)) setTagsList(prev => [...prev, v]);
     };
+    const [minDateTime, setMinDateTime] = useState("");
+
+    useEffect(() => {
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        const local = new Date(now.getTime() - offset * 60 * 1000);
+        setMinDateTime(local.toISOString().slice(0, 16));
+    }, []);
+
 
     const removeTag = (idx: number) => setTagsList(prev => prev.filter((_, i) => i !== idx));
 
@@ -209,6 +218,7 @@ export default function CreateSchedulePost() {
                             type="datetime-local"
                             value={scheduleDate}
                             onChange={(e) => setScheduleDate(e.target.value)}
+                            min={minDateTime}
                             className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full sm:w-auto"
                         />
                         <button

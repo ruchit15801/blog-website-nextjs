@@ -242,11 +242,11 @@ export default function AllPosts() {
                                         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                                             {Array.isArray(a.tag)
                                                 ? a.tag.slice(0, 2).map((t, i) => (
-                                                    <span key={i} className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">
+                                                    <span key={i} className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>
                                                         {t}
                                                     </span>
                                                 ))
-                                                : <span className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{a.tag}</span>
+                                                : <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{a.tag}</span>
                                             }
                                         </div>
 

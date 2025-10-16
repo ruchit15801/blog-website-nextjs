@@ -502,6 +502,11 @@
   height: 40px;
   border-radius: 50% !important;
 }
+.category_preview_img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 /* ==== Custom Scrollbar Theme (matches your gradient) ==== */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -553,4 +558,29 @@
 }
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out;
+}
+
+/* datepicker  */
+.react-datepicker__header {
+    background-color: #5559d1;
+    color: white;
+    border-bottom: 1px solid #514dcc;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.react-datepicker__day:hover {
+    background-color: #9895ff;
+    color: white;
+    border-radius: 0.5rem;
+}
+
+.react-datepicker__day--selected {
+    background-color: #514dcc !important;
+    color: white !important;
+}
+
+.react-datepicker__time-list-item:hover {
+    background-color: #9895ff;
+    color: white;
+    border-radius: 0.3rem;
 }
