@@ -47,7 +47,69 @@ export async function generateMetadata(
     }
 }
 
-export default function ArticleIdLayout({ children }: { children: React.ReactNode }) {
+export default async function ArticleIdLayout(
+    {
+        children,
+        params,
+    }: {
+        children: React.ReactNode;
+        params: Promise<{ id: string }>;
+    }
+) {
+    // Embed JSON-LD for better SEO
+    try {
+        const { id } = await params;
+        const realId = extractIdFromSlug(id) || id;
+        if (realId) {
+            const res = await fetchSinglePostById(realId);
+            type PostShape = { title?: string; subtitle?: string; contentHtml?: string; bannerImageUrl?: string; imageUrls?: string[]; author?: { fullName?: string } | string; publishedAt?: string | null; createdAt?: string } | null | undefined;
+            const postCandidate = (res as Record<string, unknown>)?.post ?? (res as Record<string, unknown>)?.data;
+            const post = postCandidate as PostShape;
+            if (post && typeof post === "object") {
+                const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com";
+                const url = `${site}/articles/${id}`;
+                const plain = (html?: string) => (html ? html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() : "");
+                const description = (post.subtitle?.trim?.() as string | undefined) || plain(post.contentHtml).slice(0, 180);
+                const images: string[] = [];
+                if (post.bannerImageUrl) images.push(post.bannerImageUrl);
+                if (Array.isArray(post.imageUrls)) images.push(...post.imageUrls);
+                const authorName = typeof post.author === "string" ? post.author : post.author?.fullName;
+                const jsonLd = {
+                    "@context": "https://schema.org",
+                    "@type": "Article",
+                    mainEntityOfPage: {
+                        "@type": "WebPage",
+                        "@id": url,
+                    },
+                    headline: post.title || "Article",
+                    description: description || undefined,
+                    image: images.length ? images : undefined,
+                    author: authorName ? { "@type": "Person", name: authorName } : undefined,
+                    publisher: {
+                        "@type": "Organization",
+                        name: "BlogCafeAI",
+                        logo: {
+                            "@type": "ImageObject",
+                            url: `${site}/logo.png`,
+                        },
+                    },
+                    datePublished: post.publishedAt || post.createdAt,
+                    dateModified: post.publishedAt || post.createdAt,
+                    url,
+                } as Record<string, unknown>;
+
+                return (
+                    <>
+                        <script
+                            type="application/ld+json"
+                            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                        />
+                        {children}
+                    </>
+                );
+            }
+        }
+    } catch { }
     return children;
 }
 

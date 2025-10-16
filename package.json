@@ -6,7 +6,8 @@
     "dev": "set PORT=3006 &next dev --turbopack",
     "build": "next build --turbopack",
     "start": "set PORT=3001 & next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.9.0",

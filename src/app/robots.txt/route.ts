@@ -6,6 +6,7 @@ export async function GET() {
 Allow: /
 Disallow: /DashBoard/
 Disallow: /api/
+Disallow: /admin/
 
 Sitemap: ${site}/sitemap.xml
 `;
