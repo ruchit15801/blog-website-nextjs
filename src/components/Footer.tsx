@@ -38,7 +38,7 @@ export default function Footer() {
           {/* ===== LEFT SIDE ===== */}
           <div className="footer-item-inner-items text-center sm:text-center md:text-left flex flex-col items-center md:items-start">
             <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
-              <Link href="/" className="navbar-logo">
+              <Link href="/" className="navbar-logo" title="BlogCafeAI – Official Site">
                 <Image
                   src="/images/BlogCafe_Logo.svg"
                   alt="BlogCafeAI"
@@ -46,6 +46,7 @@ export default function Footer() {
                   height={130}
                   priority
                 />
+                <span style={{ position: "absolute", left: -9999 }} aria-hidden={false}>BlogCafeAI</span>
               </Link>
             </div>
 
@@ -104,7 +105,7 @@ export default function Footer() {
                   ? "max-h-40 opacity-100 mt-2 mb-5"
                   : "max-h-0 opacity-0"
                   } home-page-sub-menu sm:max-h-none sm:opacity-100 sm:mt-3 space-y-2 opacity-80`}>
-                <li><Link href="/" className="hover:underline">Home</Link></li>
+                <li><Link href="/" className="hover:underline">BlogCafeAI</Link></li>
                 <li><Link href="/all-posts" className="hover:underline">Blogs</Link></li>
                 <li><Link href="/about" className="hover:underline">About</Link></li>
                 <li><Link href="/contact" className="hover:underline">Contact</Link></li>

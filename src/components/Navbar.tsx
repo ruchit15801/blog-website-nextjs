@@ -56,8 +56,9 @@ export default function Navbar() {
         <header className="navbar-header">
             <nav className="navbar-container">
                 {/* Logo */}
-                <Link href="/" className="navbar-logo">
+                <Link href="/" className="navbar-logo" title="BlogCafeAI – Official Site">
                     <Image src="/images/BlogCafe_Logo.svg" alt="BlogCafeAI" width={130} height={130} priority />
+                    <span style={{ position: "absolute", left: -9999 }} aria-hidden={false}>BlogCafeAI</span>
                 </Link>
 
                 {/* Mobile toggle */}

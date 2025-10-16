@@ -39,9 +39,9 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="alternate" type="application/rss+xml" title="BlogCafeAI RSS" href="/rss.xml" />
         {/* Primary Meta Tags (defaults; page-level generateMetadata can override) */}
-        <title>BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips</title>
-        <meta name="title" content="BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips" />
-        <meta name="description" content="BlogCafeAI brings you the latest AI tools, technology insights, productivity hacks, and coding tutorials. Stay ahead with deep-dive articles and expert-curated content for creators, developers, and AI enthusiasts." />
+        <title>BlogCafeAI – BlogCafe AI | Official Site</title>
+        <meta name="title" content="BlogCafeAI – BlogCafe AI | Official Site" />
+        <meta name="description" content="BlogCafeAI (BlogCafe AI) – official site. Explore AI tools, tech trends, coding guides and productivity insights from BlogCafeAI." />
         {/* Keywords */}
         <meta name="keywords" content="AI tools, artificial intelligence blog, AI news, productivity tips, tech trends, coding tutorials, ChatGPT, machine learning, automation, BlogCafeAI, AI updates" />
         {/* Robots */}
@@ -50,14 +50,14 @@ export default function RootLayout({
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
-        <meta property="og:title" content="BlogCafeAI — AI Tools, Tech Trends & Smart Productivity" />
-        <meta property="og:description" content="Stay updated with the world of Artificial Intelligence. Discover the best AI tools, tutorials, and guides that power creators and developers." />
+        <meta property="og:title" content="BlogCafeAI – BlogCafe AI | Official Site" />
+        <meta property="og:description" content="Official BlogCafeAI website. AI tools, tech trends, coding tutorials and productivity tips." />
         <meta property="og:image" content="https://www.blogcafeai.com/og-image.jpg" />
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
-        <meta name="twitter:title" content="BlogCafeAI — AI Tools, Tech Trends & Smart Productivity" />
-        <meta name="twitter:description" content="Explore AI tools, automation tricks, and coding insights on BlogCafeAI — your daily AI knowledge shot." />
+        <meta name="twitter:title" content="BlogCafeAI – BlogCafe AI | Official Site" />
+        <meta name="twitter:description" content="Official site of BlogCafeAI (BlogCafe AI). AI tools, tech trends and coding insights." />
         <meta name="twitter:image" content="https://www.blogcafeai.com/og-image.jpg" />
         {/* Canonical */}
         <link rel="canonical" href={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
@@ -120,7 +120,86 @@ export default function RootLayout({
               name: 'BlogCafeAI',
               url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com',
               logo: (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com') + '/images/BlogCafe_Logo.svg',
+              alternateName: [
+                'BlogCafe',
+                'BlogCafe AI',
+                'Blog Cafe',
+                'Blog Cafe AI',
+                'Cafe AI',
+                'AI BlogCafe',
+                'AI Blog Cafe',
+                'Blog Studio',
+                'Blog Studio AI',
+                'AI Blog Studio',
+                'BlogLab',
+                'BlogLab AI',
+                'AI BlogLab',
+                'Blog Hub',
+                'Blog Hub AI',
+                'AI Blog Hub',
+                'Blogly AI',
+                'WriteCafe',
+                'WriteCafe AI',
+                'Writer Cafe',
+                'Writer Cafe AI',
+                'BlogNest',
+                'BlogNest AI',
+                'AI BlogNest',
+                'SmartBlog',
+                'SmartBlog AI',
+                'AI Smart Blog',
+                'NextBlog',
+                'NextBlog AI',
+                'Blogly',
+                'Blogly AI',
+                'BlogVerse',
+                'BlogVerse AI',
+                'AI BlogVerse',
+                'BlogBeam',
+                'BlogBeam AI',
+                'AI BlogBeam',
+                'BlogSmith',
+                'BlogSmith AI',
+                'AI BlogSmith',
+                'WordCafe',
+                'WordCafe AI',
+                'AI WordCafe',
+                'ContentCafe',
+                'ContentCafe AI',
+                'AI ContentCafe',
+                'ContentHub',
+                'ContentHub AI',
+                'AI ContentHub',
+                'WriteLab',
+                'WriteLab AI',
+                'AI WriteLab',
+                'BlogCraft',
+                'BlogCraft AI',
+                'AI BlogCraft',
+                'BlogZen',
+                'BlogZen AI',
+                'AI BlogZen',
+                'BlogFlow',
+                'BlogFlow AI',
+                'AI BlogFlow',
+                'BlogAura',
+                'BlogAura AI',
+                'AI BlogAura',
+                'InspireBlog',
+                'InspireBlog AI',
+                'AI InspireBlog',
+                'ProBlog',
+                'ProBlog AI',
+                'AI ProBlog',
+                'BlogBot',
+                'BlogBot AI',
+                'AI BlogBot',
+                'BlogMate',
+                'BlogMate AI',
+                'AI BlogMate'
+              ],
               sameAs: [
+                (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'),
                 'https://www.facebook.com/',
                 'https://twitter.com/',
                 'https://www.instagram.com/',
@@ -142,6 +221,7 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
               name: 'BlogCafeAI',
+              alternateName: ['BlogCafe', 'BlogCafe AI'],
               url: process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com',
               potentialAction: {
                 '@type': 'SearchAction',
