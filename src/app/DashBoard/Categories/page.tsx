@@ -1,6 +1,6 @@
 "use client";
 import DashboardLayout from "../DashBoardLayout";
-import { Edit2, MoreHorizontal, Search, Trash2 } from "lucide-react";
+import { Edit2, Search, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState, useMemo, useEffect } from "react";
 import Loader from "@/components/Loader";
@@ -15,6 +15,7 @@ type CategoryType = {
     shortName: string;
     description: string;
     avatar?: string;
+    imagePreview?: string;
 };
 
 const CategoryCard = ({
@@ -153,6 +154,7 @@ export default function Categories() {
                 }
                 await updateCategory(String(editId), {
                     name: form.name,
+                    slug: form.shortName,
                     description: form.description,
                     imageFile: imageFile || undefined,
                 });
@@ -199,12 +201,27 @@ export default function Categories() {
         }
     };
 
+    // const handleEdit = (cat: CategoryType) => {
+    //     setForm(cat);
+    //     setEditId(cat.id);
+    //     setShowCreate(true);
+    //     toast("Editing category...");
+    // };
+
+
     const handleEdit = (cat: CategoryType) => {
-        setForm(cat);
+        setForm({
+            id: cat.id,
+            name: cat.name,
+            shortName: cat.shortName,
+            description: cat.description,
+            avatar: cat.avatar,
+            imagePreview: cat.avatar,
+        });
         setEditId(cat.id);
         setShowCreate(true);
-        toast("Editing category...");
     };
+
 
     const handleDelete = async (id: string | number) => {
         if (confirm("Are you sure you want to delete this category?")) {
@@ -282,7 +299,7 @@ export default function Categories() {
 
 
                 {/* Modal */}
-                {showCreate && (
+                {/* {showCreate && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
                         <div className="absolute inset-0 bg-black/40" onClick={() => setShowCreate(false)} />
                         <div className="relative z-10 w-full max-w-xl bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 card-hover">
@@ -339,7 +356,134 @@ export default function Categories() {
                             </form>
                         </div>
                     </div>
+                )} */}
+
+                {showCreate && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
+                        {/* Overlay */}
+                        <div
+                            className="absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity"
+                            onClick={() => setShowCreate(false)}
+                        />
+
+                        {/* Modal */}
+                        <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-[0_8px_30px_rgba(81,77,204,0.25)] border border-[#e2e4ff] p-6 transform transition-all scale-100 hover:scale-[1.01] duration-300">
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-5">
+                                <h2 className="text-2xl font-semibold text-[#2d2b5a]">
+                                    {editId ? "Edit Category" : "Create New Category"}
+                                </h2>
+                                <button
+                                    onClick={() => setShowCreate(false)}
+                                    className="text-gray-500 hover:text-[#514dcc] transition-colors text-xl font-semibold"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            {/* Form */}
+                            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                                {/* Name & Slug */}
+                                <div className="flex flex-col md:flex-row gap-5">
+                                    <div className="flex flex-col gap-2 flex-1">
+                                        <label className="font-medium text-[#29294b]">Category Name</label>
+                                        <input
+                                            type="text"
+                                            value={form.name}
+                                            onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                                            className="border border-[#d1d5db] rounded-xl px-3 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#514dcc] focus:border-transparent transition-all shadow-sm placeholder:text-gray-400"
+                                            placeholder="Enter category name"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2 flex-1">
+                                        <label className="font-medium text-[#29294b]">Slug</label>
+                                        <input
+                                            type="text"
+                                            value={form.shortName}
+                                            onChange={(e) => setForm((p) => ({ ...p, shortName: e.target.value }))}
+                                            className="border border-[#d1d5db] rounded-xl px-3 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#514dcc] focus:border-transparent transition-all shadow-sm placeholder:text-gray-400"
+                                            placeholder="Enter slug"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Description */}
+                                <div className="flex flex-col gap-2">
+                                    <label className="font-medium text-[#29294b]">Description</label>
+                                    <textarea
+                                        value={form.description}
+                                        onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
+                                        className="border border-[#d1d5db] rounded-xl px-3 py-2.5 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#514dcc] focus:border-transparent transition-all min-h-[90px] shadow-sm placeholder:text-gray-400"
+                                        placeholder="Write a short description..."
+                                    />
+                                </div>
+
+                                {/* Image Upload + Preview */}
+                                <div className="flex flex-col gap-2">
+                                    <label className="font-medium text-[#29294b]">Image</label>
+                                    <div className="flex items-center gap-5">
+                                        {/* Preview */}
+                                        {form.imagePreview && (
+                                            <div className="relative w-24 h-24 rounded-full overflow-hidden border border-[#d1d5db] shadow-sm bg-[#f9fafb] hover:shadow-md transition-all">
+                                                <Image
+                                                    src={form.imagePreview}
+                                                    alt="Preview"
+                                                    width={100}
+                                                    height={100}
+                                                    className="category_preview_img object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+                                                />
+                                            </div>
+                                        )}
+
+                                        {/* Upload Input */}
+                                        <label
+                                            htmlFor="cat-image-input"
+                                            className="flex items-center justify-center border border-dashed border-[#514dcc]/50 rounded-xl px-4 py-2.5 w-full sm:w-60 bg-[#f7f8ff] hover:bg-[#f2f3ff] text-[#514dcc] font-medium cursor-pointer transition-all"
+                                        >
+                                            📁 Upload Image
+                                            <input
+                                                id="cat-image-input"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) {
+                                                        const previewUrl = URL.createObjectURL(file);
+                                                        setForm((p) => ({
+                                                            ...p,
+                                                            image: file,
+                                                            imagePreview: previewUrl,
+                                                        }));
+                                                    }
+                                                }}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex flex-col sm:flex-row justify-end gap-3 mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCreate(false)}
+                                        className="px-5 py-2.5 rounded-xl border border-gray-300 w-full sm:w-auto text-gray-700 hover:bg-gray-100 transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={creating}
+                                        className="px-6 py-2.5 rounded-xl text-white font-medium shadow-md disabled:opacity-60 w-full sm:w-auto transition-all bg-gradient-to-r from-[#7b79ff] to-[#514dcc] hover:shadow-lg hover:shadow-[#514dcc]/30"
+                                    >
+                                        {creating ? (editId ? "Updating..." : "Creating...") : (editId ? "Update" : "Create")}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 )}
+
 
                 {/* Pagination */}
                 {totalPages > 1 && (

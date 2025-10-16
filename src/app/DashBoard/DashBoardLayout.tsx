@@ -148,7 +148,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="relative flex min-h-screen bg-gray-50 dashboard-skin overflow-x-hidden">
       {/* Sidebar */}
       <aside
-        className={`bg-gradient-to-b from-white to-gray-50 shadow-lg flex flex-col p-4 fixed top-0 left-0 h-screen overflow-y-auto overflow-x-hidden transition-transform duration-300 w-64 z-30 ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 custom-scrollbar`}>
+        className={`bg-gradient-to-b from-white to-gray-50 shadow-lg flex flex-col p-4 fixed top-0 left-0 h-screen transition-transform duration-300 w-64 z-30 ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+      >
 
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center mb-8">
@@ -163,14 +164,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </Link>
 
         {/* Navigation Menu */}
-        <nav className="flex flex-col gap-3">
+        <nav className="flex flex-col gap-1">
           {menus.map((item) => {
             const isActive = pathname === item.path;
             return (
               <Link
                 key={item.label}
                 href={item.path}
-                className={`group flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-colors duration-300 ${isActive
+                className={`group flex items-center gap-4 px-4 py-2.5 rounded-xl font-medium transition-colors duration-300 ${isActive
                   ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white !text-white shadow-md"
                   : "text-gray-700 hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:!text-white hover:shadow-md"
                   }`}

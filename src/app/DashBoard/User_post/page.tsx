@@ -207,19 +207,20 @@ export default function UserPosts() {
                         <article
                             key={p.id}
                             onClick={() => router.push(`/DashBoard/Post/${p.id}/`)}
-                            className="relative group flex flex-col overflow-hidden rounded-2xl transition bg-white px-4 pt-4 cursor-pointer shadow hover:shadow-xl"
-                        >
+                            className="relative group flex flex-col overflow-hidden rounded-2xl transition bg-white px-4 pt-4 cursor-pointer shadow hover:shadow-xl">
                             <div className="relative w-full h-56">
                                 <Image src={p.image} alt={p.title} fill className="object-cover rounded-2xl" />
 
                                 {/* Tags */}
                                 {p.tag && (
-                                    <div className="absolute top-3 left-3 flex flex-wrap gap-1">
+                                    <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                                         {Array.isArray(p.tag)
                                             ? p.tag.slice(0, 2).map((t, i) => (
-                                                <span key={i} className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{t}</span>
+                                                <span key={i} className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>
+                                                    {t}
+                                                </span>
                                             ))
-                                            : <span className="bg-white text-black text-xs font-semibold px-2 py-1 rounded-md uppercase">{p.tag}</span>
+                                            : <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{p.tag}</span>
                                         }
                                     </div>
                                 )}
