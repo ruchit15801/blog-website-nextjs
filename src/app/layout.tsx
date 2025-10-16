@@ -48,6 +48,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* Favicons for browsers and Google SERP */}
+        <link rel="icon" href="/images/favicon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.png" />
+        <link rel="apple-touch-icon" href="/images/favicon.png" />
+        <link rel="mask-icon" href="/images/favicon.png" color="#000000" />
+        <meta name="theme-color" content="#000000" />
         {/* Primary Meta Tags (defaults; page-level generateMetadata can override) */}
         <title>BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips</title>
         <meta name="title" content="BlogCafeAI — Explore AI Tools, Tech Trends & Smart Productivity Tips" />
