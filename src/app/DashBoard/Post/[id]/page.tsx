@@ -6,7 +6,6 @@ import Loader from "@/components/Loader";
 import { fetchPostById, getAdminToken } from "@/lib/adminClient";
 import DashboardLayout from "../../DashBoardLayout";
 import { LinkedinIcon, InstagramIcon, FacebookIcon } from "lucide-react";
-import type { HomeAuthor } from "@/lib/api";
 import toast from "react-hot-toast";
 
 type RemotePost = {
@@ -23,20 +22,7 @@ type RemotePost = {
   readingTimeMinutes?: string;
 };
 
-type PostSummary = {
-  _id: string;
-  title: string;
-  bannerImageUrl?: string;
-  author?: { fullName: string } | string;
-  publishedAt?: string;
-  tags?: string[];
-};
-
-export default function PostPage({}: {
-  topAuthors?: HomeAuthor[];
-  featuredPosts?: PostSummary[];
-  trendingPosts?: PostSummary[];
-}) {
+export default function PostPage() {
   const [post, setPost] = useState<RemotePost | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

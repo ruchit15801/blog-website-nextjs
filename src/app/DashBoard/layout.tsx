@@ -1,13 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
     title: "BlogCafeAI Dashboard",
     description: "Manage posts, authors, categories, and analytics in the BlogCafeAI Dashboard.",
     robots: {
-        index: false, 
+        index: false,
         follow: false,
     },
-    viewport: "width=device-width, initial-scale=1",
     keywords: "Dashboard, BlogCafeAI, admin panel, posts management, categories, authors",
     authors: [{ name: "BlogCafeAI", url: "https://www.blogcafeai.com" }],
     openGraph: {
@@ -36,6 +35,11 @@ export const metadata: Metadata = {
         shortcut: "/favicon-16x16.png",
         apple: "/apple-touch-icon.png",
     },
+};
+
+export const viewport: Viewport = {
+    width: "device-width",
+    initialScale: 1,
 };
 
 export default function DashboardRouteLayout({ children }: { children: React.ReactNode }) {

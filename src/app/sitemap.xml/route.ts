@@ -11,6 +11,8 @@ ${items}
 </urlset>`;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com";
 

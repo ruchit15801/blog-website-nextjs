@@ -12,8 +12,8 @@ type Props = {
   showPreview?: boolean;
 };
 
-export default function TiptapEditor({ initialHtml = "<p></p>", onChange}: Props) {
-  const [contentHtml, setContentHtml] = useState(initialHtml);
+export default function TiptapEditor({ initialHtml = "<p></p>", onChange }: Props) {
+  const [, setContentHtml] = useState(initialHtml);
   const [wordCount, setWordCount] = useState(0);
 
   const editor = useEditor({

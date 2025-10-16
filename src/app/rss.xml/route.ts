@@ -14,6 +14,8 @@ function rss({ title, site, items }: { title: string; site: string; items: { tit
 </rss>`;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com";
   let items: { title: string; link: string; description?: string }[] = [];

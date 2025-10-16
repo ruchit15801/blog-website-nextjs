@@ -8,7 +8,7 @@ export default function NewPostPage() {
     const [tokenLocked, setTokenLocked] = useState<boolean>(false);
     const [title, setTitle] = useState("");
     const [subtitle, setSubtitle] = useState("");
-    const [categoryId, setCategoryId] = useState("");
+    const [categoryId] = useState("");
     const [categoryName, setCategoryName] = useState("");
     const [categories, setCategories] = useState<RemoteCategory[]>([]);
     const [catsLoading, setCatsLoading] = useState(false);
@@ -90,7 +90,7 @@ export default function NewPostPage() {
                 imageFiles,
                 categoryId: resolvedCategoryId,
                 tags,
-                status : status as "published" | "scheduled",
+                status: status as "published" | "scheduled",
             });
             setMessage("Post created successfully.");
             // Reset form fields (keep token locked)
