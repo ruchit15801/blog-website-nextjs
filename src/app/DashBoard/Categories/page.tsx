@@ -297,67 +297,7 @@ export default function Categories() {
                     )}
                 </div>
 
-
                 {/* Modal */}
-                {/* {showCreate && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
-                        <div className="absolute inset-0 bg-black/40" onClick={() => setShowCreate(false)} />
-                        <div className="relative z-10 w-full max-w-xl bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 card-hover">
-                            <div className="flex items-center justify-between mb-4">
-                                <h2 className="text-xl font-semibold" style={{ color: '#29294b' }}>{editId ? "Edit Category" : "Create New Category"}</h2>
-                                <button onClick={() => setShowCreate(false)} className="px-3 py-1 rounded-md text-gray-600 hover:bg-gray-100">Close</button>
-                            </div>
-                            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                                <div className="flex flex-col md:flex-row gap-4">
-                                    <div className="flex flex-col gap-2 flex-1">
-                                        <label className="font-medium">Category Name</label>
-                                        <input
-                                            type="text"
-                                            value={form.name}
-                                            onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))}
-                                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                                            style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px' }}
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-2 flex-1">
-                                        <label className="font-medium">Slug</label>
-                                        <input
-                                            type="text"
-                                            value={form.shortName}
-                                            onChange={(e) => setForm(p => ({ ...p, shortName: e.target.value }))}
-                                            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                                            style={{ background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '10px 12px' }}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="font-medium">Description</label>
-                                    <textarea
-                                        value={form.description}
-                                        onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))}
-                                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="font-medium">Image</label>
-                                    <input
-                                        id="cat-image-input"
-                                        type="file"
-                                        accept="image/*"
-                                        className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1] w-full sm:w-60"
-                                    />
-                                </div>
-                                <div className="flex flex-col sm:flex-row justify-end gap-2 mt-2">
-                                    <button type="button" onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg border border-gray-300 w-full sm:w-auto">Cancel</button>
-                                    <button type="submit" disabled={creating} className="px-4 py-2 rounded-lg text-white disabled:opacity-60 w-full sm:w-auto" style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
-                                        {creating ? (editId ? "Updating..." : "Creating...") : (editId ? "Update" : "Create")}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )} */}
-
                 {showCreate && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-6">
                         {/* Overlay */}
@@ -367,7 +307,9 @@ export default function Categories() {
                         />
 
                         {/* Modal */}
-                        <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-[0_8px_30px_rgba(81,77,204,0.25)] border border-[#e2e4ff] p-6 transform transition-all scale-100 hover:scale-[1.01] duration-300">
+                        {/* <div className="relative z-10 w-full max-w-xl bg-white rounded-2xl shadow-[0_8px_30px_rgba(81,77,204,0.25)] border border-[#e2e4ff] p-6 transform transition-all scale-100 hover:scale-[1.01] duration-300"> */}
+                        <div className="relative z-10 w-full max-w-xl sm:max-w-lg md:max-w-xl bg-white rounded-2xl shadow-lg border border-[#e2e4ff] p-6 sm:p-5 md:p-6 transform transition-all scale-100 sm:scale-100 md:scale-100">
+
                             {/* Header */}
                             <div className="flex items-center justify-between mb-5">
                                 <h2 className="text-2xl font-semibold text-[#2d2b5a]">
@@ -384,7 +326,7 @@ export default function Categories() {
                             {/* Form */}
                             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                                 {/* Name & Slug */}
-                                <div className="flex flex-col md:flex-row gap-5">
+                                <div className="flex flex-col sm:flex-col md:flex-row gap-4 md:gap-5">
                                     <div className="flex flex-col gap-2 flex-1">
                                         <label className="font-medium text-[#29294b]">Category Name</label>
                                         <input
@@ -395,7 +337,7 @@ export default function Categories() {
                                             placeholder="Enter category name"
                                         />
                                     </div>
-                                    <div className="flex flex-col gap-2 flex-1">
+                                    <div className="flex flex-col gap-2 flex-1 w-full">
                                         <label className="font-medium text-[#29294b]">Slug</label>
                                         <input
                                             type="text"
@@ -421,15 +363,14 @@ export default function Categories() {
                                 {/* Image Upload + Preview */}
                                 <div className="flex flex-col gap-2">
                                     <label className="font-medium text-[#29294b]">Image</label>
-                                    <div className="flex items-center gap-5">
+                                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5">
                                         {/* Preview */}
                                         {form.imagePreview && (
                                             <div className="relative w-24 h-24 rounded-full overflow-hidden border border-[#d1d5db] shadow-sm bg-[#f9fafb] hover:shadow-md transition-all">
                                                 <Image
                                                     src={form.imagePreview}
                                                     alt="Preview"
-                                                    width={100}
-                                                    height={100}
+                                                    fill
                                                     className="category_preview_img object-cover w-full h-full transition-transform duration-300 hover:scale-105"
                                                 />
                                             </div>
@@ -484,10 +425,9 @@ export default function Categories() {
                     </div>
                 )}
 
-
                 {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="mt-10">
+                {!loading && !error && paginated.length > 0 && totalPages > 1 && (
+                    <div className="mt-10 flex justify-center">
                         <Pagination
                             page={page}
                             totalPages={totalPages}

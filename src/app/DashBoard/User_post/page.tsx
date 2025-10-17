@@ -257,9 +257,13 @@ export default function UserPosts() {
                 </main>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="mt-10">
-                        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                {!loading && !error && items.length > 0 && totalPages > 1 && (
+                    <div className="mt-10 flex justify-center">
+                        <Pagination
+                            page={page}
+                            totalPages={totalPages}
+                            onChange={setPage}
+                        />
                     </div>
                 )}
             </div>
