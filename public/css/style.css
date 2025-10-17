@@ -156,8 +156,8 @@
   font-weight: 400;
   max-width: 640px;
 }
-.trending-section h5 {
-    font-size: 0.9rem;
+.trending-section h2 {
+    font-size: 12px;
     color: var(--foreground);
     margin-bottom: 2rem;
     font-weight: 800;
@@ -507,29 +507,9 @@
   height: 100%;
   object-fit: cover;
 }
-/* ==== Custom Scrollbar Theme (matches your gradient) ==== */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #e9e8ff; 
-  border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgb(152, 149, 255) 0%, rgb(81, 77, 204) 100%);
-  border-radius: 10px;
-  transition: background 0.3s ease;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgb(130, 127, 255) 0%, rgb(70, 67, 190) 100%);
-}
-
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(65, 43, 230 ,0.68) #e9e8ff;
+.trending_category_img{
+  width: 24px;
+  height: 24px;
 }
 
 .force-white-hover:hover {
@@ -560,27 +540,3 @@
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* datepicker  */
-.react-datepicker__header {
-    background-color: #5559d1;
-    color: white;
-    border-bottom: 1px solid #514dcc;
-    border-radius: 0.5rem 0.5rem 0 0;
-}
-
-.react-datepicker__day:hover {
-    background-color: #9895ff;
-    color: white;
-    border-radius: 0.5rem;
-}
-
-.react-datepicker__day--selected {
-    background-color: #514dcc !important;
-    color: white !important;
-}
-
-.react-datepicker__time-list-item:hover {
-    background-color: #9895ff;
-    color: white;
-    border-radius: 0.3rem;
-}

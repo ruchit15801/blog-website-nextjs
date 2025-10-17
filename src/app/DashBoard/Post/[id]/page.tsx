@@ -106,16 +106,15 @@ export default function PostPage() {
             {/* Sidebar */}
             <div
               className="w-full sm:w-auto lg:w-1/5 flex-shrink-0 flex justify-center lg:block mb-4 lg:mb-0"
-              style={{ position: "sticky", top: "80px", alignSelf: "start" }}
-            >
+              style={{ position: "sticky", top: "80px", alignSelf: "start" }}>
               <div className="flex gap-6 sm:flex-row lg:flex-col sm:items-center justify-center lg:justify-start">
                 {/* Reading Time Circle */}
                 <div
-                  className="relative flex items-center justify-center text-center font-bold rounded-full"
+                  className="relative flex items-center justify-center text-center font-bold rounded-full w-20 h-20 lg:w-24 lg:h-24"
                   style={{ width: "90px", height: "90px" }}
                 >
                   <div
-                    className="flex items-center justify-center text-gray-800"
+                    className="flex items-center justify-center text-gray-800  w-16 h-16 lg:w-20 lg:h-20"
                     style={{
                       position: "sticky",
                       top: "100px",
@@ -127,7 +126,7 @@ export default function PostPage() {
                       transition: ".25s",
                     }}
                   >
-                    <span className="text-sm font-bold px-2" style={{ fontSize: "0.85rem" }}>
+                    <span className="text-sm lg:text-base font-bold px-2" style={{ fontSize: "0.85rem" }}>
                       {post.readingTimeMinutes || 0} min read
                     </span>
                   </div>
@@ -197,7 +196,7 @@ export default function PostPage() {
                 </div>
               )}
               {post.subtitle && (
-                <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-700 text-center lg:text-left">
+                <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 text-left w-full">
                   {post.subtitle}
                 </h2>
               )}

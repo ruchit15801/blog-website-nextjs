@@ -143,7 +143,8 @@ export default function ArticlesSection({
                                         alt={a.title}
                                         fill
                                         className="object-cover rounded-2xl hover-zoom"
-                                        loading="lazy"
+                                        loading={i < 2 ? "eager" : "lazy"}
+                                        priority={i < 2}
                                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     />
                                     <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent" />

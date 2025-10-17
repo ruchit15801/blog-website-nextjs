@@ -89,7 +89,7 @@ export default function Navbar() {
                 </ul>
 
                 {/* Right actions */}
-                <div className="navbar-actions flex items-center gap-2 hidden md:flex">
+                <div className="hidden md:flex items-center gap-2">
                     {!user && (
                         <Link
                             href="/auth"
@@ -148,37 +148,99 @@ export default function Navbar() {
 
             {/* Mobile dropdown */}
             {open && (
-                <div className="md:hidden px-4 pb-3">
+                <div className="md:hidden px-4 pb-3 bg-white shadow-md">
                     <div className="flex flex-col gap-1">
+                        {/* Menu links */}
                         {["/", "/all-posts", "/about", "/contact"].map((link, idx) => {
                             const names = ["Home", "All Posts", "About", "Contact Us"];
                             return (
                                 <Link
                                     key={idx}
                                     href={link}
-                                    className={`px-3 py-2 rounded-lg ${pathname === link ? "bg-gray-100" : ""}`}
+                                    className={`px-3 py-2 rounded-lg ${pathname === link ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
                                     onClick={() => setOpen(false)}
                                 >
                                     {names[idx]}
                                 </Link>
                             );
                         })}
+
+                        {/* Mobile avatar + dropdown */}
+                        {user && (
+                            <div className="mt-2 relative">
+                                <button
+                                    className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 rounded-md"
+                                    onClick={() => setUserMenuOpen((v) => !v)}
+                                >
+                                    <Image
+                                        src={user.avatar}
+                                        alt={user.name}
+                                        width={30}
+                                        height={30}
+                                        className="rounded-full object-cover"
+                                    />
+                                    <span className="font-medium">{user.name}</span>
+                                    <svg
+                                        className={`w-4 h-4 ml-auto transition-transform duration-200 ${userMenuOpen ? "rotate-180" : ""}`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth={2}
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                {/* Mobile dropdown menu */}
+                                {userMenuOpen && (
+                                    <div className="mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden flex flex-col divide-y divide-gray-200">
+                                        {user.role === "admin" && (
+                                            <Link
+                                                href="/DashBoard"
+                                                className="flex items-center px-4 py-3 text-gray-700 text-sm hover:bg-indigo-50 hover:text-indigo-600 transition"
+                                                onClick={() => { setUserMenuOpen(false); setOpen(false); }}
+                                            >
+                                                <svg
+                                                    className="w-4 h-4 mr-2 text-indigo-500"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth={2}
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M3 6h18M3 18h18" />
+                                                </svg>
+                                                Dashboard
+                                            </Link>
+                                        )}
+                                        <button
+                                            onClick={handleLogout}
+                                            className="flex items-center px-4 py-3 text-sm text-white bg-red-500 hover:bg-red-600 transition"
+                                        >
+                                            <svg
+                                                className="w-4 h-4 mr-2"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth={2}
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7" />
+                                            </svg>
+                                            Logout
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Sign Up if not logged in */}
                         {!user && (
-                            <Link href="/auth" className="mt-2 buy-btn px-4 py-2 rounded-lg text-center" onClick={() => setOpen(false)}>
+                            <Link
+                                href="/auth"
+                                className="mt-2 buy-btn px-4 py-2 rounded-lg text-center bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                                onClick={() => setOpen(false)}
+                            >
                                 Sign Up
                             </Link>
-                        )}
-                        {user && user.role === "admin" && (
-                            <>
-                                <Link href="/DashBoard" className="mt-2 px-4 py-2 rounded-lg text-center" onClick={() => setOpen(false)}>
-                                    Dashboard
-                                </Link>
-                                <button
-                                    onClick={handleLogout}
-                                    className="mt-1 px-4 py-2 rounded-lg text-center bg-red-500 text-white hover:bg-red-600">
-                                    Logout
-                                </button>
-                            </>
                         )}
                     </div>
                 </div>
@@ -186,4 +248,3 @@ export default function Navbar() {
         </header>
     );
 }
-

@@ -278,13 +278,16 @@ export default function AllPosts() {
                         </div>
 
                         {/* Pagination */}
-                        <div className="lg:col-span-3 mt-10 flex justify-center">
-                            <Pagination
-                                page={currentPage}
-                                totalPages={Math.ceil(totalPosts / perPage)}
-                                onChange={(p) => setCurrentPage(p)}
-                            />
-                        </div>
+                        {!loading && !error && paginatedArticles.length > 0 && totalPosts > perPage && (
+                            <div className="lg:col-span-3 mt-10 flex justify-center">
+                                <Pagination
+                                    page={currentPage}
+                                    totalPages={Math.ceil(totalPosts / perPage)}
+                                    onChange={(p) => setCurrentPage(p)}
+                                />
+                            </div>
+                        )}
+
                     </div>
                 </main>
             </div>

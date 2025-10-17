@@ -344,9 +344,15 @@ export default function UsersPage() {
         </div>
 
         {/* Pagination */}
-        <div className="mt-4 flex justify-center">
-          <Pagination page={page} totalPages={totalPages} onChange={(p) => setPage(p)} />
-        </div>
+        {!loading && !error && filteredUsers.length > 0 && totalPages > 1 && (
+          <div className="mt-6 flex justify-center">
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={(p) => setPage(p)}
+            />
+          </div>
+        )}
 
         {/* Edit Modal */}
         {showModal && editUser && (
@@ -358,39 +364,37 @@ export default function UsersPage() {
 
                 {/* Avatar Preview + Edit Icon */}
                 <div className="flex flex-col gap-2 items-center relative">
-                  <div className="w-20 h-20 relative rounded-full overflow-hidden mb-2">
+                  <div className="w-20 h-20 relative rounded-full overflow-hidden mb-2 group">
                     <Image
                       src={editUser.avatarPreview || editUser.avatarUrl || "/images/default-avatar.png"}
                       alt={editUser.fullName || "User"}
-                      width={80}
-                      height={80}
+                      fill
                       className="object-cover rounded-full"
                     />
+
+                    {/* Edit Icon shows only on hover */}
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M16.5 3.5a2.121 2.121 0 113 3L7 19H4v-3L16.5 3.5z" />
+                      </svg>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setEditUser({
+                              ...editUser,
+                              avatarFile: file,
+                              avatarPreview: URL.createObjectURL(file),
+                            } as EditableUser);
+                          }
+                        }}
+                      />
+                    </label>
                   </div>
-
-                  {/* Edit Icon outside avatar */}
-                  <label className="absolute bottom-6 left-48 translate-x-1/2 translate-y-1/2 z-50 bg-indigo-400 text-white rounded-full p-2 cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M16.5 3.5a2.121 2.121 0 113 3L7 19H4v-3L16.5 3.5z" />
-                    </svg>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setEditUser({
-                            ...editUser,
-                            avatarFile: file,
-                            avatarPreview: URL.createObjectURL(file),
-                          } as EditableUser);
-                        }
-                      }}
-                    />
-                  </label>
                 </div>
-
                 {/* Full Name */}
                 <div className="flex flex-col gap-2">
                   <label className="font-medium">Full Name</label>
@@ -430,7 +434,6 @@ export default function UsersPage() {
             </div>
           </div>
         )}
-
 
       </div>
     </DashboardLayout>
