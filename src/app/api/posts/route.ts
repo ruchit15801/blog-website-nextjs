@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-import { mockPosts } from "@/lib/mockData";
 
 export async function GET() {
-    return NextResponse.json({ posts: mockPosts });
+    // This endpoint should connect to your real database
+    // For now, return empty array until real content is available
+    return NextResponse.json({
+        posts: [],
+        message: "No posts available yet. Content will be loaded from the database."
+    });
 }
 
 

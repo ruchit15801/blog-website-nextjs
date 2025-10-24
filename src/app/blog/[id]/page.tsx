@@ -77,15 +77,7 @@ export default function BlogDetailPage() {
             </div>
 
             <section className="prose prose-invert max-w-none">
-                <p>{post.content}</p>
-                <p>
-                    This is dummy content for the article body. It shows paragraph spacing, line-length, and overall rhythm. Use this as a placeholder while we integrate a CMS later.
-                </p>
-                <ul>
-                    <li>Premium palette: Muted Blue, Teal, Amber</li>
-                    <li>Subtle animations: Float, Shimmer</li>
-                    <li>Readable layout: Comfortable line-height and spacing</li>
-                </ul>
+                <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </section>
 
             <section className="mt-12" id="comments">
@@ -107,12 +99,11 @@ export default function BlogDetailPage() {
                     )}
                 </div>
 
-                <form className="mt-6 grid gap-3 max-w-xl">
-                    <input placeholder="Your name" className="rounded-xl px-3 h-11 bg-white/5 border border-white/10" />
-                    <textarea placeholder="Your comment" className="rounded-xl px-3 py-2 min-h-[100px] bg-white/5 border border-white/10" />
-                    <button type="button" className="btn btn-primary shine w-fit">Post Comment</button>
-                    <p className="text-xs opacity-70">This form is a demo; comments are read-only mock data.</p>
-                </form>
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                        Comments functionality will be available soon. For now, you can contact us through our contact page.
+                    </p>
+                </div>
             </section>
         </article>
     );
