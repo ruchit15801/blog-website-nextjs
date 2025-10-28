@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import ImageWithCredit from "@/components/ImageWithCredit";
 
 type Comment = { id: string; author: string; message: string; date: string };
 type PostDetail = {
@@ -72,8 +73,7 @@ export default function BlogDetailPage() {
             </header>
 
             <div className="rounded-2xl overflow-hidden border border-white/10 mb-8" style={{ background: "linear-gradient(180deg, var(--surface), transparent)" }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={post.cover} alt="cover" className="w-full aspect-[16/9] object-cover" />
+                <ImageWithCredit src={post.cover} alt="cover" width={1280} height={720} className="w-full aspect-[16/9]" corner="br" />
             </div>
 
             <section className="prose prose-invert max-w-none">

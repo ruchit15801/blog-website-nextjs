@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import ImageWithCredit from "@/components/ImageWithCredit";
 import Loader from "@/components/Loader";
 import { fetchPostById, getAdminToken } from "@/lib/adminClient";
 import DashboardLayout from "../../DashBoardLayout";
@@ -95,9 +96,14 @@ export default function PostPage() {
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
         {/* Banner */}
         {post.bannerImageUrl && (
-          <div className="relative w-full h-56 sm:h-72 md:h-96 lg:h-[28rem] rounded-2xl overflow-hidden">
-            <Image src={post.bannerImageUrl} alt={post.title} fill className="object-cover" />
-          </div>
+          <ImageWithCredit
+            src={post.bannerImageUrl}
+            alt={post.title}
+            fill
+            sizes="100vw"
+            className="w-full h-56 sm:h-72 md:h-96 lg:h-[28rem] rounded-2xl"
+            corner="br"
+          />
         )}
 
         {/* Main Layout */}
@@ -210,11 +216,14 @@ export default function PostPage() {
                       dangerouslySetInnerHTML={{ __html: block }}
                     />
                   ) : (
-                    <div
-                      key={idx}
-                      className="relative w-full sm:w-3/4 h-64 mx-auto my-6 rounded-2xl overflow-hidden shadow-lg"
-                    >
-                      <Image src={block.url} alt={`Post image ${idx}`} fill className="object-cover rounded-2xl" />
+                    <div key={idx} className="w-full sm:w-3/4 mx-auto my-6">
+                      <ImageWithCredit
+                        src={block.url}
+                        alt={`Post image ${idx}`}
+                        fill
+                        className="relative w-full h-64 rounded-2xl shadow-lg"
+                        corner="br"
+                      />
                     </div>
                   )
                 )}

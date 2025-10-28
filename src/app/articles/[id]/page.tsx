@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import ImageWithCredit from "@/components/ImageWithCredit";
 import Link from "next/link";
 import Loader from "@/components/Loader";
 import { fetchSinglePostById } from "@/lib/adminClient";
@@ -315,13 +316,15 @@ export default function ArticlePage() {
 
             {/* Banner */}
             {post.bannerImageUrl && (
-                <div className="relative w-full h-56 sm:h-72 md:h-96 rounded-2xl overflow-hidden">
-                    <Image src={post.bannerImageUrl} alt={post.title} fill priority sizes="100vw" className="object-cover" />
-                    <div className="absolute bottom-3 left-3 inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.85)', color: '#29294b', backdropFilter: 'blur(4px)' }}>
-                        Main Image
-                    </div>
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/5" />
-                </div>
+                <ImageWithCredit
+                    src={post.bannerImageUrl}
+                    alt={post.title}
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="w-full h-56 sm:h-72 md:h-96 rounded-2xl"
+                    corner="br"
+                />
             )}
 
             {/* Main Layout */}
@@ -404,16 +407,20 @@ export default function ArticlePage() {
                                                 skipIndexes.add(index + 1);
                                                 return (
                                                     <div key={index} className="flex flex-col md:flex-row gap-4 my-6 reveal-on-scroll reveal">
-                                                        <div className="relative w-full md:w-1/2 h-56 sm:h-64 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
-                                                            <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
-                                                            <span className="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#29294b' }}>Image</span>
-                                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                                        </div>
-                                                        <div className="relative w-full md:w-1/2 h-56 sm:h-64 md:h-64 rounded-2xl overflow-hidden shadow-lg ring-1 ring-black/5 hover-zoom">
-                                                            <Image src={nextBlock.url} alt={`Post image ${index + 1}`} fill className="object-cover rounded-2xl" />
-                                                            <span className="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#29294b' }}>Image</span>
-                                                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                                        </div>
+                                                        <ImageWithCredit
+                                                            src={block.url}
+                                                            alt={`Post image ${index}`}
+                                                            fill
+                                                            className="relative w-full md:w-1/2 h-56 sm:h-64 md:h-64 rounded-2xl shadow-lg ring-1 ring-black/5 hover-zoom"
+                                                            corner="br"
+                                                        />
+                                                        <ImageWithCredit
+                                                            src={nextBlock.url}
+                                                            alt={`Post image ${index + 1}`}
+                                                            fill
+                                                            className="relative w-full md:w-1/2 h-56 sm:h-64 md:h-64 rounded-2xl shadow-lg ring-1 ring-black/5 hover-zoom"
+                                                            corner="br"
+                                                        />
                                                     </div>
                                                 );
                                             }
@@ -421,14 +428,15 @@ export default function ArticlePage() {
                                             const height = block.size === "small" ? "h-72 md:h-80" : "h-80 md:h-[28rem]";
                                             const width = block.size === "small" ? "md:w-4/5 lg:w-2/3" : "md:w-4/5";
                                             return (
-                                                <figure key={index} className={`relative w-full ${width} mx-auto ${height} rounded-2xl overflow-hidden my-6 shadow-xl ring-1 ring-black/5 hover-zoom reveal-on-scroll reveal`}>
-                                                    <Image src={block.url} alt={`Post image ${index}`} fill className="object-cover rounded-2xl" />
-                                                    <span className="absolute top-3 left-3 inline-flex items-center px-2 py-0.5 text-[11px] font-semibold rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#29294b' }}>Image</span>
-                                                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-                                                    <figcaption className="absolute bottom-3 right-3 text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,.9)', color: '#696981' }}>
-                                                        Inline image
-                                                    </figcaption>
-                                                </figure>
+                                                <div key={index} className={`reveal-on-scroll reveal mx-auto my-6 ${width}`}>
+                                                    <ImageWithCredit
+                                                        src={block.url}
+                                                        alt={`Post image ${index}`}
+                                                        fill
+                                                        className={`relative w-full ${height} rounded-2xl shadow-xl ring-1 ring-black/5 hover-zoom`}
+                                                        corner="br"
+                                                    />
+                                                </div>
                                             );
                                         }
 
