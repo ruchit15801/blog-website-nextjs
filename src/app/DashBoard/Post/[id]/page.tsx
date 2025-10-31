@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
+// Image import removed (unused)
 import ImageWithCredit from "@/components/ImageWithCredit";
 import Loader from "@/components/Loader";
 import { fetchPostById, getAdminToken } from "@/lib/adminClient";
