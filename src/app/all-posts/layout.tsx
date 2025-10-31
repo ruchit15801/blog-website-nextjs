@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,7 +8,11 @@ export const metadata: Metadata = {
 };
 
 export default function AllPostsLayout({ children }: { children: React.ReactNode }) {
-    return children;
+    return (
+        <Suspense fallback={<div className="py-16 text-center">Loading posts…</div>}>
+            {children}
+        </Suspense>
+    );
 }
 
 
