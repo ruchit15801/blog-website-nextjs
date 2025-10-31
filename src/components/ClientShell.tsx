@@ -44,9 +44,9 @@ export default function ClientShell({ children }: { children: React.ReactNode })
                 </div>
             )}
 
-            {!pathname.startsWith("/DashBoard") && <Navbar />}
+            {!pathname.startsWith("/DashBoard") && !pathname.startsWith("/splash") && !pathname.startsWith("/welcome") && <Navbar />}
             <main className="flex-1">{children}</main>
-            {!pathname.startsWith("/DashBoard") && <Footer />}
+            {!pathname.startsWith("/DashBoard") && !pathname.startsWith("/splash") && !pathname.startsWith("/welcome") && <Footer />}
 
             <Toaster
                 position="top-right"
