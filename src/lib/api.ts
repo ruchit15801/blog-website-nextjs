@@ -96,7 +96,8 @@ export async function listAllHomePosts(params: ListAllPostsParams = {}) {
   if (params.page != null) url.searchParams.set("page", String(params.page));
   if (params.limit != null) url.searchParams.set("limit", String(params.limit));
   if (params.category != null) url.searchParams.set("category", String(params.category));
-  const key = `home_all_${params.page ?? 1}_${params.limit ?? 12}_${params.category ?? "all"}`;
+  if (params.sort) url.searchParams.set("sort", String(params.sort));
+  const key = `home_all_${params.page ?? 1}_${params.limit ?? 12}_${params.category ?? "all"}_${params.sort ?? "latest"}`;
   type ListCacheVal = { t: number; v: { posts: HomePost[]; total: number; page: number; limit: number; totalPages: number } };
   const g = globalThis as unknown as { __homeCache?: Map<string, ListCacheVal> };
   g.__homeCache = g.__homeCache || new Map<string, ListCacheVal>();

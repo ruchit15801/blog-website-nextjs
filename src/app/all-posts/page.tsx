@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Clock, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronDown } from "lucide-react";
@@ -40,6 +41,34 @@ export default function AllPostsPage() {
         listTopTrendingAuthors(8).then((d) => { if (!active) return; setAuthors((d.authors || []).map((a: HomeAuthor & { avatarUrl?: string }) => ({ _id: a._id, fullName: a.fullName, avatarUrl: a.avatarUrl }))); }).catch(() => { });
         return () => { active = false; };
     }, []);
+
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    // Sync state from URL on first load
+    useEffect(() => {
+        const p = Number(searchParams.get("page") || 1);
+        const l = Number(searchParams.get("limit") || 12);
+        const s = (searchParams.get("sort") as typeof sort) || "latest";
+        const c = searchParams.get("category");
+        if (p && p !== page) setPage(p);
+        if (l && l !== limit) setLimit(l);
+        if (s && s !== sort) setSort(s);
+        if ((c || null) !== selectedCat) setSelectedCat(c);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Reflect state into URL when it changes
+    useEffect(() => {
+        const sp = new URLSearchParams();
+        if (page) sp.set("page", String(page));
+        if (limit) sp.set("limit", String(limit));
+        if (sort) sp.set("sort", String(sort));
+        if (selectedCat) sp.set("category", String(selectedCat));
+        router.replace(`/all-posts?${sp.toString()}`);
+        // Smooth scroll top on page change
+        if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+    }, [page, limit, sort, selectedCat, router]);
 
     useEffect(() => {
         let active = true;

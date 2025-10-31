@@ -8,9 +8,7 @@ export default function SplashPage() {
     const urls = useMemo<string[]>(() => [
         "/articles",
         "/all-posts",
-        "/blog",
         "/about",
-        "/contact",
         "/privacy-policy",
         "/cookie-policy",
         "/disclaimer",
