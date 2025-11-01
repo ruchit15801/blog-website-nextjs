@@ -6,12 +6,11 @@ import Image from "next/image";
 export default function SplashPage() {
     // Edit this array with your target URLs (20-23 items recommended)
     const urls = useMemo<string[]>(() => [
-        "/articles",
         "/all-posts",
-        "/about",
-        "/privacy-policy",
-        "/cookie-policy",
-        "/disclaimer",
+        // "/about",
+        // "/privacy-policy",
+        // "/cookie-policy",
+        // "/disclaimer",
         "/",
     ], []);
 
