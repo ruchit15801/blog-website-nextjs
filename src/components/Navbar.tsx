@@ -73,19 +73,47 @@ export default function Navbar() {
 
                 {/* Menu Links */}
                 <ul className={`navbar-menu ${open ? "block" : "hidden"} md:flex`} style={{ position: undefined }}>
-                    {["/", "/all-posts", "/about", "/contact"].map((link, idx) => {
-                        const names = ["Home", "All Posts", "About", "Contact Us"];
-                        return (
-                            <li key={idx} className="pt-2">
-                                <Link
-                                    href={link}
-                                    className={`nav-link ${pathname === link ? "active" : ""} hover:bg-gray-100 rounded-lg px-2 py-2`}
-                                    onClick={() => setOpen(false)}>
-                                    {names[idx]}
-                                </Link>
-                            </li>
-                        );
-                    })}
+                    <li className="pt-2">
+                        <Link
+                            href="/"
+                            className={`nav-link ${pathname === "/" ? "active" : ""} hover:bg-gray-100 rounded-lg px-2 py-2`}
+                            onClick={() => setOpen(false)}>
+                            Home
+                        </Link>
+                    </li>
+                    <li className="pt-2">
+                        <Link
+                            href="/all-posts"
+                            className={`nav-link ${pathname === "/all-posts" ? "active" : ""} hover:bg-gray-100 rounded-lg px-2 py-2`}
+                            onClick={() => setOpen(false)}>
+                            All Posts
+                        </Link>
+                    </li>
+                    <li className="pt-2">
+                        <Link
+                            href="/about"
+                            className={`nav-link ${pathname === "/about" ? "active" : ""} hover:bg-gray-100 rounded-lg px-2 py-2`}
+                            onClick={() => setOpen(false)}>
+                            About
+                        </Link>
+                    </li>
+                    <li className="pt-2">
+                        <a
+                            href="https://www.pokiifuns.com/welcome"
+                            target="_self"
+                            className="nav-link hover:bg-gray-100 rounded-lg px-2 py-2"
+                            onClick={() => setOpen(false)}>
+                            Games
+                        </a>
+                    </li>
+                    <li className="pt-2">
+                        <Link
+                            href="/contact"
+                            className={`nav-link ${pathname === "/contact" ? "active" : ""} hover:bg-gray-100 rounded-lg px-2 py-2`}
+                            onClick={() => setOpen(false)}>
+                            Contact Us
+                        </Link>
+                    </li>
                 </ul>
 
                 {/* Right actions */}
@@ -151,19 +179,42 @@ export default function Navbar() {
                 <div className="md:hidden px-4 pb-3 bg-white shadow-md">
                     <div className="flex flex-col gap-1">
                         {/* Menu links */}
-                        {["/", "/all-posts", "/about", "/contact"].map((link, idx) => {
-                            const names = ["Home", "All Posts", "About", "Contact Us"];
-                            return (
-                                <Link
-                                    key={idx}
-                                    href={link}
-                                    className={`px-3 py-2 rounded-lg ${pathname === link ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
-                                    onClick={() => setOpen(false)}
-                                >
-                                    {names[idx]}
-                                </Link>
-                            );
-                        })}
+                        <Link
+                            href="/"
+                            className={`px-3 py-2 rounded-lg ${pathname === "/" ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
+                            onClick={() => setOpen(false)}
+                        >
+                            Home
+                        </Link>
+                        <Link
+                            href="/all-posts"
+                            className={`px-3 py-2 rounded-lg ${pathname === "/all-posts" ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
+                            onClick={() => setOpen(false)}
+                        >
+                            All Posts
+                        </Link>
+                        <Link
+                            href="/about"
+                            className={`px-3 py-2 rounded-lg ${pathname === "/about" ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
+                            onClick={() => setOpen(false)}
+                        >
+                            About
+                        </Link>
+                        <a
+                            href="https://www.pokiifuns.com/welcome"
+                            target="_self"
+                            className="px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+                            onClick={() => setOpen(false)}
+                        >
+                            Games
+                        </a>
+                        <Link
+                            href="/contact"
+                            className={`px-3 py-2 rounded-lg ${pathname === "/contact" ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
+                            onClick={() => setOpen(false)}
+                        >
+                            Contact Us
+                        </Link>
 
                         {/* Mobile avatar + dropdown */}
                         {user && (
