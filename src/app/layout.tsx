@@ -62,13 +62,9 @@ export default function RootLayout({
         {/* Canonical */}
         <link rel="canonical" href={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
 
-        <Script
-          id="adsense"
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        ></script>
         {/* SiteNavigationElement JSON-LD helps Google understand main navigation */}
         <script
           type="application/ld+json"
@@ -106,10 +102,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <meta
-          name="google-adsense-account"
-          content="ca-pub-8481647724806223"
-        />
+        <meta name="google-adsense-account" content="ca-pub-8481647724806223" />
         {/* Organization JSON-LD */}
         <script
           type="application/ld+json"
