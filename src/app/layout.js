@@ -141,8 +141,11 @@ export default function RootLayout({ children }) {
           content="e5ZBxpONbcJKU43Gd6trEKK_lenX9e-rYcAJ8Yqp6uQ"
         />
         <meta name="google-adsense-account" content="ca-pub-8481647724806223"></meta>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
-          crossorigin="anonymous"></script>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3785390617142950"
+          crossorigin="anonymous"
+        ></script>
         {/* <script
           src="https://cmp.gatekeeperconsent.com/min.js"
           data-cfasync="false"
