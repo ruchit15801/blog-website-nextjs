@@ -59,7 +59,11 @@ export default function SchedulePosts() {
             title: p.title,
             date: new Date(p.createdAt || Date.now()).toDateString(),
             excerpt: "",
+<<<<<<< Updated upstream
             image: p.bannerImageUrl || p.imageUrls?.[0] || "/images/a1.webp",
+=======
+            image: p.bannerImageUrl || p.imageUrls?.[0] || "",
+>>>>>>> Stashed changes
             author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
             tag: p.tags || [],
             publishedAt: p.publishedAt,

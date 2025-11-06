@@ -163,6 +163,7 @@ export default function ArticlePage() {
 
     const getContentWithImages = () => {
         const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" }> = [];
+<<<<<<< Updated upstream
         const parser = new DOMParser();
         const doc = parser.parseFromString(post.contentHtml, "text/html");
         const children = Array.from(doc.body.children);
@@ -200,12 +201,45 @@ export default function ArticlePage() {
                             }
                             wordCount = 0;
                         }
+=======
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(post.contentHtml || "", "text/html");
+        const children = Array.from(doc.body.children);
+
+        let usedImages = 0;
+        let paragraphCount = 0;
+
+        if (children.length === 0) {
+            const textContent = post.contentHtml?.trim();
+            if (textContent) blocks.push(`<p>${textContent}</p>`);
+        } else {
+            children.forEach((child) => {
+                blocks.push(child.outerHTML);
+                paragraphCount++;
+
+                if (post.imageUrls && usedImages < post.imageUrls.length && paragraphCount % 3 === 0) {
+                    const remaining = post.imageUrls.length - usedImages;
+                    const numImages = remaining > 1 ? 2 : 1;
+
+                    for (let i = 0; i < numImages; i++) {
+                        if (usedImages >= post.imageUrls.length) break;
+                        blocks.push({
+                            type: "image",
+                            url: post.imageUrls[usedImages],
+                            size: numImages > 1 ? "small" : "large",
+                        });
+                        usedImages++;
+>>>>>>> Stashed changes
                     }
                 }
             });
         }
 
+<<<<<<< Updated upstream
         // remaining images last me add
+=======
+>>>>>>> Stashed changes
         if (post.imageUrls && usedImages < post.imageUrls.length) {
             for (let i = usedImages; i < post.imageUrls.length; i++) {
                 blocks.push({ type: "image", url: post.imageUrls[i], size: "large" });
@@ -380,7 +414,11 @@ export default function ArticlePage() {
                             <div className="pointer-events-none absolute -inset-2 bg-gradient-to-b from-[#f5f7ff] to-transparent rounded-[22px] blur-sm" />
                         </div>
                         <div className="relative rounded-2xl bg-white shadow-lg ring-1 ring-black/5 p-5 sm:p-6 md:p-8">
+<<<<<<< Updated upstream
                             <div ref={contentRef} className="flex flex-col">
+=======
+                            <div ref={contentRef} className="space-y-6">
+>>>>>>> Stashed changes
 
                                 {(() => {
                                     let firstTextRendered = false; return contentBlocks.map((block, index) => {

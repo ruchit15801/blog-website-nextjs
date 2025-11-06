@@ -113,7 +113,11 @@ export default function AllPosts() {
             date: new Date(p.createdAt || Date.now()).toDateString(),
             author: typeof p.author === "string" ? p.author : (p.author?.fullName || ""),
             excerpt: "",
+<<<<<<< Updated upstream
             image: p.bannerImageUrl || "/images/a1.webp",
+=======
+            image: p.bannerImageUrl || "",
+>>>>>>> Stashed changes
             tag: p.tags || [],
             readTime: p.readingTimeMinutes || 0,
             full: p,

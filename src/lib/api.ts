@@ -123,6 +123,59 @@ export async function listAllHomePosts(params: ListAllPostsParams = {}) {
   return result;
 }
 
+<<<<<<< Updated upstream
+=======
+export type ListPostsByAuthorParams = {
+  authorId: string;
+  page?: number;
+  limit?: number;
+  sort?: "latest" | "oldest" | "random";
+  category?: string | null;
+  tag?: string | null;
+};
+
+export async function listPostsByAuthor(params: ListPostsByAuthorParams) {
+  if (!params.authorId) throw new Error("authorId is required");
+
+  const url = new URL(`${HOME_API_BASE_URL}/home/post-by-authorId/${params.authorId}`);
+  if (params.page != null) url.searchParams.set("page", String(params.page));
+  if (params.limit != null) url.searchParams.set("limit", String(params.limit));
+  if (params.sort) url.searchParams.set("sort", params.sort);
+  if (params.category) url.searchParams.set("category", params.category);
+  if (params.tag) url.searchParams.set("tag", params.tag);
+
+  const key = `author_${params.authorId}_${params.page ?? 1}_${params.limit ?? 12}_${params.category ?? "all"}_${params.tag ?? "all"}_${params.sort ?? "latest"}`;
+
+  type CacheVal = { t: number; v: { posts: HomePost[]; total: number; page: number; limit: number; totalPages: number; hasNextPage: boolean; hasPrevPage: boolean } };
+  const g = globalThis as unknown as { __authorCache?: Map<string, CacheVal> };
+  g.__authorCache = g.__authorCache || new Map<string, CacheVal>();
+
+  const now = Date.now();
+  const hit = g.__authorCache.get(key);
+  if (hit && now - hit.t < 15000) {
+    return hit.v;
+  }
+
+  const res = await fetch(url.toString(), { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch posts for author: ${res.status}`);
+
+  const data = await res.json();
+  const list = (data.data || []) as HomePost[];
+  const rawMeta = data.meta || {};
+  const total = Number(rawMeta.total ?? list.length);
+  const page = Number(rawMeta.page ?? params.page ?? 1);
+  const limit = Number(rawMeta.limit ?? params.limit ?? list.length ?? 12);
+  const totalPages = Number(rawMeta.totalPages ?? Math.max(1, Math.ceil(total / (limit || 1))));
+  const hasNextPage = Boolean(rawMeta.hasNextPage ?? page < totalPages);
+  const hasPrevPage = Boolean(rawMeta.hasPrevPage ?? page > 1);
+
+  const result = { posts: list, total, page, limit, totalPages, hasNextPage, hasPrevPage };
+  g.__authorCache.set(key, { t: now, v: result });
+
+  return result;
+}
+
+>>>>>>> Stashed changes
 export type TrendingCategory = { _id: string; name: string; icon?: string; imageUrl?: string };
 
 export async function listTrendingByCategory() {
