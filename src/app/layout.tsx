@@ -39,9 +39,9 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="alternate" type="application/rss+xml" title="BlogCafeAI RSS" href="/rss.xml" />
         {/* Primary Meta Tags (defaults; page-level generateMetadata can override) */}
-        <title>BlogCafeAI – BlogCafe AI | Official Site</title>
-        <meta name="title" content="BlogCafeAI – BlogCafe AI | Official Site" />
-        <meta name="description" content="BlogCafeAI (BlogCafe AI) – official site. Explore AI tools, tech trends, coding guides and productivity insights from BlogCafeAI." />
+        <title>BlogCafeAI - Your Ultimate Blogging Media</title>
+        <meta name="title" content="BlogCafeAI - Your Ultimate Blogging Media" />
+        <meta name="description" content="From technology to business, and fashion to education, explore all types of information, trends, tips, and tricks here." />
         {/* Keywords */}
         <meta name="keywords" content="AI tools, artificial intelligence blog, AI news, productivity tips, tech trends, coding tutorials, ChatGPT, machine learning, automation, BlogCafeAI, AI updates" />
         {/* Robots */}
@@ -50,14 +50,14 @@ export default function RootLayout({
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
-        <meta property="og:title" content="BlogCafeAI – BlogCafe AI | Official Site" />
-        <meta property="og:description" content="Official BlogCafeAI website. AI tools, tech trends, coding tutorials and productivity tips." />
+        <meta property="og:title" content="BlogCafeAI - Your Ultimate Blogging Media" />
+        <meta property="og:description" content="From technology to business, and fashion to education, explore all types of information, trends, tips, and tricks here." />
         <meta property="og:image" content="https://www.blogcafeai.com/og-image.jpg" />
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />
-        <meta name="twitter:title" content="BlogCafeAI – BlogCafe AI | Official Site" />
-        <meta name="twitter:description" content="Official site of BlogCafeAI (BlogCafe AI). AI tools, tech trends and coding insights." />
+        <meta name="twitter:title" content="BlogCafeAI - Your Ultimate Blogging Media" />
+        <meta name="twitter:description" content="From technology to business, and fashion to education, explore all types of information, trends, tips, and tricks here." />
         <meta name="twitter:image" content="https://www.blogcafeai.com/og-image.jpg" />
         {/* Canonical */}
         <link rel="canonical" href={process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com/"} />

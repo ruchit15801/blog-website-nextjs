@@ -1,20 +1,21 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Clock } from "lucide-react";
 import Pagination from "@/components/Pagination";
-import { fetchAdminPosts, type RemotePost } from "@/lib/adminClient";
+import { listAllHomePosts, type HomePost } from "@/lib/api";
 import { buildSlugPath } from "@/lib/slug";
 
 export default function BlogIndex() {
-    const { authorId } = useParams();
+    const searchParams = useSearchParams();
+    const authorId = searchParams.get("author");
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(12);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [posts, setPosts] = useState<RemotePost[]>([]);
+    const [posts, setPosts] = useState<HomePost[]>([]);
     // kept for possible future use/display, but not required for pagination UI
     // const [total, setTotal] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
@@ -24,14 +25,22 @@ export default function BlogIndex() {
         let active = true;
         setLoading(true);
         setError(null);
-        fetchAdminPosts({ page, limit, userid: Array.isArray(authorId) ? authorId[0] : authorId || undefined })
+        listAllHomePosts({ page, limit, sort: "latest" })
             .then((res) => {
                 if (!active) return;
-                setPosts(res.posts || []);
-                // setTotal(res.total || 0);
-                setTotalPages(res.totalPages || Math.max(1, Math.ceil((res.total || 0) / (res.limit || limit))));
+                const full = res.posts || [];
+                const filtered = authorId
+                    ? full.filter((p) => {
+                        const aid = typeof p.author === "string" ? undefined : p.author?._id;
+                        return aid === authorId;
+                    })
+                    : full;
+                setPosts(filtered);
+                const totalForCalc = authorId ? filtered.length : res.total || filtered.length;
+                const computedTotalPages = Math.max(1, Math.ceil(totalForCalc / (res.limit || limit)));
+                setTotalPages(computedTotalPages);
                 if (authorId) {
-                    const first = (res.posts || [])[0];
+                    const first = filtered[0];
                     const name = first ? (typeof first.author === "string" ? first.author : (first.author?.fullName || "")) : "";
                     setAuthorName(name);
                 } else {
@@ -44,7 +53,6 @@ export default function BlogIndex() {
     }, [page, limit, authorId]);
 
     useEffect(() => {
-        // Reset to first page when author filter changes
         setPage(1);
     }, [authorId]);
 

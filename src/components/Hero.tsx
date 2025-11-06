@@ -61,13 +61,13 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                             style={{ width: 56, height: 56, left: -24, bottom: -14, animationDelay: "2.1s" }}
                         />
                         <h1 className="fx2-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight break-words">
-                            Whispers of Life: Tales that Touch the Soul
+                            Unlock the Ultimate Encyclopedia of Information
                         </h1>
                         <span aria-hidden className="fx2-streak"></span>
                     </div>
 
                     <p className="text-base sm:text-lg md:text-xl mx-auto max-w-xs sm:max-w-md md:max-w-2xl text-gray-500 min-h-[48px]">
-                        Discover stories woven with emotion, wisdom, and wonder crafted to inspire, heal, and connect hearts across the world.
+                        From technology to business, and fashion to education, explore all types of information, trends, tips, and tricks here.
                     </p>
                 </div>
             </section>
@@ -87,9 +87,8 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                         {/* ===== All Button ===== */}
                         <button
                             key="all"
-                            className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
-                                !selectedCat ? "bg-indigo-100" : ""
-                            }`}
+                            className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${!selectedCat ? "bg-indigo-100" : ""
+                                }`}
                             onClick={() => onCategorySelect?.(null)}
                         >
                             <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50 text-xs sm:text-base">
@@ -102,9 +101,8 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                         {categories.slice(0, 6).map((cat) => (
                             <button
                                 key={cat._id}
-                                className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
-                                    selectedCat === cat._id ? "bg-indigo-100" : ""
-                                }`}
+                                className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${selectedCat === cat._id ? "bg-indigo-100" : ""
+                                    }`}
                                 onClick={() => onCategorySelect?.(cat._id)}
                             >
                                 <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50">
@@ -125,9 +123,8 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                         {categories.slice(6, 8).map((cat) => (
                             <button
                                 key={cat._id}
-                                className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
-                                    selectedCat === cat._id ? "bg-indigo-100" : ""
-                                }`}
+                                className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${selectedCat === cat._id ? "bg-indigo-100" : ""
+                                    }`}
                                 onClick={() => onCategorySelect?.(cat._id)}
                             >
                                 <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50">
