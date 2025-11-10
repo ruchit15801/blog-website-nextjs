@@ -187,8 +187,7 @@ export default function AllPostsPage() {
                                 <button
                                     type="button"
                                     className="rounded-xl px-3 py-2.5 border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1] transition flex items-center gap-2"
-                                    onClick={() => setSortOpen((v) => !v)}
-                                >
+                                    onClick={() => setSortOpen((v) => !v)}>
                                     {sortOptions.find(o => o.value === sort)?.label || "Latest"}
                                     <ChevronDown className="w-4 h-4 text-gray-400" />
                                 </button>
@@ -212,8 +211,7 @@ export default function AllPostsPage() {
                                 <button
                                     type="button"
                                     className="rounded-xl px-3 py-2.5 border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1] transition flex items-center gap-2"
-                                    onClick={() => setPerOpen((v) => !v)}
-                                >
+                                    onClick={() => setPerOpen((v) => !v)}>
                                     {limit} / page
                                     <ChevronDown className="w-4 h-4 text-gray-400" />
                                 </button>
@@ -268,8 +266,7 @@ export default function AllPostsPage() {
                                                     <span
                                                         key={t}
                                                         className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
-                                                        style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}
-                                                    >
+                                                        style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>
                                                         #{" "}{t}
                                                     </span>
                                                 ))}
@@ -295,8 +292,7 @@ export default function AllPostsPage() {
                                     className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                                     aria-label="First page"
                                     title="First"
-                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                                >
+                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                                     <ChevronsLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
                                 </button>
                                 <button
@@ -305,8 +301,7 @@ export default function AllPostsPage() {
                                     className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                                     aria-label="Previous page"
                                     title="Prev"
-                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                                >
+                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                                     <ChevronLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
                                 </button>
                                 {visiblePages.map((pnum, idx) => (
@@ -324,8 +319,7 @@ export default function AllPostsPage() {
                                                 background: '#fff',
                                                 color: '#5559d1',
                                                 boxShadow: '0 5px 20px rgba(114,114,255,.12)'
-                                            }}
-                                        >
+                                            }}>
                                             {pnum}
                                         </button>
                                     )
@@ -336,8 +330,7 @@ export default function AllPostsPage() {
                                     className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                                     aria-label="Next page"
                                     title="Next"
-                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                                >
+                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                                     <ChevronRight className="w-4 h-4" style={{ color: '#5559d1' }} />
                                 </button>
                                 <button
@@ -346,8 +339,7 @@ export default function AllPostsPage() {
                                     className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                                     aria-label="Last page"
                                     title="Last"
-                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                                >
+                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                                     <ChevronsRight className="w-4 h-4" style={{ color: '#5559d1' }} />
                                 </button>
                             </div>

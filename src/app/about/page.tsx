@@ -145,27 +145,6 @@ export default function AboutPage() {
                         </div>
                     </div>
                 </section>
-
-                {/* CONTACT STRIP */}
-                {/* <section className="mt-10">
-                    <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, var(--surface), transparent)' }}>
-                        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-0 items-stretch">
-                            <div className="p-6 md:p-10">
-                                <h3 className="text-2xl font-bold" style={{ color: '#29294b' }}>Contact Us</h3>
-                                <p className="text-gray-700 mt-1" style={{ lineHeight: 1.7 }}>Have a question or want to collaborate? We’re here.</p>
-                                <form className="mt-5 grid gap-3 max-w-xl">
-                                    <input placeholder="Your name" className="rounded-xl px-3 h-11 bg-white/5 border border-white/10" />
-                                    <input placeholder="Your email" className="rounded-xl px-3 h-11 bg-white/5 border border-white/10" />
-                                    <textarea placeholder="Your message" className="rounded-xl px-3 py-2 min-h-[120px] bg-white/5 border border-white/10" />
-                                    <button type="button" className="btn btn-primary shine w-fit">Send Message</button>
-                                </form>
-                            </div>
-                            <div className="relative min-h-[260px]">
-                                <Image src="/images/a10.webp" alt="workspace" fill className="object-cover" />
-                            </div>
-                        </div>
-                    </div>
-                </section> */}
             </div>
         </>
     );
