@@ -83,7 +83,7 @@ export default function UserPosts() {
                     title: p.title,
                     authorName: typeof p.author === 'string' ? p.author : p.author?.fullName || 'Unknown',
                     date: p.createdAt || new Date().toISOString(),
-                    image: p.bannerImageUrl || '/images/a1.webp',
+                    image: p.bannerImageUrl || '',
                     tag: p.tags || [],
                     publishedAt: p.publishedAt,
                     readTime: p.readingTimeMinutes || 0,

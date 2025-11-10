@@ -59,7 +59,7 @@ export default function SchedulePosts() {
             title: p.title,
             date: new Date(p.createdAt || Date.now()).toDateString(),
             excerpt: "",
-            image: p.bannerImageUrl || p.imageUrls?.[0] || "/images/a1.webp",
+            image: p.bannerImageUrl || p.imageUrls?.[0] || "",
             author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
             tag: p.tags || [],
             publishedAt: p.publishedAt,

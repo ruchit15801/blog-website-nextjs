@@ -161,51 +161,95 @@ export default function ArticlePage() {
     };
     const formattedDate = formatDate(post.publishedAt || post.createdAt);
 
+    // const getContentWithImages = () => {
+    //     const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" }> = [];
+    //     const parser = new DOMParser();
+    //     const doc = parser.parseFromString(post.contentHtml, "text/html");
+    //     const children = Array.from(doc.body.children);
+
+    //     let usedImages = 0;
+    //     let wordCount = 0;
+
+    //     if (children.length === 0) {
+    //         const textContent = post.contentHtml.trim();
+    //         if (textContent) blocks.push(`<p>${textContent}</p>`);
+    //     } else {
+    //         children.forEach((child) => {
+    //             const text = child.textContent?.trim() || "";
+    //             const words = text.split(/\s+/).filter(Boolean);
+
+    //             if (words.length > 0) {
+    //                 let start = 0;
+    //                 while (start < words.length) {
+    //                     const chunk = words.slice(start, start + 15).join(" ");
+    //                     blocks.push(`<p>${chunk}</p>`);
+    //                     start += 15;
+    //                     wordCount += 15;
+
+    //                     if (post.imageUrls && usedImages < post.imageUrls.length && wordCount >= 100) {
+    //                         const remainingWords = words.length - start;
+    //                         const numImages = remainingWords > 30 ? 2 : 1;
+    //                         for (let i = 0; i < numImages; i++) {
+    //                             if (usedImages >= post.imageUrls.length) break;
+    //                             blocks.push({
+    //                                 type: "image",
+    //                                 url: post.imageUrls[usedImages],
+    //                                 size: numImages > 1 ? "small" : "large",
+    //                             });
+    //                             usedImages++;
+    //                         }
+    //                         wordCount = 0;
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     }
+
+    //     // remaining images last me add
+    //     if (post.imageUrls && usedImages < post.imageUrls.length) {
+    //         for (let i = usedImages; i < post.imageUrls.length; i++) {
+    //             blocks.push({ type: "image", url: post.imageUrls[i], size: "large" });
+    //         }
+    //     }
+
+    //     return blocks;
+    // };
+
     const getContentWithImages = () => {
         const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" }> = [];
+
         const parser = new DOMParser();
-        const doc = parser.parseFromString(post.contentHtml, "text/html");
+        const doc = parser.parseFromString(post.contentHtml || "", "text/html");
         const children = Array.from(doc.body.children);
 
         let usedImages = 0;
-        let wordCount = 0;
+        let paragraphCount = 0;
 
         if (children.length === 0) {
-            const textContent = post.contentHtml.trim();
+            const textContent = post.contentHtml?.trim();
             if (textContent) blocks.push(`<p>${textContent}</p>`);
         } else {
             children.forEach((child) => {
-                const text = child.textContent?.trim() || "";
-                const words = text.split(/\s+/).filter(Boolean);
+                blocks.push(child.outerHTML);
+                paragraphCount++;
 
-                if (words.length > 0) {
-                    let start = 0;
-                    while (start < words.length) {
-                        const chunk = words.slice(start, start + 15).join(" ");
-                        blocks.push(`<p>${chunk}</p>`);
-                        start += 15;
-                        wordCount += 15;
+                if (post.imageUrls && usedImages < post.imageUrls.length && paragraphCount % 3 === 0) {
+                    const remaining = post.imageUrls.length - usedImages;
+                    const numImages = remaining > 1 ? 2 : 1;
 
-                        if (post.imageUrls && usedImages < post.imageUrls.length && wordCount >= 100) {
-                            const remainingWords = words.length - start;
-                            const numImages = remainingWords > 30 ? 2 : 1;
-                            for (let i = 0; i < numImages; i++) {
-                                if (usedImages >= post.imageUrls.length) break;
-                                blocks.push({
-                                    type: "image",
-                                    url: post.imageUrls[usedImages],
-                                    size: numImages > 1 ? "small" : "large",
-                                });
-                                usedImages++;
-                            }
-                            wordCount = 0;
-                        }
+                    for (let i = 0; i < numImages; i++) {
+                        if (usedImages >= post.imageUrls.length) break;
+                        blocks.push({
+                            type: "image",
+                            url: post.imageUrls[usedImages],
+                            size: numImages > 1 ? "small" : "large",
+                        });
+                        usedImages++;
                     }
                 }
             });
         }
 
-        // remaining images last me add
         if (post.imageUrls && usedImages < post.imageUrls.length) {
             for (let i = usedImages; i < post.imageUrls.length; i++) {
                 blocks.push({ type: "image", url: post.imageUrls[i], size: "large" });
@@ -380,7 +424,7 @@ export default function ArticlePage() {
                             <div className="pointer-events-none absolute -inset-2 bg-gradient-to-b from-[#f5f7ff] to-transparent rounded-[22px] blur-sm" />
                         </div>
                         <div className="relative rounded-2xl bg-white shadow-lg ring-1 ring-black/5 p-5 sm:p-6 md:p-8">
-                            <div ref={contentRef} className="flex flex-col">
+                            <div ref={contentRef} className="space-y-6">
 
                                 {(() => {
                                     let firstTextRendered = false; return contentBlocks.map((block, index) => {

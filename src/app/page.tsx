@@ -42,7 +42,7 @@ export default function Home() {
     let active = true;
     setLoading(true);
     setError(null);
-    listAllHomePosts({ page, limit, sort: "random", category: selectedCat }).then((res) => {
+    listAllHomePosts({ page, limit, sort: "latest", category: selectedCat }).then((res) => {
       if (!active) return;
       setGrid(res.posts);
       setTotal(res.total);

@@ -25,7 +25,6 @@ export default function AllPostsPage() {
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<"latest" | "oldest" | "random">("latest");
     const [authors, setAuthors] = useState<SidebarAuthor[]>([]);
-    // Custom dropdown state
     const sortOptions: Array<{ value: "latest" | "oldest" | "random"; label: string }> = [
         { value: "latest", label: "Latest" },
         { value: "oldest", label: "Oldest" },
@@ -45,7 +44,6 @@ export default function AllPostsPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Sync state from URL on first load
     useEffect(() => {
         const p = Number(searchParams.get("page") || 1);
         const l = Number(searchParams.get("limit") || 12);
@@ -58,7 +56,6 @@ export default function AllPostsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Reflect state into URL when it changes
     useEffect(() => {
         const sp = new URLSearchParams();
         if (page) sp.set("page", String(page));
@@ -66,7 +63,6 @@ export default function AllPostsPage() {
         if (sort) sp.set("sort", String(sort));
         if (selectedCat) sp.set("category", String(selectedCat));
         router.replace(`/all-posts?${sp.toString()}`);
-        // Smooth scroll top on page change
         if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
     }, [page, limit, sort, selectedCat, router]);
 
@@ -107,13 +103,10 @@ export default function AllPostsPage() {
         return () => io.disconnect();
     }, [posts.length, search]);
 
-    // Debounce search typing for better UX
     useEffect(() => {
         const t = setTimeout(() => { /* trigger filter already updates state */ }, 200);
         return () => clearTimeout(t);
     }, [search]);
-
-    // authors now loaded from API
 
     const filtered = useMemo(() => {
         if (!search.trim()) return posts;
@@ -126,7 +119,7 @@ export default function AllPostsPage() {
 
     const visiblePages = useMemo(() => {
         const pages: number[] = [];
-        const maxShown = 7; // including first/last and gaps
+        const maxShown = 7; 
         if (totalPages <= maxShown) {
             for (let i = 1; i <= totalPages; i++) pages.push(i);
             return pages;
@@ -134,9 +127,9 @@ export default function AllPostsPage() {
         const start = Math.max(2, page - 1);
         const end = Math.min(totalPages - 1, page + 1);
         pages.push(1);
-        if (start > 2) pages.push(-1); // gap
+        if (start > 2) pages.push(-1); 
         for (let i = start; i <= end; i++) pages.push(i);
-        if (end < totalPages - 1) pages.push(-2); // gap
+        if (end < totalPages - 1) pages.push(-2); 
         pages.push(totalPages);
         return pages;
     }, [page, totalPages]);
@@ -164,7 +157,7 @@ export default function AllPostsPage() {
                             {authors.length === 0 && <p className="text-sm text-gray-500">No authors to display.</p>}
                             {authors.map(a => (
                                 <div key={a._id} className="flex items-center gap-3">
-                                    <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
+                                    <Image src={a.avatarUrl || ""} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
                                     <div className="flex-1">
                                         <div className="font-medium" style={{ color: '#29294b' }}>{a.fullName}</div>
                                     </div>
