@@ -156,8 +156,6 @@ export default function Footer() {
               <ul
                 className={`transition-all duration-300 overflow-hidden ${openDropdown === "account" ? "max-h-40 opacity-100 mt-2" : "max-h-0 opacity-0"
                   } home-page-sub-menu sm:max-h-none sm:opacity-100 sm:mt-3 space-y-2 opacity-80`}>
-                {/* <li><Link href="/auth" className="hover:underline">Create Account</Link></li>
-                <li><Link href="/auth" className="hover:underline">Sign In</Link></li> */}
                 <li>
                   <Link href="/auth?mode=signup" className="hover:underline">
                     Create Account

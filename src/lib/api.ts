@@ -8,6 +8,29 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// ✅ Automatically attach token to every request
+api.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+// ✅ Handle expired token globally (401)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      window.location.href = "/auth?mode=signin";
+    }
+    return Promise.reject(error);
+  }
+);
+
 // ---------- Home APIs ----------
 export type HomePost = {
   _id: string;

@@ -9,10 +9,8 @@ export default function Home() {
 
   const [featured, setFeatured] = useState<HomePost[]>([]);
   const [trending, setTrending] = useState<HomePost[]>([]);
-  // const [recent, setRecent] = useState<HomePost[]>([]); // kept for potential future use
   const [recentMeta, setRecentMeta] = useState<{ total: number; page: number; limit: number; totalPages: number; hasNextPage?: boolean; hasPrevPage?: boolean } | undefined>(undefined);
   const [authors, setAuthors] = useState<{ _id: string; fullName?: string; avatarUrl?: string }[]>([]);
-  // const [catOptions, setCatOptions] = useState<TrendingCategory[]>([]); // Hero internally fetches categories
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
   const [search] = useState("");
   const [page, setPage] = useState(1);
@@ -33,7 +31,6 @@ export default function Home() {
     }).catch(() => { });
     listTrendingByCategory().then(() => {
       if (!active) return;
-      // setCatOptions(d.categories);
     }).catch(() => { });
     return () => { active = false; };
   }, [page, limit]);
@@ -57,7 +54,6 @@ export default function Home() {
     return grid.filter(p => (p.title || "").toLowerCase().includes(q));
   }, [grid, search]);
 
-  // pagination meta computed but unused (kept for extensibility)
   void Math.max(1, Math.ceil((filteredGrid.length || total) / limit));
 
   return (
@@ -76,7 +72,6 @@ export default function Home() {
           trendingPosts={trending}
           recentPosts={grid}
           topAuthors={authors}
-          // Pass recent pagination and a page setter to drive server pagination
           pagination={recentMeta}
           onPageChange={(p: number) => setPage(p)}
         />

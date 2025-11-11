@@ -22,7 +22,6 @@ export default function ArticlesSection({
     onPageChange?: (page: number) => void;
 }) {
     // Helper to get author name
-    // Helper to get author name only for HomePost
     const getPostAuthorName = (post: HomePost) => {
         if (typeof post.author === "string") return post.author;
         if (post.author?.fullName) return post.author.fullName;
@@ -35,7 +34,6 @@ export default function ArticlesSection({
     // Robust date formatter: supports ISO and YYYY-MM-DD strings
     const formatDate = (dateStr?: string) => {
         if (!dateStr || typeof dateStr !== "string") return "Unknown Date";
-        // Fast path for YYYY-MM-DD
         const parts = dateStr.split("T")[0]?.split("-") || [];
         if (parts.length === 3) {
             const [year, month, day] = parts.map(Number);
@@ -49,7 +47,6 @@ export default function ArticlesSection({
                 } catch { /* noop */ }
             }
         }
-        // Fallback: let Date try to parse; if invalid, show Unknown
         const d = new Date(dateStr);
         if (isNaN(d.getTime())) return "Unknown Date";
         return d.toLocaleDateString("en-US", {

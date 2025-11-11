@@ -105,7 +105,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         setRole(normalizedRole);
       } catch (err) {
         console.error("Failed to fetch profile:", err);
-        toast.error("Failed to fetch user. Redirecting to login...");
         router.replace("/auth");
       } finally {
         setLoading(false);
@@ -147,9 +146,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="relative flex min-h-screen bg-gray-50 dashboard-skin overflow-x-hidden">
       {/* Sidebar */}
-      <aside
-        className={`bg-gradient-to-b from-white to-gray-50 shadow-lg flex flex-col p-4 fixed top-0 left-0 h-screen transition-transform duration-300 w-64 z-30 ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
-      >
+      <aside className={`bg-gradient-to-b from-white to-gray-50 shadow-lg flex flex-col p-4 fixed top-0 left-0 h-screen transition-transform duration-300 w-64 z-30 ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
 
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center mb-8">

@@ -34,8 +34,6 @@ export default function UsersPage() {
   };
 
   const [editUser, setEditUser] = useState<EditableUser | null>(null);
-
-  // const [editUser, setEditUser] = useState<RemoteUser | null>(null);
   const [updating, setUpdating] = useState(false);
 
   const loadUsers = useCallback(() => {

@@ -2,7 +2,6 @@ import toast from "react-hot-toast";
 
 export function saveAdminToken(token: string) {
     if (typeof window === "undefined") return;
-    // keep admin token separate from user token to avoid cross-session leakage
     localStorage.setItem("admin_token", token);
 }
 
