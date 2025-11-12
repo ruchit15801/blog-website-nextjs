@@ -5,17 +5,7 @@ import Loader from "@/components/Loader";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Home,
-  BarChart3,
-  Users,
-  Calendar,
-  FileText,
-  Tag,
-  Clipboard,
-  Settings,
-  MessageCircle,
-} from "lucide-react";
+import { Home, BarChart3, Users, Calendar, FileText, Tag, Clipboard, Settings, MessageCircle,} from "lucide-react";
 import toast from "react-hot-toast";
 import {
   fetchAdminMeProfile,
@@ -23,11 +13,9 @@ import {
 } from "@/lib/adminClient";
 import { fetchMyProfile, MeProfile } from "@/lib/api";
 import { logoutAndRedirect } from "@/lib/auth";
-
 interface DashboardLayoutProps {
   children: ReactNode;
 }
-
 interface UserType {
   fullName: string;
   email: string;
@@ -42,14 +30,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
   const pathname = usePathname();
   const router = useRouter();
-
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const storedRole =
-    typeof window !== "undefined" ? localStorage.getItem("role") : "user";
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const storedRole = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
 
   useEffect(() => {
     if (user) {
@@ -73,13 +57,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       router.replace("/auth");
       return;
     }
-
     let active = true;
-
+    
     (async () => {
       try {
         let me: MeProfile | AdminMeProfile;
-
         if (storedRole === "admin") {
           me = await fetchAdminMeProfile(token);
         } else {
@@ -87,13 +69,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         }
 
         if (!active) return;
-
         const avatarUrl =
           "avatarUrl" in me ? me.avatarUrl : "avatar" in me ? me.avatar : "";
-
         const normalizedRole =
           me.role === "admin" || me.role === "user" ? me.role : "user";
-
         setUser({
           fullName: me.fullName || "",
           email: me.email || "",
@@ -101,7 +80,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           role: normalizedRole,
           createdAt: me.createdAt,
         });
-
         setRole(normalizedRole);
       } catch (err) {
         console.error("Failed to fetch profile:", err);
@@ -270,7 +248,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       onClick={() => setDropdownOpen(false)}>
                       🏠 <span>Home</span>
                     </Link>
-
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-2 w-full px-4 py-4 text-sm bg-red-500 hover:bg-red-700 text-white transition">

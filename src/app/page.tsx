@@ -3,10 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import Hero from "@/components/Hero";
 import ArticlesSection from "@/components/ArticlesSection";
 import { getHomeOverview, listAllHomePosts, listTrendingByCategory, type HomePost } from "@/lib/api";
-// Pagination UI is handled inside ArticlesSection via provided meta
 
 export default function Home() {
-
   const [featured, setFeatured] = useState<HomePost[]>([]);
   const [trending, setTrending] = useState<HomePost[]>([]);
   const [recentMeta, setRecentMeta] = useState<{ total: number; page: number; limit: number; totalPages: number; hasNextPage?: boolean; hasPrevPage?: boolean } | undefined>(undefined);

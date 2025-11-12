@@ -61,7 +61,6 @@ export default function UserProfileWithCategories() {
     useEffect(() => {
         if (!token) return;
         let active = true;
-
         (async () => {
             try {
                 let me: MeProfile | AdminMeProfile;
@@ -70,9 +69,7 @@ export default function UserProfileWithCategories() {
                 } else {
                     me = await fetchUserProfile(token);
                 }
-
                 if (!active) return;
-
                 const avatarUrl = 'avatarUrl' in me ? me.avatarUrl : 'avatar' in me ? me.avatar : '';
                 setProfile({
                     fullName: me.fullName || "",
@@ -96,7 +93,6 @@ export default function UserProfileWithCategories() {
                 console.error("Failed to fetch profile:", err);
             }
         })();
-
         return () => {
             active = false;
         };
@@ -105,7 +101,6 @@ export default function UserProfileWithCategories() {
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !token) return toast.error("User not authenticated");
-
         setLoading(true);
         toast.loading("Uploading avatar...", { id: "avatar-toast" });
 
@@ -345,11 +340,7 @@ export default function UserProfileWithCategories() {
                         </li>
                     </ul>
                 </div>
-
             </div>
         </DashboardLayout>
-
     );
-
-
 }

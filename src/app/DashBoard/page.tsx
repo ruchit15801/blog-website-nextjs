@@ -37,7 +37,6 @@ export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<AdminDashboardData | UserDashboardData | null>(null);
   const [profile, setProfile] = useState<AdminMeProfile | null>(null);
   const [loading, setLoading] = useState(true);
-
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
 

@@ -27,7 +27,6 @@ export default function UsersPage() {
 
   // Modal & Edit
   const [showModal, setShowModal] = useState(false);
-  // Define a temporary type for edit state
   type EditableUser = RemoteUser & {
     avatarFile?: File;
     avatarPreview?: string;
@@ -60,13 +59,11 @@ export default function UsersPage() {
       const matchSearch =
         (user.fullName || user.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
         (user.email || "").toLowerCase().includes(searchTerm.toLowerCase());
-
       let matchFilter = true;
       const totalPosts = user.totalPosts ?? 0;
       if (filter === "low") matchFilter = totalPosts < 10;
       else if (filter === "mid") matchFilter = totalPosts >= 10 && totalPosts <= 50;
       else if (filter === "high") matchFilter = totalPosts > 50;
-
       return matchSearch && matchFilter;
     });
   }, [users, searchTerm, filter]);
@@ -81,7 +78,6 @@ export default function UsersPage() {
 
   const handleDelete = async (userId: string) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
-
     try {
       setLoading(true);
       await deleteAdminUser(userId);
@@ -109,7 +105,7 @@ export default function UsersPage() {
       const token = getAdminToken();
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${editUser._id}`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` }, // browser handles FormData Content-Type
+        headers: { Authorization: `Bearer ${token}` }, 
         body: formData,
       });
 
@@ -423,8 +419,7 @@ export default function UsersPage() {
                     type="submit"
                     disabled={updating}
                     className="px-4 py-2 rounded-lg text-white disabled:opacity-60"
-                    style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
-                  >
+                    style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
                     {updating ? "Updating..." : "Update"}
                   </button>
                 </div>
@@ -432,7 +427,6 @@ export default function UsersPage() {
             </div>
           </div>
         )}
-
       </div>
     </DashboardLayout>
   );

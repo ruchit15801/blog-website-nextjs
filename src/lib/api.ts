@@ -85,7 +85,7 @@ export async function getHomeOverview(page: number = 1, limit: number = 12) {
     : [];
 
   // Map to UI expectations
-  const featuredPosts = topViewed; // use top viewed as featured
+  const featuredPosts = topViewed; 
   const trendingPosts = topLiked.length ? topLiked : (topCommented.length ? topCommented : topViewed);
   const recentPosts = recentData.data;
   // Normalize pagination/meta from overview's recent
@@ -164,19 +164,15 @@ export async function listPostsByAuthor(params: ListPostsByAuthorParams) {
   if (params.sort) url.searchParams.set("sort", params.sort);
   if (params.category) url.searchParams.set("category", params.category);
   if (params.tag) url.searchParams.set("tag", params.tag);
-
   const key = `author_${params.authorId}_${params.page ?? 1}_${params.limit ?? 12}_${params.category ?? "all"}_${params.tag ?? "all"}_${params.sort ?? "latest"}`;
-
   type CacheVal = { t: number; v: { posts: HomePost[]; total: number; page: number; limit: number; totalPages: number; hasNextPage: boolean; hasPrevPage: boolean } };
   const g = globalThis as unknown as { __authorCache?: Map<string, CacheVal> };
   g.__authorCache = g.__authorCache || new Map<string, CacheVal>();
-
   const now = Date.now();
   const hit = g.__authorCache.get(key);
   if (hit && now - hit.t < 15000) {
     return hit.v;
   }
-
   const res = await fetch(url.toString(), { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to fetch posts for author: ${res.status}`);
 
@@ -189,10 +185,8 @@ export async function listPostsByAuthor(params: ListPostsByAuthorParams) {
   const totalPages = Number(rawMeta.totalPages ?? Math.max(1, Math.ceil(total / (limit || 1))));
   const hasNextPage = Boolean(rawMeta.hasNextPage ?? page < totalPages);
   const hasPrevPage = Boolean(rawMeta.hasPrevPage ?? page > 1);
-
   const result = { posts: list, total, page, limit, totalPages, hasNextPage, hasPrevPage };
   g.__authorCache.set(key, { t: now, v: result });
-
   return result;
 }
 
@@ -341,13 +335,11 @@ export async function fetchAllUserPosts(params: {
   Object.entries(rest).forEach(([key, value]) => {
     if (value) url.searchParams.set(key, String(value));
   });
-
   const res = await fetch(url.toString(), {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-
   if (!res.ok) throw new Error('Failed to fetch posts');
   return res.json();
 }
@@ -456,11 +448,9 @@ export const updatePost = async (
 // Delete a post
 export const deleteUserPost = async (id: string, token: string) => {
   if (!token) throw new Error("Token not found");
-
   const res = await api.delete(`/posts/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-
   return res.data;
 };
 
@@ -470,16 +460,14 @@ export async function fetchScheduledPosts(params: {
   limit?: number;
   token: string;
   userId?: string;
-  q?: string; // optional search query
+  q?: string; 
 }) {
   const { token, ...rest } = params;
   const base = process.env.NEXT_PUBLIC_API_URL || '';
   const url = new URL(`${base}/posts/scheduled`);
-
   Object.entries(rest).forEach(([key, value]) => {
     if (value) url.searchParams.set(key, String(value));
   });
-
   const res = await fetch(url.toString(), {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -603,9 +591,7 @@ export async function submitContact(payload: { name: string; email: string; mess
   return res.json().catch(() => ({}));
 }
 
-
 // Dashboaed
-
 export type UserDashboardData = {
   myPosts: number;
   scheduledPosts: number;
@@ -665,7 +651,6 @@ export const updateMyProfile = async (
   const formData = new FormData();
   if (payload.fullName) formData.append("fullName", payload.fullName);
   if (payload.avatar) formData.append("avatar", payload.avatar);
-  // Map social link fields to API expected keys
   const fromObj = payload.socialLinks || {};
   const twitterUrl = payload.twitterUrl ?? fromObj.twitter;
   const facebookUrl = payload.facebookUrl ?? fromObj.facebook;

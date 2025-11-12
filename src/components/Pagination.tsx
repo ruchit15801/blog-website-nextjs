@@ -37,8 +37,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                     className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                     aria-label="First page"
                     title="First"
-                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                >
+                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                     <ChevronsLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
                 </button>
                 <button
@@ -47,8 +46,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                     className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                     aria-label="Previous page"
                     title="Prev"
-                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                >
+                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                     <ChevronLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
                 </button>
                 {visiblePages.map((pnum, idx) => (
@@ -66,8 +64,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                                 background: '#fff',
                                 color: '#5559d1',
                                 boxShadow: '0 5px 20px rgba(114,114,255,.12)'
-                            }}
-                        >
+                            }}>
                             {pnum}
                         </button>
                     )
@@ -78,8 +75,7 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                     className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                     aria-label="Next page"
                     title="Next"
-                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                >
+                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                     <ChevronRight className="w-4 h-4" style={{ color: '#5559d1' }} />
                 </button>
                 <button
@@ -88,13 +84,10 @@ export default function Pagination({ page, totalPages, onChange }: { page: numbe
                     className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                     aria-label="Last page"
                     title="Last"
-                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                >
+                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                     <ChevronsRight className="w-4 h-4" style={{ color: '#5559d1' }} />
                 </button>
             </div>
         </div>
     );
 }
-
-

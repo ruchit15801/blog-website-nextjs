@@ -14,15 +14,12 @@ export default function Navbar() {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
     const [user, setUser] = useState<{ name: string; avatar: string; role: string } | null>(null);
-
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null; // user or admin
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null; 
 
     useEffect(() => {
         if (!token || !role) return;
-
         let active = true;
-
         (async () => {
             try {
                 let response;
@@ -31,9 +28,7 @@ export default function Navbar() {
                 } else {
                     response = await fetchUserProfile(token);
                 }
-
                 if (!active) return;
-
                 setUser({
                     name: response.fullName || "User",
                     avatar: ("avatarUrl" in response ? response.avatarUrl : "avatar" in response ? response.avatar : "/images/default-avatar.png") || "/images/default-avatar.png",

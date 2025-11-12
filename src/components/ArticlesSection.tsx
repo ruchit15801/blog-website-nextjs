@@ -30,7 +30,6 @@ export default function ArticlesSection({
         return "Unknown Author";
     };
 
-
     // Robust date formatter: supports ISO and YYYY-MM-DD strings
     const formatDate = (dateStr?: string) => {
         if (!dateStr || typeof dateStr !== "string") return "Unknown Date";
@@ -80,7 +79,6 @@ export default function ArticlesSection({
             tag: Array.isArray(p.tags) && p.tags.length ? p.tags[0] : "",
         }));
     }, [featuredPosts]);
-
 
     // Slider state
     const [index, setIndex] = useState(0);

@@ -90,8 +90,7 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                             className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
                                 !selectedCat ? "bg-indigo-100" : ""
                             }`}
-                            onClick={() => onCategorySelect?.(null)}
-                        >
+                            onClick={() => onCategorySelect?.(null)}>
                             <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50 text-xs sm:text-base">
                                 🌐
                             </span>
@@ -105,8 +104,7 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                                 className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
                                     selectedCat === cat._id ? "bg-indigo-100" : ""
                                 }`}
-                                onClick={() => onCategorySelect?.(cat._id)}
-                            >
+                                onClick={() => onCategorySelect?.(cat._id)}>
                                 <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50">
                                     <Image
                                         src={cat.imageUrl || "/images/about.webp"}
@@ -128,8 +126,7 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                                 className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
                                     selectedCat === cat._id ? "bg-indigo-100" : ""
                                 }`}
-                                onClick={() => onCategorySelect?.(cat._id)}
-                            >
+                                onClick={() => onCategorySelect?.(cat._id)}>
                                 <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50">
                                     <Image
                                         src={cat.imageUrl || "/images/aside.webp"}
