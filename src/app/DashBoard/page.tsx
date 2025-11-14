@@ -95,7 +95,6 @@ export default function DashboardPage() {
   if (loading) return <Loader inline label="Loading dashboard..." />;
 
   const isAdmin = profile?.role === "admin";
-
   const statsAdmin = [
     { title: "My Posts", value: (dashboard as AdminDashboardData)?.myPosts ?? 0, icon: <BarChart3 size={28} />, color: "bg-gradient-to-tr from-blue-200 to-blue-400 text-blue-700" },
     { title: "Total Users", value: (dashboard as AdminDashboardData)?.users ?? 0, icon: <Users size={28} />, color: "bg-gradient-to-tr from-pink-200 to-pink-400 text-pink-700" },
@@ -104,7 +103,6 @@ export default function DashboardPage() {
     { title: "Total Posts", value: (dashboard as AdminDashboardData)?.posts ?? 0, icon: <BarChart3 size={28} />, color: "bg-gradient-to-tr from-purple-200 to-purple-400 text-purple-700" },
     { title: "Published Posts", value: (dashboard as AdminDashboardData)?.publishedPosts ?? 0, icon: <Users size={28} />, color: "bg-gradient-to-tr from-indigo-200 to-indigo-400 text-indigo-700" },
   ];
-
   const statsUser = [
     { title: "My Posts", value: (dashboard as UserDashboardData)?.myPosts ?? 0, icon: <BarChart3 size={28} />, color: "bg-gradient-to-tr from-blue-200 to-blue-400 text-blue-700" },
     { title: "Scheduled Posts", value: (dashboard as UserDashboardData)?.scheduledPosts ?? 0, icon: <Calendar size={28} />, color: "bg-gradient-to-tr from-yellow-200 to-yellow-400 text-yellow-700" },

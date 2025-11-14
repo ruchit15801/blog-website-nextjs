@@ -37,8 +37,7 @@ export default function PostPage() {
   const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   const token = useMemo(
-    () => (typeof window !== "undefined" ? getAdminToken() || localStorage.getItem("token") : null),
-    []
+    () => (typeof window !== "undefined" ? getAdminToken() || localStorage.getItem("token") : null), []
   );
 
   useEffect(() => {
@@ -51,7 +50,6 @@ export default function PostPage() {
         if (!token) throw new Error("Missing auth token. Please login.");
         const response = await fetchPostById(postId, token);
         const data = (response?.post ?? response?.data ?? response) as RemotePost | undefined;
-
         if (!data) throw new Error("Post not found");
         setPost(data);
       } catch (err) {
@@ -66,25 +64,30 @@ export default function PostPage() {
     loadPost();
   }, [postId, token]);
 
-  const contentBlocks = useMemo(() => {
-    if (!post) return [];
+  type ContentBlock = string | { type: "image"; url: string };
 
+  const contentBlocks = useMemo<ContentBlock[]>(() => {
+    if (!post) return [];
     const parser = new DOMParser();
     const doc = parser.parseFromString(post.contentHtml, "text/html");
     const paragraphs = Array.from(doc.body.children);
-
-    const blocks: Array<string | { type: "image"; url: string }> = [];
+    const imageUrls = post.imageUrls ?? [];
+    const blocks: ContentBlock[] = [];
     let imageIndex = 0;
 
-    paragraphs.forEach((p, i) => {
-      blocks.push(p.outerHTML);
-      if ((i + 1) % 3 === 0 && post.imageUrls?.[imageIndex]) {
-        blocks.push({ type: "image", url: post.imageUrls[imageIndex] });
+    for (let i = 0; i < paragraphs.length; i++) {
+      blocks.push(paragraphs[i].outerHTML);
+      if ((i + 1) % 3 === 0 && imageIndex < imageUrls.length) {
+        blocks.push({ type: "image", url: imageUrls[imageIndex] });
         imageIndex++;
       }
-    });
-    // Add remaining images
-    post.imageUrls?.slice(imageIndex).forEach((url) => blocks.push({ type: "image", url }));
+    }
+
+    while (imageIndex < imageUrls.length) {
+      blocks.push({ type: "image", url: imageUrls[imageIndex] });
+      imageIndex++;
+    }
+
     return blocks;
   }, [post]);
 
@@ -109,13 +112,10 @@ export default function PostPage() {
         <div className="flex justify-center">
           <div className="flex flex-col lg:flex-row gap-6 w-full max-w-5xl mx-auto">
             {/* Sidebar */}
-            <div
-              className="w-full sm:w-auto lg:w-1/5 flex-shrink-0 flex justify-center lg:block mb-4 lg:mb-0"
-              style={{ position: "sticky", top: "80px", alignSelf: "start" }}>
+            <div className="w-full sm:w-auto lg:w-1/5 flex-shrink-0 flex justify-center lg:block mb-4 lg:mb-0" style={{ position: "sticky", top: "80px", alignSelf: "start" }}>
               <div className="flex gap-6 sm:flex-row lg:flex-col sm:items-center justify-center lg:justify-start">
                 {/* Reading Time Circle */}
-                <div
-                  className="relative flex items-center justify-center font-bold rounded-full w-20 h-20 lg:w-24 lg:h-24">
+                <div className="relative flex items-center justify-center font-bold rounded-full w-20 h-20 lg:w-24 lg:h-24">
                   <div className="flex items-center justify-center text-gray-800 w-16 h-16 lg:w-20 lg:h-20"
                     style={{
                       position: "sticky",
@@ -127,7 +127,7 @@ export default function PostPage() {
                       borderRadius: "9999px",
                       transition: ".25s",
                     }}>
-                    <span className="text-sm lg:text-base font-bold px-2">
+                    <span className="text-sm lg:text-base font-bold px-2 text-center">
                       {post.readingTimeMinutes || 0} min read
                     </span>
                   </div>

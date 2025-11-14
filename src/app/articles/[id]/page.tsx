@@ -35,11 +35,9 @@ export default function ArticlePage() {
     const [progress, setProgress] = useState(0);
     const [prevPost, setPrevPost] = useState<HomePost | null>(null);
     const [nextPost, setNextPost] = useState<HomePost | null>(null);
-
     const contentRef = useRef<HTMLDivElement | null>(null);
     const params = useParams();
     const router = useRouter();
-
     const raw = Array.isArray(params?.id) ? params.id[0] : params?.id;
     const postId = extractIdFromSlug(raw) || undefined;
 
