@@ -80,9 +80,7 @@ export async function getHomeOverview(page: number = 1, limit: number = 12) {
   const recentData = Array.isArray(data.recentPosts)
     ? { data: (data.recentPosts as HomePost[]), pagination: undefined }
     : { data: ((data.recentPosts?.data || []) as HomePost[]), pagination: data.recentPosts?.pagination };
-  const authors = Array.isArray(data.topAuthors)
-    ? (data.topAuthors as HomeAuthor[])
-    : [];
+  const authors = Array.isArray(data.topAuthors) ? (data.topAuthors as HomeAuthor[]) : [];
 
   // Map to UI expectations
   const featuredPosts = topViewed; 

@@ -21,8 +21,7 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
             try {
                 const { categories } = await listTrendingByCategory();
                 setCategories(categories);
-            } catch (err) {
-                console.log("Failed to fetch trending categories", err);
+            } catch {
                 toast.error("Failed to fetch trending categories");
             } finally {
                 setLoading(false);

@@ -18,7 +18,6 @@ type QueryState = {
 export default function BlogIndex() {
   const router = useRouter();
   const pathname = usePathname();
-
   const [posts, setPosts] = useState<HomePost[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,12 +43,14 @@ export default function BlogIndex() {
     setError(null);
     try {
       const res = await listPostsByAuthor({ authorId, page, limit });
-      setPosts(res.posts || []);
-      setTotalPages(res.totalPages || Math.max(1, Math.ceil((res.total || 0) / limit)));
-      const firstPost = res.posts?.[0];
-      setAuthorName(firstPost ? (typeof firstPost.author === "string" ? firstPost.author : firstPost.author?.fullName || "") : "");
-    } catch (e) {
-      console.error(e);
+      const postsData = res.posts ?? [];
+      const total = res.total ?? 0;
+      const firstPost = postsData[0];
+      setPosts(postsData);
+      setTotalPages(res.totalPages || Math.max(1, Math.ceil(total / limit)));
+      setAuthorName(typeof firstPost?.author === "string" ? firstPost.author : firstPost?.author?.fullName ?? "");
+    } catch (err) {
+      console.error(err);
       setError("Failed to load posts");
     } finally {
       setLoading(false);
@@ -78,12 +79,10 @@ export default function BlogIndex() {
   const updateQueryAndFetch = (newQuery: Partial<QueryState>) => {
     const updated = { ...query, ...newQuery };
     setQuery(updated);
-
     const sp = new URLSearchParams();
     if (updated.authorId) sp.set("author", updated.authorId);
     sp.set("page", String(updated.page));
     sp.set("limit", String(updated.limit));
-
     router.push(`${pathname}?${sp.toString()}`, { scroll: false });
     fetchPosts(updated);
   };

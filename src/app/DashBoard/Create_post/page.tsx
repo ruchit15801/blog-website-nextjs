@@ -25,7 +25,6 @@ type PostType = {
 
 export default function AdminLayout() {
     const [postId, setPostId] = useState<string | null>(null);
-
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         setPostId(params.get("id"));
@@ -33,7 +32,6 @@ export default function AdminLayout() {
 
     // Post state for edit
     const [editPost, setEditPost] = useState<PostType | null>(null);
-
     const [token, setToken] = useState<string>("");
     const [title, setTitle] = useState("");
     const [subtitle, setSubtitle] = useState("");
@@ -50,11 +48,9 @@ export default function AdminLayout() {
     const [catsLoading, setCatsLoading] = useState(false);
     const [catError, setCatError] = useState<string | null>(null);
     const [catSearch, setCatSearch] = useState("");
-
     const [tagsList, setTagsList] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
     const [status, setStatus] = useState<"published" | "scheduled">("published");
-
     const editorRef = useRef<HTMLDivElement | null>(null);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -66,13 +62,11 @@ export default function AdminLayout() {
     const [bannerPreview, setBannerPreview] = useState<string | null>(null);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-    // Fetch admin token from localStorage
     useEffect(() => {
-        const existing = getAdminToken() || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
-        if (existing) setToken(existing);
+        const t = getAdminToken() || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+        if (t) setToken(t);
     }, []);
 
-    // Load categories
     const loadCategories = useCallback(async () => {
         if (!token) return;
         setCatsLoading(true);
@@ -80,145 +74,106 @@ export default function AdminLayout() {
         try {
             const list = await fetchCategories(token);
             setCategories(list);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            toast.error(message || "Failed to load categories");
+        } catch {
+            toast.error("Failed to load categories");
         } finally {
             setCatsLoading(false);
         }
     }, [token]);
 
     useEffect(() => {
-        if (token && token.length > 10) loadCategories();
+        if (token) loadCategories();
     }, [token, loadCategories]);
 
-    // Load post for editing
     const loadPostData = useCallback(async () => {
-        if (!postId || !token || prefilledRef.current) return;
+        if (!postId || !token || !categories.length || prefilledRef.current) return;
         try {
-            const res = await fetchPostById(postId, token);
-            const post = res.post;
-
+            const { post } = await fetchPostById(postId, token);
             setEditPost(post);
-
             setTitle(post.title || "");
             setSubtitle(post.subtitle || "");
-            setStatus(post.status as "published" | "scheduled" || "published");
-
-            // Tags
-            const tagsFromPost = post.tags
-                ? Array.isArray(post.tags)
-                    ? post.tags
-                    : typeof post.tags === "string"
-                        ? post.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
-                        : []
-                : [];
-
-            setTagsList(tagsFromPost);
-
-            // Content HTML
+            setStatus((post.status as "published" | "scheduled") || "published");
+            const tags = Array.isArray(post.tags) ? post.tags : typeof post.tags === "string" ? post.tags.split(",").map((t: string) => t.trim()).filter(Boolean): [];
+            setTagsList(tags);
             setContentHtml(post.contentHtml || "");
             if (editorRef.current) editorRef.current.innerHTML = post.contentHtml || "";
-
-            // Category: match name from categories list
+            const matchedCat = categories.find(c => c._id === post.category);
             setCategoryId(post.category || "");
-            const catName = categories.find(c => c._id === post.category)?.name || "";
-            setCategoryName(catName);
-
-            // Banner & images previews
+            setCategoryName(matchedCat?.name || "");
             if (post.bannerImageUrl) setBannerPreview(post.bannerImageUrl);
             if (Array.isArray(post.imageUrls)) setImagePreviews(post.imageUrls);
-
             prefilledRef.current = true;
-        } catch (err) {
-            console.error("Failed to load post:", err);
-            toast.error("Failed to load post data");
+        } catch {
+            toast.error("Failed to load post");
         }
     }, [postId, token, categories]);
 
     useEffect(() => {
-        if (postId && token && categories.length > 0 && !prefilledRef.current) {
-            loadPostData();
-        }
-    }, [postId, token, categories, loadPostData]);
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const exec = (_cmd: string, _value?: string) => { /* handled by TiptapEditor */ };
+        loadPostData();
+    }, [loadPostData]);
 
     const addTag = (value: string) => {
-        const newTag = value.trim();
-        if (newTag && !tagsList.includes(newTag)) setTagsList([...tagsList, newTag]);
+        const t = value.trim();
+        if (t && !tagsList.includes(t)) setTagsList(prev => [...prev, t]);
     };
-    const removeTag = (i: number) => setTagsList(tagsList.filter((_, idx) => idx !== i));
+
+    const removeTag = (i: number) => setTagsList(prev => prev.filter((_, idx) => idx !== i));
+
     const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(tagInput); setTagInput(""); }
+        if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            addTag(tagInput);
+            setTagInput("");
+        }
     };
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setMessage(null);
         if (!title.trim()) return toast.error("Title is required.");
-
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
-
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role") || "user";
         if (!token) return toast.error("Please login first.");
-
         try {
             setSubmitting(true);
+            const resolvedCategoryId = categories.find(c => c.name === categoryName)?._id || categoryId || "";
+            const postData = {
+                title,
+                subtitle,
+                contentHtml,
+                bannerFile: bannerFile ?? undefined,
+                imageFiles: imageFiles ?? [],
+                categoryId: resolvedCategoryId,
+                tags: tagsList,
+                status,
+            };
 
-            // Resolve category ID
-            const resolvedCategoryId = categoryName
-                ? (categories.find((c) => c.name === categoryName)?._id ?? "")
-                : categoryId;
+            const isEdit = Boolean(editPost?._id);
+            const id = editPost?._id;
 
-            // Prepare data based on role
             if (role === "admin") {
-                // Admin API
-                const postData = {
-                    title,
-                    subtitle,
-                    contentHtml,
-                    bannerFile,
-                    imageFiles,
-                    categoryId: resolvedCategoryId,
-                    tags: tagsList,
-                    status,
-                };
-
-                if (editPost?._id) {
-                    await adminUpdatePostById(editPost._id, postData, token);
+                if (isEdit) {
+                    await adminUpdatePostById(id ?? "", postData, token);
                     toast.success("Post updated successfully.");
                 } else {
                     await createRemotePost(postData);
                     toast.success("Post created successfully.");
                 }
-
-            } else {
-                const postData = {
-                    title,
-                    subtitle,
-                    contentHtml,
-                    bannerFile: bannerFile ?? undefined,
-                    imageFiles: imageFiles ?? [],
-                    categoryId: resolvedCategoryId,
-                    tags: tagsList,
-                    status,
-                };
-
-                if (editPost?._id) {
-                    await updatePost(editPost._id, postData, token);
+            }
+            else {
+                if (isEdit) {
+                    await updatePost(id ?? "", postData, token);
                     toast.success("Post updated successfully.");
                 } else {
                     await createPost(postData, token);
                     toast.success("Post created successfully.");
                 }
             }
-
-            setTimeout(() => { window.location.href = "/DashBoard/See_all_post"; }, 600);
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            toast.error(message || "Failed to save post");
+            setTimeout(() => {
+                window.location.href = "/DashBoard/See_all_post";
+            }, 600);
+        } catch {
+            toast.error("Failed to save post");
         } finally {
             setSubmitting(false);
         }
@@ -227,8 +182,6 @@ export default function AdminLayout() {
     return (
         <DashboardLayout>
             <div className="space-y-5 bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all p-6">
-
-
                 {/* Header */}
                 <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="w-full md:w-auto">
@@ -282,8 +235,6 @@ export default function AdminLayout() {
                                     <RefreshCw className="w-4 h-4 text-indigo-600 group-hover:rotate-180 transition-transform duration-300" />
                                 </button>
                             </div>
-
-
                             <div className="relative w-full mt-2">
                                 <button
                                     type="button"

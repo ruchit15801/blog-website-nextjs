@@ -10,20 +10,23 @@ export default function ContactPage() {
     const [submitting, setSubmitting] = useState(false);
     const [status, setStatus] = useState<string | null>(null);
 
-    async function handleSubmit(e: React.FormEvent) {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setStatus(null);
         setSubmitting(true);
         try {
             await submitContact({ name, email, message });
             setStatus("Thank you! We received your message.");
-            setName(""); setEmail(""); setMessage("");
-        } catch (err: unknown) {
-            setStatus(err instanceof Error ? err.message : "Failed to send. Please try again.");
+            setName("");
+            setEmail("");
+            setMessage("");
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : "Failed to send. Please try again.";
+            setStatus(msg);
         } finally {
             setSubmitting(false);
         }
-    }
+    };
 
     return (
         <>
@@ -48,8 +51,7 @@ export default function ContactPage() {
                     <form
                         onSubmit={handleSubmit}
                         className="flex flex-col space-y-6 p-4 sm:p-6 rounded-2xl max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl w-full text-left bg-white"
-                        style={{ boxShadow: '0 5px 25px 0 rgba(114,114,255,.12)', borderRadius: '16px' }}
-                    >
+                        style={{ boxShadow: '0 5px 25px 0 rgba(114,114,255,.12)', borderRadius: '16px' }}>
                         <h5 className="text-lg sm:text-xl md:text-2xl" style={{ color: '#29294b', fontWeight: 700, lineHeight: 1.2, letterSpacing: '-.04em' }}>
                             Ready to Get Started?
                         </h5>
@@ -121,8 +123,7 @@ export default function ContactPage() {
                             <button
                                 type="submit"
                                 disabled={submitting}
-                                className="submit-button text-white px-8 py-3 rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
-                            >
+                                className="submit-button text-white px-8 py-3 rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60">
                                 {submitting ? "Sending..." : "Submit Request"}
                             </button>
                         </div>

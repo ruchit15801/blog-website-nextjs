@@ -229,7 +229,6 @@ export default function ContactUsAdminPage() {
             })
             .catch((err: unknown) => {
                 console.error(err);
-                setError("Failed to load messages");
                 toast.error("Failed to load messages");
             })
             .finally(() => setLoading(false));

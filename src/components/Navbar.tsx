@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { fetchAdminMeProfile } from "@/lib/adminClient";
 import { fetchMyProfile as fetchUserProfile } from "@/lib/api";
 import { logoutAndRedirect } from "@/lib/auth";
+import toast from "react-hot-toast";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -35,11 +36,10 @@ export default function Navbar() {
                     role: (response.role?.toLowerCase() || role || "user") as string,
                 });
 
-            } catch (err) {
-                console.error("Failed to fetch profile for Navbar:", err);
+            } catch {
+                toast.error("Failed to fetch profile for Navbar");
             }
         })();
-
         return () => {
             active = false;
         };
@@ -177,37 +177,32 @@ export default function Navbar() {
                         <Link
                             href="/"
                             className={`px-3 py-2 rounded-lg ${pathname === "/" ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
-                            onClick={() => setOpen(false)}
-                        >
+                            onClick={() => setOpen(false)}>
                             Home
                         </Link>
                         <Link
                             href="/all-posts"
                             className={`px-3 py-2 rounded-lg ${pathname === "/all-posts" ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
-                            onClick={() => setOpen(false)}
-                        >
+                            onClick={() => setOpen(false)}>
                             All Posts
                         </Link>
                         <Link
                             href="/about"
                             className={`px-3 py-2 rounded-lg ${pathname === "/about" ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
-                            onClick={() => setOpen(false)}
-                        >
+                            onClick={() => setOpen(false)}>
                             About
                         </Link>
                         <a
                             href="https://www.pokiifuns.com/welcome"
                             target="_self"
                             className="px-3 py-2 rounded-lg hover:bg-gray-100 transition"
-                            onClick={() => setOpen(false)}
-                        >
+                            onClick={() => setOpen(false)}>
                             Games
                         </a>
                         <Link
                             href="/contact"
                             className={`px-3 py-2 rounded-lg ${pathname === "/contact" ? "bg-gray-100" : "hover:bg-gray-100"} transition`}
-                            onClick={() => setOpen(false)}
-                        >
+                            onClick={() => setOpen(false)}>
                             Contact Us
                         </Link>
 
@@ -216,8 +211,7 @@ export default function Navbar() {
                             <div className="mt-2 relative">
                                 <button
                                     className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 rounded-md"
-                                    onClick={() => setUserMenuOpen((v) => !v)}
-                                >
+                                    onClick={() => setUserMenuOpen((v) => !v)}>
                                     <Image
                                         src={user.avatar}
                                         alt={user.name}
@@ -231,8 +225,7 @@ export default function Navbar() {
                                         fill="none"
                                         stroke="currentColor"
                                         strokeWidth={2}
-                                        viewBox="0 0 24 24"
-                                    >
+                                        viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                     </svg>
                                 </button>
@@ -244,15 +237,13 @@ export default function Navbar() {
                                             <Link
                                                 href="/DashBoard"
                                                 className="flex items-center px-4 py-3 text-gray-700 text-sm hover:bg-indigo-50 hover:text-indigo-600 transition"
-                                                onClick={() => { setUserMenuOpen(false); setOpen(false); }}
-                                            >
+                                                onClick={() => { setUserMenuOpen(false); setOpen(false); }}>
                                                 <svg
                                                     className="w-4 h-4 mr-2 text-indigo-500"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     strokeWidth={2}
-                                                    viewBox="0 0 24 24"
-                                                >
+                                                    viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M3 6h18M3 18h18" />
                                                 </svg>
                                                 Dashboard
@@ -260,15 +251,13 @@ export default function Navbar() {
                                         )}
                                         <button
                                             onClick={handleLogout}
-                                            className="flex items-center px-4 py-3 text-sm text-white bg-red-500 hover:bg-red-600 transition"
-                                        >
+                                            className="flex items-center px-4 py-3 text-sm text-white bg-red-500 hover:bg-red-600 transition">
                                             <svg
                                                 className="w-4 h-4 mr-2"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 strokeWidth={2}
-                                                viewBox="0 0 24 24"
-                                            >
+                                                viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7" />
                                             </svg>
                                             Logout
@@ -283,8 +272,7 @@ export default function Navbar() {
                             <Link
                                 href="/auth"
                                 className="mt-2 buy-btn px-4 py-2 rounded-lg text-center bg-indigo-600 text-white hover:bg-indigo-700 transition"
-                                onClick={() => setOpen(false)}
-                            >
+                                onClick={() => setOpen(false)}>
                                 Sign Up
                             </Link>
                         )}

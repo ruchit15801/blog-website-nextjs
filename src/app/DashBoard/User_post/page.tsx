@@ -2,7 +2,7 @@
 import DashboardLayout from "../DashBoardLayout";
 import { MoreHorizontal, Search, ChevronDown } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState, useCallback} from "react";
+import { useEffect, useState, useCallback } from "react";
 import Loader from "@/components/Loader";
 import {
     adminDeletePostById,
@@ -29,7 +29,6 @@ type UiPost = {
 
 export default function UserPosts() {
     const router = useRouter();
-
     const [search, setSearch] = useState<string>("");
     const [selectedUser, setSelectedUser] = useState<string>("all");
     const [page, setPage] = useState<number>(1);
@@ -43,83 +42,89 @@ export default function UserPosts() {
     const [isUserDropdownOpen, setUserDropdownOpen] = useState<boolean>(false);
     const [isLimitDropdownOpen, setLimitDropdownOpen] = useState<boolean>(false);
 
-    // --- FETCH USERS ---
     useEffect(() => {
         let active = true;
         const token = localStorage.getItem("token");
         if (!token) return;
-
-        fetchAdminUsers({ page: 1, limit: 100 }, token)
-            .then(res => {
-                if (!active) return;
-                setUserOptions(res.users ?? []);
-            })
-            .catch(console.error);
-        return () => { active = false; };
+        (async () => {
+            try {
+                const res = await fetchAdminUsers({ page: 1, limit: 100 }, token);
+                if (active) setUserOptions(res.users ?? []);
+            } catch (err) {
+                console.error(err);
+            }
+        })();
+        return () => { active = false };
     }, []);
 
-    // --- FETCH POSTS ---
     useEffect(() => {
         let active = true;
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (!token) {
-            setError('Token not found');
+            setError("Token not found");
             setLoading(false);
             return;
         }
         setLoading(true);
         setError(null);
-
-        const authorId = selectedUser !== 'all' ? selectedUser : undefined;
-
-        fetchUserAllPosts({ page, limit, token, search: search || undefined, authorId })
-            .then(res => {
+        const authorId = selectedUser !== "all" ? selectedUser : undefined;
+        (async () => {
+            try {
+                const res = await fetchUserAllPosts({
+                    page,
+                    limit,
+                    token,
+                    search: search || undefined,
+                    authorId
+                });
                 if (!active) return;
                 const mapped: UiPost[] = res.data.map((p: UserPost) => ({
                     id: p._id,
                     title: p.title,
-                    authorName: typeof p.author === 'string' ? p.author : p.author?.fullName ?? 'Unknown',
+                    authorName: typeof p.author === "string" ? p.author : p.author?.fullName ?? "Unknown",
                     date: p.createdAt ?? new Date().toISOString(),
-                    image: p.bannerImageUrl ?? '',
+                    image: p.bannerImageUrl || "",
                     tag: p.tags ?? [],
                     publishedAt: p.publishedAt,
-                    readTime: p.readingTimeMinutes ?? 0,
+                    readTime: p.readingTimeMinutes ?? 0
                 }));
-
+                const total = res.meta?.total ?? mapped.length;
                 setItems(mapped);
-                setTotal(res.meta.total ?? mapped.length);
-                setTotalPages(Math.ceil((res.meta.total ?? mapped.length) / limit));
-            })
-            .catch(e => setError(e instanceof Error ? e.message : String(e)))
-            .finally(() => { if (active) setLoading(false); });
-
-        return () => { active = false; };
+                setTotal(total);
+                setTotalPages(Math.ceil(total / limit));
+            } catch (err) {
+                setError(err instanceof Error ? err.message : String(err));
+            } finally {
+                if (active) setLoading(false);
+            }
+        })();
+        return () => { active = false };
     }, [page, limit, search, selectedUser]);
 
-    // --- DEBOUNCE SEARCH ---
     useEffect(() => {
         const timer = setTimeout(() => setPage(1), 300);
         return () => clearTimeout(timer);
     }, [search]);
 
-    // --- DELETE POST ---
     const handleDelete = useCallback(async (postId: string) => {
         if (!window.confirm("Are you sure you want to delete this post?")) return;
         try {
             await adminDeletePostById(postId);
             setItems(prev => prev.filter(p => p.id !== postId));
             toast.success("Post deleted successfully!");
-        } catch (err) {
-            console.error(err);
+        } catch {
             toast.error("Failed to delete post");
         }
     }, []);
 
-    // --- Memoized User Display Name ---
-    const getUserDisplay = useCallback((id: string) => {
-        if (id === 'all') return 'All Users';
-        return userOptions.find(u => u._id === id)?.fullName ?? "Unknown User";
-    }, [userOptions]);
+    const getUserDisplay = useCallback(
+        (id: string) => {
+            if (id === "all") return "All Users";
+            const user = userOptions.find(u => u._id === id);
+            return user?.fullName ?? "Unknown User";
+        },
+        [userOptions]
+    );
 
     return (
         <DashboardLayout>
@@ -209,8 +214,7 @@ export default function UserPosts() {
                                         {Array.isArray(p.tag)
                                             ? p.tag.slice(0, 2).map((t, i) => (
                                                 <span key={i} className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{t}</span>
-                                            ))
-                                            : <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{p.tag}</span>
+                                            )): <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{p.tag}</span>
                                         }
                                     </div>
                                 )}

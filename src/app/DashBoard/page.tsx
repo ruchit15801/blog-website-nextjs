@@ -81,8 +81,7 @@ export default function DashboardPage() {
         if (!active) return;
         setProfile(me);
         setDashboard(stats);
-      } catch (err) {
-        console.error("Failed to load dashboard:", err);
+      } catch {
         toast.error("Your session has expired. Please sign in again to continue.");
       } finally {
         if (active) setLoading(false);

@@ -18,30 +18,26 @@ export default function AllPosts() {
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
     const [open, setOpen] = useState(false);
-
     const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [totalPosts, setTotalPosts] = useState(0);
-
     const isSearchActive = searchQuery.trim() !== "";
-
     const token = useMemo(() => (typeof window !== "undefined" ? localStorage.getItem("token") : null), []);
     const role = useMemo(() => (typeof window !== "undefined" ? localStorage.getItem("role") || "user" : "user"), []);
     const userId = useMemo(() => (typeof window !== "undefined" ? localStorage.getItem("userId") : null), []);
 
-    // --- Fetch Posts ---
+    const safeDate = (value?: string) => (value ? new Date(value) : new Date());
+
     useEffect(() => {
         if (!token) return;
         let active = true;
         setLoading(true);
         setError(null);
-
         const fetchPosts = async () => {
             try {
                 let posts: RemotePost[] = [];
                 let total = 0;
-
                 if (role === "admin") {
                     const res = await fetchAdminPosts({ page: currentPage, limit: perPage }, token);
                     posts = res.posts;
@@ -51,26 +47,24 @@ export default function AllPosts() {
                     posts = res.data.map((p: UserPost) => ({
                         _id: p._id,
                         title: p.title,
-                        bannerImageUrl: p.bannerImageUrl,
-                        createdAt: p.createdAt,
-                        publishedAt: p.publishedAt,
-                        author: typeof p.author === "string" ? { _id: "", fullName: p.author } : p.author,
-                        contentHtml: p.contentHtml || "",
-                        tags: p.tags || [],
-                        readingTimeMinutes: p.readingTimeMinutes || 0,
-                        slug: p.slug,
+                        bannerImageUrl: p.bannerImageUrl || "",
+                        createdAt: p.createdAt || "",
+                        publishedAt: p.publishedAt || "",
+                        author:typeof p.author === "string" ? { _id: "", fullName: p.author } : p.author,
+                        contentHtml: p.contentHtml ?? "",
+                        tags: p.tags ?? [],
+                        readingTimeMinutes: p.readingTimeMinutes ?? 0,
+                        slug: p.slug ?? "",         
                     }));
                     total = res.meta.total;
                 } else {
                     setError("User ID not found");
                     return;
                 }
-
                 if (!active) return;
                 setLivePosts(posts);
                 setTotalPosts(total);
-            } catch (err) {
-                console.error(err);
+            } catch {
                 toast.error("Failed to load posts");
             } finally {
                 if (active) setLoading(false);
@@ -78,74 +72,102 @@ export default function AllPosts() {
         };
 
         fetchPosts();
-        return () => { active = false; };
+        return () => {
+            active = false;
+        };
     }, [token, role, currentPage, userId]);
 
     // --- Base List & Filter/Sort ---
     const filteredArticles = useMemo(() => {
+        const query = searchQuery.toLowerCase();
         return livePosts
-            .map((p) => ({
-                id: p._id,
-                title: p.title,
-                date: new Date(p.createdAt || Date.now()).toDateString(),
-                author: typeof p.author === "string" ? p.author : p.author?.fullName || "",
-                excerpt: "",
-                image: p.bannerImageUrl || "",
-                tag: p.tags || [],
-                readTime: p.readingTimeMinutes || 0,
-                full: p,
-            }))
-            .filter((a) => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
-            .sort((a, b) =>
-                sortOrder === "latest"
-                    ? new Date(b.date).getTime() - new Date(a.date).getTime()
-                    : new Date(a.date).getTime() - new Date(b.date).getTime()
-            );
+            .map((p) => {
+                const dateObj = safeDate(p.createdAt);
+                return {
+                    id: p._id,
+                    title: p.title,
+                    date: dateObj.toDateString(),
+                    author: typeof p.author === "string" ? p.author : p.author?.fullName || "",
+                    excerpt: "",
+                    image: p.bannerImageUrl || "",
+                    tag: p.tags || [],
+                    readTime: p.readingTimeMinutes || 0,
+                    full: p,
+                    timestamp: dateObj.getTime(), 
+                };
+            })
+            .filter((a) => a.title.toLowerCase().includes(query))
+            .sort((a, b) => sortOrder === "latest" ? b.timestamp - a.timestamp : a.timestamp - b.timestamp);
     }, [livePosts, searchQuery, sortOrder]);
 
-    // --- Handlers ---
     const handleEdit = (post: RemotePost) => router.push(`/DashBoard/Create_post?id=${post._id}`);
     const handleDelete = async (postId: string) => {
         if (!confirm("Are you sure you want to delete this post?")) return;
         if (!token) return toast.error("You must be logged in to delete a post");
-
         try {
             if (role === "admin") await adminDeletePostById(postId);
             else await deleteUserPost(postId, token);
             setLivePosts((prev) => prev.filter((p) => p._id !== postId));
             toast.success("Post deleted successfully!");
-        } catch (err) {
-            console.error(err);
+        } catch {
             toast.error("Failed to delete post");
         }
     };
 
     // --- PostCard Component ---
-    const PostCard = ({ a }: { a: typeof filteredArticles[0] }) => (
+    const PostCard = ({ a }: { a: (typeof filteredArticles)[0] }) => (
         <article
             key={a.id}
             onClick={() => router.push(`/DashBoard/Post/${a.id}/`)}
             className="flex flex-col overflow-hidden group cursor-pointer relative bg-white pt-4 px-4 rounded-2xl shadow hover:shadow-lg transition">
             <div className="relative w-full h-48 sm:h-56 md:h-48 lg:h-56">
-                <Image src={a.image} alt={a.title} fill className="object-cover rounded-2xl" />
+                <Image
+                    src={a.image || "/placeholder.png"}
+                    alt={a.title}
+                    fill
+                    className="object-cover rounded-2xl"
+                />
                 <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                     {(Array.isArray(a.tag) ? a.tag.slice(0, 2) : [a.tag]).map((t, i) => (
-                        <span key={i} className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: "#eef2ff", color: "#5559d1", letterSpacing: ".05em" }}>{t}</span>
+                        <span
+                            key={i}
+                            className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                            style={{
+                                background: "#eef2ff",
+                                color: "#5559d1",
+                                letterSpacing: ".05em",
+                            }}>
+                            {t}
+                        </span>
                     ))}
                 </div>
-                <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition" onClick={(e) => e.stopPropagation()}>
+
+                <details
+                    className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition"
+                    onClick={(e) => e.stopPropagation()}>
                     <summary className="list-none cursor-pointer p-2 bg-black/30 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
                         <MoreHorizontal className="w-4 h-4" />
                     </summary>
                     <div className="absolute right-0 mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-md z-10">
-                        <button onClick={() => handleEdit(a.full)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Edit</button>
-                        <button onClick={() => handleDelete(a.id)} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">Delete</button>
+                        <button
+                            onClick={() => handleEdit(a.full)}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">
+                            Edit
+                        </button>
+                        <button
+                            onClick={() => handleDelete(a.id)}
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600">
+                            Delete
+                        </button>
                     </div>
                 </details>
             </div>
+
             <div className="py-4 px-1 flex flex-col gap-2">
                 <div className="flex flex-wrap items-center text-sm text-gray-500 gap-1">
-                    <span className="font-medium text-gray-700" style={{ color: "#5559d1" }}>{a.author}</span>
+                    <span className="font-medium text-gray-700" style={{ color: "#5559d1" }}>
+                        {a.author}
+                    </span>
                     <span className="text-gray-500"> on {a.date}</span>
                 </div>
                 <h2 className="text-lg font-bold">{a.title}</h2>

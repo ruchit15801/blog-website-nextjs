@@ -78,78 +78,98 @@ export default function Categories() {
 
   // Load categories
   useEffect(() => {
-    const load = async () => {
+    const loadCategories = async () => {
       try {
         setLoading(true);
         setError(null);
         const token = localStorage.getItem("token");
         if (!token) return;
-        const res = await listCategories(token);
-        const list: Category[] = (res.categories || res.data || []) as Category[];
-        setCategories(list.map(c => ({ id: c._id, name: c.name, shortName: c.slug, description: c.description || "", avatar: c.imageUrl })));
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : String(e));
+        const { categories, data } = await listCategories(token);
+        const list = (categories || data || []) as Category[];
+
+        setCategories(
+          list.map(c => ({
+            id: c._id,
+            name: c.name,
+            shortName: c.slug,
+            description: c.description || "",
+            avatar: c.imageUrl,
+          }))
+        );
+      } catch {
+        setError("Something went wrong");
       } finally {
         setLoading(false);
       }
     };
-    load();
+    loadCategories();
   }, []);
 
+  // Edit category
   const handleEdit = (cat: CategoryType) => {
     setForm({ ...cat, imagePreview: cat.avatar });
     setEditId(cat.id);
     setShowCreate(true);
   };
 
+  // Delete category
   const handleDelete = async (id: string | number) => {
     if (!confirm("Are you sure you want to delete this category?")) return;
     try {
       const adminToken = getAdminToken();
-      if (!adminToken) {
-        toast.error("Admin token missing. Please login as admin.");
-        return;
-      }
+      if (!adminToken) return toast.error("Admin token missing. Please login as admin.");
       await deleteCategory(String(id));
       setCategories(prev => prev.filter(c => c.id !== id));
       toast.success("Category deleted successfully!");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete category");
+    } catch {
+      toast.error("Failed to delete category");
     }
   };
 
+  // Create / Update category
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.shortName.trim()) return toast.error("Name and Short Name are required");
+    if (!form.name.trim() || !form.shortName.trim()) {
+      return toast.error("Name and Short Name are required");
+    }
+    const token = localStorage.getItem("token");
+    if (!token) return toast.error("Please login first");
+    const payload = {
+      name: form.name,
+      slug: form.shortName,
+      description: form.description,
+      imageFile: form.image || undefined,
+    };
 
     try {
       setCreating(true);
-      const token = localStorage.getItem("token");
-      if (!token) return toast.error("Please login first");
-
-      const imageFile = form.image || null;
-      let updatedCategory: CategoryType;
-
-      if (editId !== null) {
+      if (editId) {
         const adminToken = getAdminToken();
         if (!adminToken) return toast.error("Admin token missing.");
-        await updateCategory(String(editId), { name: form.name, slug: form.shortName, description: form.description, imageFile: imageFile || undefined });
+        await updateCategory(String(editId), payload);
 
-        updatedCategory = { ...form, id: editId, avatar: form.imagePreview };
-        setCategories(prev => prev.map(c => (c.id === editId ? updatedCategory : c)));
+        setCategories(prev =>
+          prev.map(c =>
+            c.id === editId ? { ...form, id: editId, avatar: form.imagePreview } : c
+          )
+        );
         toast.success("Category updated successfully!");
         setEditId(null);
       } else {
-        await createCategory({ name: form.name, slug: form.shortName, description: form.description, image: imageFile || null }, token);
-        const newCat = { ...form, id: Date.now(), avatar: form.imagePreview }; 
+        await createCategory(payload, token);
+        const newCat = {
+          ...form,
+          id: Date.now(),
+          avatar: form.imagePreview,
+        };
+
         setCategories(prev => [newCat, ...prev]);
         toast.success("Category created successfully!");
       }
-
       setForm({ id: 0, name: "", shortName: "", description: "", avatar: "" });
       setShowCreate(false);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } catch {
+      toast.error("Something went wrong");
     } finally {
       setCreating(false);
     }

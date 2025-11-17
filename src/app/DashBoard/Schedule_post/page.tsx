@@ -28,9 +28,20 @@ export default function SchedulePosts() {
   const [error, setError] = useState<string | null>(null);
   const [totalPosts, setTotalPosts] = useState(0);
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
-  const role = useMemo(() => (localStorage.getItem("role") || "").toLowerCase(), []);
-  const token = useMemo(() => localStorage.getItem(role === "admin" ? "token" : "accessToken") || "", [role]);
-  const userId = useMemo(() => localStorage.getItem("userId") || undefined, []);
+  const [role, setRole] = useState("");
+  const [token, setToken] = useState("");
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const r = (localStorage.getItem("role") || "").toLowerCase();
+    setRole(r);
+
+    const t = localStorage.getItem(r === "admin" ? "token" : "accessToken") || "";
+    setToken(t);
+
+    const u = localStorage.getItem("userId") || undefined;
+    setUserId(u);
+  }, []);
 
   // Fetch scheduled posts
   useEffect(() => {
@@ -39,65 +50,69 @@ export default function SchedulePosts() {
     setError(null);
     const fetchFn = role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
 
-    fetchFn({
-      page,
-      limit: perPage,
-      token,
-      q: search || undefined,
-      userId: role === "admin" ? undefined : userId,
-    })
-      .then((res) => {
+    const load = async () => {
+      try {
+        const res = await fetchFn({
+          page,
+          limit: perPage,
+          token,
+          q: search || undefined,
+          userId: role === "admin" ? undefined : userId,
+        });
         if (!active) return;
-        const posts = role === "admin" ? res.posts : res.data || [];
-        const total = role === "admin" ? res.total : res.total || res.meta?.total || posts.length;
+        const posts = role === "admin" ? res.posts : res.data ?? [];
+        const total = role === "admin" ? res.total : res.total ?? res.meta?.total ?? posts.length;
         setLivePosts(posts);
         setTotalPosts(total);
-      })
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
-
-    return () => {
-      active = false;
+      } catch {
+        if (active) setError("Something went wrong");
+      } finally {
+        if (active) setLoading(false);
+      }
     };
+    load();
+    return () => { active = false; };
   }, [page, perPage, search, role, token, userId]);
 
-  // Base list mapping
   const baseList = useMemo(() => {
-    return livePosts.map((p) => ({
-      id: p._id,
-      title: p.title,
-      date: new Date(p.createdAt || Date.now()).toDateString(),
-      excerpt: "",
-      image: p.bannerImageUrl || p.imageUrls?.[0] || "",
-      author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
-      tag: p.tags || [],
-      publishedAt: p.publishedAt,
-      readTime: p.readingTimeMinutes || 0,
-    }));
+    return livePosts.map((p) => {
+      const dateString = p.createdAt ? new Date(p.createdAt).toDateString() : new Date().toDateString();
+      return {
+        id: p._id,
+        title: p.title,
+        date: dateString,
+        excerpt: "",
+        image: p.bannerImageUrl || p.imageUrls?.[0] || "",
+        author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
+        tag: p.tags || [],
+        publishedAt: p.publishedAt,
+        readTime: p.readingTimeMinutes || 0,
+      };
+    });
   }, [livePosts]);
 
   const filtered = useMemo(() => {
+    const toTime = (val: string) => new Date(val).getTime();
     return [...baseList].sort((a, b) =>
-      sortOrder === "latest"
-        ? new Date(b.date).getTime() - new Date(a.date).getTime()
-        : new Date(a.date).getTime() - new Date(b.date).getTime()
+      sortOrder === "latest" ? toTime(b.date) - toTime(a.date) : toTime(a.date) - toTime(b.date)
     );
   }, [sortOrder, baseList]);
 
-  const handleEdit = (post: RemotePost) => router.push(`/DashBoard/Create_schedule_post?id=${post._id}`);
+  const handleEdit = (post: RemotePost) => {
+    router.push(`/DashBoard/Create_schedule_post?id=${post._id}`);
+  };
 
   const handlePublishNow = async (postId: string, postTitle: string) => {
     if (!confirm(`Publish "${postTitle}" now?`)) return;
     try {
-      setLoading(true);
       if (!token) throw new Error("Token not found");
-      if (role === "admin") await publishAdminPostNow(postId, token);
-      else await publishUserPost(postId, token);
+      setLoading(true);
+      const action = role === "admin" ? publishAdminPostNow : publishUserPost;
+      await action(postId, token);
       setLivePosts((prev) => prev.filter((p) => p._id !== postId));
       toast.success(`"${postTitle}" published successfully!`);
-    } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Failed to publish post");
+    } catch {
+      toast.error("Failed to publish post");
     } finally {
       setLoading(false);
     }
@@ -107,13 +122,12 @@ export default function SchedulePosts() {
     if (!confirm("Are you sure you want to delete this post?")) return;
     try {
       if (!token) throw new Error("Token not found");
-      if (role === "admin") await adminDeletePostById(postId);
-      else await deleteUserPost(postId, token);
+      const action = role === "admin" ? adminDeletePostById : deleteUserPost;
+      await action(postId, token);
       setLivePosts((prev) => prev.filter((p) => p._id !== postId));
       toast.success("Post deleted successfully!");
-    } catch (err) {
-      console.error(err);
-      toast.error(err instanceof Error ? err.message : "Failed to delete post");
+    } catch {
+      toast.error("Failed to delete post");
     }
   };
 
@@ -191,8 +205,7 @@ export default function SchedulePosts() {
           {error && !loading && (
             <div className="col-span-full text-center py-16 text-red-500">{error}</div>
           )}
-          {!loading &&
-            !error &&
+          {!loading && !error &&
             filtered.map((p) => (
               <article
                 key={p.id}
@@ -260,7 +273,6 @@ export default function SchedulePosts() {
                       })}
                     </div>
                   )}
-
                   <p className="text-gray-600 text-sm">{p.excerpt}</p>
                 </div>
               </article>

@@ -36,26 +36,24 @@ export default function PostPage() {
   const params = useParams();
   const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
-  const token = useMemo(
-    () => (typeof window !== "undefined" ? getAdminToken() || localStorage.getItem("token") : null), []
-  );
+  const token = useMemo(() => (typeof window !== "undefined" ? getAdminToken() || localStorage.getItem("token") : null), []);
 
   useEffect(() => {
     if (!postId) return;
 
     const loadPost = async () => {
-      setLoading(true);
-      setError(null);
       try {
         if (!token) throw new Error("Missing auth token. Please login.");
-        const response = await fetchPostById(postId, token);
-        const data = (response?.post ?? response?.data ?? response) as RemotePost | undefined;
+        setLoading(true);
+        setError(null);
+        const res = await fetchPostById(postId, token);
+        const data: RemotePost | undefined = res?.post ?? res?.data ?? res;
         if (!data) throw new Error("Post not found");
         setPost(data);
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
+        const msg = err instanceof Error ? err.message : "Failed to load post";
         setError(msg);
-        toast.error(msg || "Failed to load post");
+        toast.error(msg);
       } finally {
         setLoading(false);
       }
@@ -67,27 +65,24 @@ export default function PostPage() {
   type ContentBlock = string | { type: "image"; url: string };
 
   const contentBlocks = useMemo<ContentBlock[]>(() => {
-    if (!post) return [];
+    if (!post?.contentHtml) return [];
     const parser = new DOMParser();
     const doc = parser.parseFromString(post.contentHtml, "text/html");
-    const paragraphs = Array.from(doc.body.children);
     const imageUrls = post.imageUrls ?? [];
     const blocks: ContentBlock[] = [];
-    let imageIndex = 0;
 
-    for (let i = 0; i < paragraphs.length; i++) {
-      blocks.push(paragraphs[i].outerHTML);
-      if ((i + 1) % 3 === 0 && imageIndex < imageUrls.length) {
-        blocks.push({ type: "image", url: imageUrls[imageIndex] });
-        imageIndex++;
+    let imageIndex = 0;
+    let elementCount = 0;
+    for (const el of Array.from(doc.body.children)) {
+      blocks.push(el.outerHTML);
+      elementCount++;
+      if (elementCount % 3 === 0 && imageIndex < imageUrls.length) {
+        blocks.push({ type: "image", url: imageUrls[imageIndex++] });
       }
     }
-
     while (imageIndex < imageUrls.length) {
-      blocks.push({ type: "image", url: imageUrls[imageIndex] });
-      imageIndex++;
+      blocks.push({ type: "image", url: imageUrls[imageIndex++] });
     }
-
     return blocks;
   }, [post]);
 

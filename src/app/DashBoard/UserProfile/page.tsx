@@ -26,13 +26,7 @@ type UserProfileType = {
 };
 
 export default function UserProfileWithCategories() {
-    const [profile, setProfile] = useState<UserProfileType>({
-        fullName: "",
-        email: "",
-        role: "",
-        createdAt: "",
-        avatar: "",
-    });
+    const [profile, setProfile] = useState<UserProfileType>({fullName: "", email: "", role: "", createdAt: "", avatar: "",});
     const [loading, setLoading] = useState(false);
     const [socialLinks, setSocialLinks] = useState<{ twitter?: string; facebook?: string; instagram?: string; linkedin?: string }>({});
     const isValidUrl = (u?: string) => {
@@ -78,7 +72,6 @@ export default function UserProfileWithCategories() {
                     createdAt: me.createdAt,
                     avatar: avatarUrl,
                 });
-                // try to prefill social links if API returns them
                 type AnyProfile = Partial<MeProfile & AdminMeProfile & { socialLinks?: Record<string, string>; links?: Record<string, string>; twitterUrl?: string; facebookUrl?: string; instagramUrl?: string; linkedinUrl?: string }>;
                 const p = me as AnyProfile;
                 const maybeSocial = p.socialLinks || p.links || {
@@ -88,9 +81,8 @@ export default function UserProfileWithCategories() {
                     linkedin: p.linkedinUrl,
                 };
                 if (maybeSocial && typeof maybeSocial === 'object') setSocialLinks({ ...maybeSocial });
-
-            } catch (err) {
-                console.error("Failed to fetch profile:", err);
+            } catch {
+                toast.error("Failed to fetch profile");
             }
         })();
         return () => {

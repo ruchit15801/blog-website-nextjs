@@ -5,14 +5,10 @@ import Loader from "@/components/Loader";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Home, BarChart3, Users, Calendar, FileText,
-  Tag, Clipboard, Settings, MessageCircle,
-} from "lucide-react";
+import { Home, BarChart3, Users, Calendar, FileText,Tag, Clipboard, Settings, MessageCircle,} from "lucide-react";
 import toast from "react-hot-toast";
-
-import { fetchAdminMeProfile, type AdminMeProfile } from "@/lib/adminClient";
-import { fetchMyProfile, MeProfile } from "@/lib/api";
+import { fetchAdminMeProfile } from "@/lib/adminClient";
+import { fetchMyProfile } from "@/lib/api";
 import { logoutAndRedirect } from "@/lib/auth";
 
 interface DashboardLayoutProps {
@@ -32,18 +28,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
   const pathname = usePathname();
   const router = useRouter();
-
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const storedRole = (typeof window !== "undefined" ? localStorage.getItem("role") : "user") as | "admin" | "user";
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem("userProfile", JSON.stringify(user));
-      window.dispatchEvent(new Event("storage"));
-    }
+    if (!user) return;
+    localStorage.setItem("userProfile", JSON.stringify(user));
+    window.dispatchEvent(new Event("storage"));
   }, [user]);
 
   useEffect(() => {
@@ -52,31 +45,30 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       router.replace("/auth");
       return;
     }
-
-    let active = true;
-    (async () => {
+    let isMounted = true;
+    const loadProfile = async () => {
       try {
-        const me: AdminMeProfile | MeProfile = storedRole === "admin" ? await fetchAdminMeProfile(token) : await fetchMyProfile(token);
-
-        if (!active) return;
-        const avatar = ("avatarUrl" in me && me.avatarUrl) || ("avatar" in me && me.avatar) || "/images/default-avatar.png";
-        const normalizedRole = me.role === "admin" || me.role === "user" ? me.role : "user";
+        const fetchProfile = storedRole === "admin" ? fetchAdminMeProfile : fetchMyProfile;
+        const me = await fetchProfile(token);
+        if (!isMounted) return;
+        const avatar = me.avatarUrl || "/images/default-avatar.png";
         setUser({
-          fullName: me.fullName || "",
-          email: me.email || "",
+          fullName: me.fullName ?? "",
+          email: me.email ?? "",
           avatar,
-          role: normalizedRole,
+          role: me.role === "admin" ? "admin" : "user", 
           createdAt: me.createdAt,
         });
       } catch (err) {
         console.error("Profile fetch error:", err);
         router.replace("/auth");
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
-    })();
+    };
+    loadProfile();
     return () => {
-      active = false;
+      isMounted = false;
     };
   }, [token, storedRole, router]);
 
