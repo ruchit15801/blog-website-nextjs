@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 import { fetchAdminMeProfile } from "@/lib/adminClient";
 import { fetchMyProfile as fetchUserProfile } from "@/lib/api";
 import { logoutAndRedirect } from "@/lib/auth";
-import toast from "react-hot-toast";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -36,8 +35,8 @@ export default function Navbar() {
                     role: (response.role?.toLowerCase() || role || "user") as string,
                 });
 
-            } catch {
-                toast.error("Failed to fetch profile for Navbar");
+            } catch (err) {
+                console.error("Navbar profile fetch error:", err);
             }
         })();
         return () => {
