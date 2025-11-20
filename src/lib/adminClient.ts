@@ -2,7 +2,6 @@ import toast from "react-hot-toast";
 
 export function saveAdminToken(token: string) {
     if (typeof window === "undefined") return;
-    // keep admin token separate from user token to avoid cross-session leakage
     localStorage.setItem("admin_token", token);
 }
 
@@ -73,7 +72,7 @@ export async function createScheduledPost(payload: {
     title: string;
     subtitle?: string;
     contentHtml: string;
-    publishedAt: string; // ISO datetime
+    publishedAt: string; 
     bannerFile?: File | null;
     images?: string;
     imageFiles?: File[];
@@ -89,7 +88,6 @@ export async function createScheduledPost(payload: {
     form.append("subtitle", payload.subtitle ?? "");
     form.append("contentHtml", payload.contentHtml);
     form.append("publishedAt", payload.publishedAt);
-    // tags supports array per API
     if (Array.isArray(payload.tags)) {
         for (const t of payload.tags) form.append("tags", t);
     } else if (payload.tags) {
@@ -124,14 +122,11 @@ export async function publishAdminPostNow(
     postId: string,
     tokenOverride?: string
 ): Promise<RemotePost> {
-    // 🔑 Token fetch
     const token =
         tokenOverride ??
         getAdminToken() ??
         (typeof window !== "undefined" ? localStorage.getItem("token") : null);
-
     if (!token) throw new Error("Admin token missing. Please login as admin.");
-
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const res = await fetch(`${base}/admin/posts/${postId}/publish`, {
         method: "POST",
@@ -140,14 +135,11 @@ export async function publishAdminPostNow(
             Authorization: `Bearer ${token}`,
         },
     });
-
     if (!res.ok) {
         throw new Error(`Failed to publish post`);
     }
-
     const data = await res.json();
     if (!data.success) throw new Error(`Failed to publish post: ${JSON.stringify(data.error)}`);
-
     return data.post as RemotePost;
 }
 
@@ -167,7 +159,6 @@ export async function fetchCategories(tokenOverride?: string): Promise<RemoteCat
         throw new Error(`Failed to load categories`);
     }
     const data: unknown = await res.json();
-    // Flexible shapes: array | {data: array} | {categories: array} | {result: array}
     if (Array.isArray(data)) return data as RemoteCategory[];
     if (typeof data === "object" && data !== null) {
         const obj = data as Record<string, unknown>;
@@ -181,41 +172,34 @@ export async function fetchCategories(tokenOverride?: string): Promise<RemoteCat
 export async function updateCategory(id: string, payload: { name?: string; slug?: string; description?: string; imageFile?: File }) {
     const token = getAdminToken();
     if (!token) throw new Error("Admin token missing. Please login as admin.");
-
     const form = new FormData();
     if (payload.name) form.append("name", payload.name || '');
     if (payload.slug) form.append("slug", payload.slug || '');
     if (payload.description) form.append("description", payload.description || '');
     if (payload.imageFile) form.append("image", payload.imageFile);
-
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const res = await fetch(`${base}/categories/${id}`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
         body: form,
     });
-
     if (!res.ok) {
         throw new Error(`Failed to update category`);
     }
-
     return res.json();
 }
 
 export async function deleteCategory(id: string) {
     const token = getAdminToken();
     if (!token) throw new Error("Admin token missing. Please login as admin.");
-
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const res = await fetch(`${base}/categories/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
     });
-
     if (!res.ok) {
         throw new Error(`Failed to delete category`);
     }
-
     return res.json();
 }
 
@@ -246,24 +230,19 @@ export async function fetchAdminUsers(
 ): Promise<PaginatedUsers> {
     const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
     if (!token) throw new Error("Admin token missing. Please login as admin.");
-
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const url = new URL(`${base}/admin/users`);
     if (params.page != null) url.searchParams.set("page", String(params.page));
     if (params.limit != null) url.searchParams.set("limit", String(params.limit));
     if (params.q != null && params.q !== "") url.searchParams.set("q", params.q);
-
     const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
     });
-
     if (!res.ok) {
         throw new Error(`Failed to load users`);
     }
-
     const data: unknown = await res.json();
-    // Accept flexible shapes
     if (data && typeof data === "object") {
         const obj = data as Record<string, unknown>;
         const list = ((obj.data as unknown) ?? (obj.users as unknown)) ?? (obj.result as unknown);
@@ -276,7 +255,6 @@ export async function fetchAdminUsers(
         const totalPages = (meta.totalPages as number) ?? (obj.totalPages as number) ?? Math.max(1, Math.ceil(total / (limit || 1)));
         return { users, total, page, limit, totalPages };
     }
-
     return { users: [], total: 0, page: params.page ?? 1, limit: params.limit ?? 10, totalPages: 1 };
 }
 export async function updateAdminUser(
@@ -286,9 +264,7 @@ export async function updateAdminUser(
 ): Promise<RemoteUser> {
     const token = tokenOverride ?? getAdminToken() ?? (typeof window !== "undefined" ? localStorage.getItem("token") : null);
     if (!token) throw new Error("Admin token missing. Please login as admin.");
-
     const base = process.env.NEXT_PUBLIC_API_URL || "";
-
     let body: BodyInit;
     const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
 
@@ -312,10 +288,8 @@ export async function updateAdminUser(
     if (!res.ok) {
         throw new Error(`Failed to update user`);
     }
-
     const data = await res.json();
     if (!data.success) throw new Error(`Failed to update user: ${JSON.stringify(data.error)}`);
-
     return data.user as RemoteUser;
 }
 
@@ -331,17 +305,14 @@ export async function deleteAdminUser(
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
     });
-
     if (!res.ok) {
         throw new Error(`Failed to delete user`);
     }
-
     const data = await res.json();
     if (!data.success) throw new Error(`Failed to delete user: ${JSON.stringify(data.error)}`);
 }
 
 // SCHEDULE POST 
-
 export type RemotePost = {
     _id: string;
     title: string;
@@ -387,7 +358,6 @@ export async function fetchAdminPosts(
         headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
     });
-
     if (!res.ok) {
         throw new Error(`Failed to load posts`);
     }
@@ -452,7 +422,6 @@ export async function adminDeletePostById(postId: string, tokenOverride?: string
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
     });
-
     if (!res.ok) {
         throw new Error(`Failed to delete post`);
     }
@@ -492,7 +461,6 @@ export async function fetchAdminScheduledPosts(
     if (!res.ok) {
         throw new Error(`Failed to load scheduled posts`);
     }
-
     const dataObj = (await res.json()) as {
         data?: RemotePost[];
         meta?: { total?: number; page?: number; limit?: number; totalPages?: number };
@@ -500,7 +468,6 @@ export async function fetchAdminScheduledPosts(
 
     const posts: RemotePost[] = Array.isArray(dataObj.data) ? dataObj.data : [];
     const meta = dataObj.meta ?? { total: posts.length, page: params.page ?? 1, limit: params.limit ?? 10 };
-
     const total = meta.total ?? posts.length;
     const page = meta.page ?? (params.page ?? 1);
     const limit = meta.limit ?? (params.limit ?? 10);
@@ -657,7 +624,6 @@ export async function fetchAdminDashboard(tokenOverride?: string): Promise<Admin
     if (!res.ok) {
         throw new Error(`Failed to fetch dashboard`);
     }
-
     const data: unknown = await res.json();
 
     // Flexible parsing
@@ -712,7 +678,6 @@ export async function fetchUserAllPosts(params: FetchPostsParams) {
     });
 
     if (!res.ok) throw new Error('Failed to fetch posts');
-
     // Response expected: { success: true, data: UserPost[], meta: { page, limit, total } }
     const json = await res.json();
     return json;
@@ -743,7 +708,6 @@ export async function fetchContactMessages({
     q?: string;
 }) {
     if (!token) throw new Error("Admin token missing");
-
     const base = process.env.NEXT_PUBLIC_API_URL || "";
     const url = new URL(`${base}/admin/contacts`);
 
@@ -751,15 +715,12 @@ export async function fetchContactMessages({
     if (limit) url.searchParams.set("limit", String(limit));
     if (status) url.searchParams.set("status", status);
     if (q) url.searchParams.set("q", q);
-
     const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}` },
     });
-
     if (!res.ok) {
         throw new Error(`Failed to fetch contact messages: ${res.status}`);
     }
-
     return res.json();
 }
 
@@ -812,7 +773,6 @@ export async function replyToContactMessage({
     if (!res.ok) {
         throw new Error(`Failed to reply to contact`);
     }
-
     const json = await res.json();
     return json;
 }

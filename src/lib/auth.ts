@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 export function logoutAndRedirect() {
     if (typeof window === "undefined") return;
 
@@ -10,9 +12,8 @@ export function logoutAndRedirect() {
                 .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
         });
         window.dispatchEvent(new Event("storage"));
-
-    } catch (err) {
-        console.error("Error clearing data during logout:", err);
+    } catch {
+        toast.error("Error clearing data during logout");
     } finally {
         window.location.replace("/auth");
     }

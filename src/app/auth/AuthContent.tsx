@@ -184,8 +184,7 @@ export default function AuthContent() {
                                     resetForm();
                                     setMessage("");
                                 }}
-                                className={`w-1/2 py-2 rounded-full font-semibold text-center transition-colors duration-300 ${isSignUp ? "text-white" : "text-[#5559d1]"
-                                    }`}>
+                                className={`w-1/2 py-2 rounded-full font-semibold text-center transition-colors duration-300 ${isSignUp ? "text-white" : "text-[#5559d1]"}`}>
                                 Sign Up
                             </button>
                             <button
@@ -196,9 +195,7 @@ export default function AuthContent() {
                                     resetForm();
                                     setMessage("");
                                 }}
-                                className={`w-1/2 py-2 rounded-full font-semibold text-center transition-colors duration-300 ${!isSignUp ? "text-white" : "text-[#5559d1]"
-                                    }`}
-                            >
+                                className={`w-1/2 py-2 rounded-full font-semibold text-center transition-colors duration-300 ${!isSignUp ? "text-white" : "text-[#5559d1]" }`}>
                                 Sign In
                             </button>
                         </div>
@@ -265,8 +262,7 @@ export default function AuthContent() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-12 -translate-y-1/2 text-gray-500"
-                                >
+                                    className="absolute right-3 top-12 -translate-y-1/2 text-gray-500">
                                     {showPassword ? (
                                         <svg xmlns="http:www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path
@@ -328,8 +324,7 @@ export default function AuthContent() {
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-12 -translate-y-1/2 text-gray-500"
-                                        >
+                                            className="absolute right-3 top-12 -translate-y-1/2 text-gray-500">
                                             {showPassword ? (
                                                 <svg xmlns="http:www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.14.196-2.23.55-3.25M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -432,8 +427,7 @@ export default function AuthContent() {
                                                     setLoading(false);
                                                 }
                                             }}
-                                            className="text-blue-600 underline hover:text-blue-800 font-medium"
-                                        >
+                                            className="text-blue-600 underline hover:text-blue-800 font-medium">
                                             Resend OTP
                                         </button>
                                     </p>
@@ -459,8 +453,7 @@ export default function AuthContent() {
                                         <button
                                             type="button"
                                             onClick={() => setShowNewPassword(!showNewPassword)}
-                                            className="absolute right-3 top-12 -translate-y-1/2 text-gray-500"
-                                        >
+                                            className="absolute right-3 top-12 -translate-y-1/2 text-gray-500">
                                             {showNewPassword ? (
                                                 <svg xmlns="http:www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.14.196-2.23.55-3.25M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -490,8 +483,7 @@ export default function AuthContent() {
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-3 top-12 -translate-y-1/2 text-gray-500"
-                                        >
+                                            className="absolute right-3 top-12 -translate-y-1/2 text-gray-500">
                                             {showConfirmPassword ? (
                                                 <svg xmlns="http:www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.14.196-2.23.55-3.25M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -519,5 +511,3 @@ export default function AuthContent() {
         </div>
     );
 }
-
-

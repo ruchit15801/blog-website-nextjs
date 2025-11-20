@@ -51,7 +51,6 @@ export default function ContactMessageDetails() {
       .finally(() => setLoading(false));
   }, [id, token]);
 
-
   if (loading) {
     return (
       <DashboardLayout>
@@ -138,7 +137,6 @@ export default function ContactMessageDetails() {
               </div>
             </div>
           </div>
-
           {/* Divider */}
           <div className="border-t border-gray-200 my-6" />
 
@@ -205,8 +203,6 @@ export default function ContactMessageDetails() {
               </div>
             </div>
           )}
-
-
         </div>
       </div>
     </DashboardLayout>

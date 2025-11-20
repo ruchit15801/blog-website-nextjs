@@ -46,7 +46,6 @@ export default function NewPostPage() {
         }
     }
 
-    // Auto fetch when token becomes available (e.g., user pasted it)
     useEffect(() => {
         if (token && token.length > 10) {
             loadCategories();
@@ -76,7 +75,6 @@ export default function NewPostPage() {
         try {
             setSubmitting(true);
             saveAdminToken(token);
-            // Resolve categoryId from selected name if provided
             const resolvedCategoryId = categoryName
                 ? (categories.find((c) => c.name === categoryName)?._id ?? "")
                 : categoryId;
@@ -93,7 +91,6 @@ export default function NewPostPage() {
                 status: status as "published" | "scheduled",
             });
             setMessage("Post created successfully.");
-            // Reset form fields (keep token locked)
             setTitle("");
             setSubtitle("");
             setCategoryName("");
@@ -128,7 +125,6 @@ export default function NewPostPage() {
                 </div>
 
                 <form id="new-post-form" onSubmit={handleSubmit} className="grid gap-6 md:grid-cols-2">
-                    {/* Left column: fields */}
                     <div className="space-y-5">
                         <div className="grid gap-2">
                             <label className="text-sm font-semibold flex items-center gap-2">Admin Token
@@ -168,8 +164,7 @@ export default function NewPostPage() {
                                 value={categoryName}
                                 onChange={(e) => setCategoryName(e.target.value)}
                                 onFocus={() => { if (!categories.length && token) loadCategories(); }}
-                                className="rounded-xl px-3 h-11 bg-white/5 border border-white/10"
-                            >
+                                className="rounded-xl px-3 h-11 bg-white/5 border border-white/10">
                                 <option value="">Select a category</option>
                                 {categories.map((c) => (
                                     <option key={c._id} value={c.name}>{c.name}</option>
@@ -204,8 +199,6 @@ export default function NewPostPage() {
                                     ))}
                                 </div>
                             )}
-                            {/* <p className="text-xs text-muted">You can also paste URLs below (optional).</p> */}
-                            {/* <input value={images} onChange={(e) => setImageUrls(e.target.value)} placeholder="https://..., https://..." className="rounded-xl px-3 h-11 bg-white/5 border border-white/10" /> */}
                         </div>
 
                         <div className="grid gap-2">
@@ -270,5 +263,3 @@ export default function NewPostPage() {
         </>
     );
 }
-
-

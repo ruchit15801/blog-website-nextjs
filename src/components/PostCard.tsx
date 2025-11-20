@@ -36,5 +36,3 @@ export default function PostCard({ post }: { post: Post }) {
         </article>
     );
 }
-
-
