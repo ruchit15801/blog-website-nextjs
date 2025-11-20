@@ -120,7 +120,6 @@ export default function ArticlesSection({
 
     useEffect(() => {
         setIndex(0);
-        setCurrentPage(1);
     }, [recentPosts]);
 
     return (

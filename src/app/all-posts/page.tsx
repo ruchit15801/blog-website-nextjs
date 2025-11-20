@@ -246,7 +246,7 @@ export default function AllPostsPage() {
                             const date = new Date(p.publishedAt || p.createdAt || Date.now()).toDateString();
                             return (
                                 <Link key={p._id} href={`/articles/${buildSlugPath(p._id, p.title)}`}>
-                                    <article className="flex flex-col overflow-hidden group rounded-2xl bg-white shadow ring-1 ring-black/5 hover:-translate-y-0.5 transition-all hover:shadow-lg hover-glow reveal-on-scroll reveal" style={{ transitionDelay: `${i * 40}ms` }}>
+                                    <article className="flex flex-col overflow-hidden group rounded-2xl bg-white shadow ring-1 ring-black/5 hover:-translate-y-0.5 transition-all hover:shadow-lg hover-glow">
                                         <div className="relative w-full h-56">
                                             <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl hover-zoom" />
                                             <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent" />
