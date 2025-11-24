@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import Hero from "@/components/Hero";
 import ArticlesSection from "@/components/ArticlesSection";
 import { getHomeOverview, listAllHomePosts, listTrendingByCategory, type HomePost } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [featured, setFeatured] = useState<HomePost[]>([]);
@@ -15,8 +16,15 @@ export default function Home() {
   const [limit] = useState(12);
   const [grid, setGrid] = useState<HomePost[]>([]);
   const [total, setTotal] = useState(0);
-  const [, setLoading] = useState(false);
-  const [, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+  }, [loading, error, router]);
 
   useEffect(() => {
     let active = true;

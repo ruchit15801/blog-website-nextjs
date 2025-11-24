@@ -25,6 +25,13 @@ export default function BlogIndex() {
   const [authorName, setAuthorName] = useState("");
   const [query, setQuery] = useState<QueryState>({ authorId: "", page: 1, limit: 12 });
 
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
+
   // read query params from URL
   const readQueryParams = useCallback((): QueryState => {
     if (typeof window === "undefined") return { authorId: "", page: 1, limit: 12 };
@@ -160,9 +167,6 @@ export default function BlogIndex() {
           <option value={24}>24 / page</option>
         </select>
       </div>
-
-      {/* Error */}
-      {error && <div className="text-center text-red-500 py-12">{error}</div>}
 
       {/* Loading */}
       {loading && !error && (

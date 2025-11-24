@@ -8,6 +8,7 @@ import { listCategories, createCategory, type Category } from "@/lib/api";
 import { deleteCategory, updateCategory, getAdminToken } from "@/lib/adminClient";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 type CategoryType = {
   id: string | number;
@@ -74,7 +75,15 @@ export default function Categories() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const perPage = 6;
+  const router = useRouter();
   const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
 
   // Load categories
   useEffect(() => {

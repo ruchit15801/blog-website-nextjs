@@ -39,8 +39,8 @@ const DesktopMessageRow = ({
     return (
         <tr
             className={`group transition-all duration-300 transform-gpu cursor-pointer hover:shadow-md ${msg.status === "new"
-                    ? "bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100"
-                    : "bg-white hover:bg-gray-50"
+                ? "bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100"
+                : "bg-white hover:bg-gray-50"
                 }`}
             onClick={() => markAsReadAndNavigate(msg)}>
             <td className="px-5 py-5 text-gray-700 font-semibold text-center">
@@ -94,8 +94,8 @@ const DesktopMessageRow = ({
             <td className="px-5 py-5 text-center">
                 <span
                     className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide shadow-sm ${msg.status === "new"
-                            ? "bg-gradient-to-r from-pink-100 to-red-100 text-red-700 border border-red-200"
-                            : "bg-green-100 text-green-800 border border-green-200"
+                        ? "bg-gradient-to-r from-pink-100 to-red-100 text-red-700 border border-red-200"
+                        : "bg-green-100 text-green-800 border border-green-200"
                         }`}>
                     {msg.status === "new" ? <AlertCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
                     {msg.status === "new" ? "New Message" : "Read"}
@@ -215,6 +215,13 @@ export default function ContactUsAdminPage() {
         setSelectedMessage(msg);
         setModalOpen(true);
     };
+
+    useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
 
     const loadMessages = useCallback(() => {
         if (!token) return;

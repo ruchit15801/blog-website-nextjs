@@ -119,7 +119,7 @@ export default function AllPostsPage() {
 
     const visiblePages = useMemo(() => {
         const pages: number[] = [];
-        const maxShown = 7; 
+        const maxShown = 7;
         if (totalPages <= maxShown) {
             for (let i = 1; i <= totalPages; i++) pages.push(i);
             return pages;
@@ -127,12 +127,19 @@ export default function AllPostsPage() {
         const start = Math.max(2, page - 1);
         const end = Math.min(totalPages - 1, page + 1);
         pages.push(1);
-        if (start > 2) pages.push(-1); 
+        if (start > 2) pages.push(-1);
         for (let i = start; i <= end; i++) pages.push(i);
-        if (end < totalPages - 1) pages.push(-2); 
+        if (end < totalPages - 1) pages.push(-2);
         pages.push(totalPages);
         return pages;
     }, [page, totalPages]);
+
+    useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
 
     return (
         <Suspense fallback={<div className="py-16 flex justify-center"><Loader inline label="Loading posts..." /></div>}>
@@ -241,7 +248,7 @@ export default function AllPostsPage() {
                             </div>
                         )}
                         {error && !loading && <div className="col-span-full text-center text-red-500 py-10">{error}</div>}
-                        {!loading && !error && filtered.map((p, i) => {
+                        {!loading && !error && filtered.map((p) => {
                             const authorName = typeof p.author === "string" ? p.author : (p.author?.fullName || "");
                             const date = new Date(p.publishedAt || p.createdAt || Date.now()).toDateString();
                             return (
@@ -350,5 +357,3 @@ export default function AllPostsPage() {
         </Suspense>
     );
 }
-
-

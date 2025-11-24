@@ -41,6 +41,13 @@ export default function ArticlePage() {
     const raw = Array.isArray(params?.id) ? params.id[0] : params?.id;
     const postId = extractIdFromSlug(raw) || undefined;
 
+    useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
+
     // ------------------------ Fetch Single Post ------------------------
     useEffect(() => {
         if (!postId) return;
