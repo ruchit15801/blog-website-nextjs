@@ -35,6 +35,13 @@ export default function AllPostsPage() {
     const [perOpen, setPerOpen] = useState(false);
 
     useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
+
+    useEffect(() => {
         let active = true;
         listTopTrendingCategories(9).then((d) => { if (!active) return; setCategories(d.categories); }).catch(() => { });
         listTopTrendingAuthors(8).then((d) => { if (!active) return; setAuthors((d.authors || []).map((a: HomeAuthor & { avatarUrl?: string }) => ({ _id: a._id, fullName: a.fullName, avatarUrl: a.avatarUrl }))); }).catch(() => { });
@@ -133,13 +140,6 @@ export default function AllPostsPage() {
         pages.push(totalPages);
         return pages;
     }, [page, totalPages]);
-
-    useEffect(() => {
-        if (!loading && error) {
-            router.replace("/error");
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [loading, error]);
 
     return (
         <Suspense fallback={<div className="py-16 flex justify-center"><Loader inline label="Loading posts..." /></div>}>
