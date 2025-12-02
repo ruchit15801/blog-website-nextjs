@@ -9,6 +9,7 @@ import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, ty
 import toast from "react-hot-toast";
 import { buildSlugPath } from "@/lib/slug";
 import Loader from "@/components/Loader";
+import Script from "next/script";
 
 type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
 
@@ -33,6 +34,13 @@ export default function AllPostsPage() {
     const perPageOptions = [6, 12, 24];
     const [sortOpen, setSortOpen] = useState(false);
     const [perOpen, setPerOpen] = useState(false);
+
+    useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
 
     useEffect(() => {
         let active = true;
@@ -119,7 +127,7 @@ export default function AllPostsPage() {
 
     const visiblePages = useMemo(() => {
         const pages: number[] = [];
-        const maxShown = 7; 
+        const maxShown = 7;
         if (totalPages <= maxShown) {
             for (let i = 1; i <= totalPages; i++) pages.push(i);
             return pages;
@@ -127,9 +135,9 @@ export default function AllPostsPage() {
         const start = Math.max(2, page - 1);
         const end = Math.min(totalPages - 1, page + 1);
         pages.push(1);
-        if (start > 2) pages.push(-1); 
+        if (start > 2) pages.push(-1);
         for (let i = start; i <= end; i++) pages.push(i);
-        if (end < totalPages - 1) pages.push(-2); 
+        if (end < totalPages - 1) pages.push(-2);
         pages.push(totalPages);
         return pages;
     }, [page, totalPages]);
@@ -150,6 +158,24 @@ export default function AllPostsPage() {
                         </div>
                     </div>
 
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="7954361260"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    <Script id="ads-init-all-post-one" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
+
                     {/* Top Authors */}
                     <div className="aside-shadow rounded-2xl shadow p-6 bg-white">
                         <h3 className="text-lg font-semibold mb-3 uppercase" style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981' }}>Top Authors</h3>
@@ -166,6 +192,23 @@ export default function AllPostsPage() {
                             ))}
                         </div>
                     </div>
+
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-format="autorelaxed"
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="4945054543"
+                    />
+                    <Script id="ads-init-relaxed" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
                 </aside>
 
                 {/* Main grid */}
@@ -241,7 +284,7 @@ export default function AllPostsPage() {
                             </div>
                         )}
                         {error && !loading && <div className="col-span-full text-center text-red-500 py-10">{error}</div>}
-                        {!loading && !error && filtered.map((p, i) => {
+                        {!loading && !error && filtered.map((p) => {
                             const authorName = typeof p.author === "string" ? p.author : (p.author?.fullName || "");
                             const date = new Date(p.publishedAt || p.createdAt || Date.now()).toDateString();
                             return (
@@ -345,10 +388,24 @@ export default function AllPostsPage() {
                             </div>
                         </div>
                     )}
+
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-format="autorelaxed"
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="4443874551"
+                    />
+                    <Script id="ads-init-four" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
                 </section>
             </div>
         </Suspense>
     );
 }
-
-

@@ -43,6 +43,13 @@ export default function UserPosts() {
     const [isLimitDropdownOpen, setLimitDropdownOpen] = useState<boolean>(false);
 
     useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
+
+    useEffect(() => {
         let active = true;
         const token = localStorage.getItem("token");
         if (!token) return;
@@ -214,7 +221,7 @@ export default function UserPosts() {
                                         {Array.isArray(p.tag)
                                             ? p.tag.slice(0, 2).map((t, i) => (
                                                 <span key={i} className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{t}</span>
-                                            )): <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{p.tag}</span>
+                                            )) : <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{p.tag}</span>
                                         }
                                     </div>
                                 )}

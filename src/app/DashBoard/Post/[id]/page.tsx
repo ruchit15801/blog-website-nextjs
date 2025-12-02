@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ImageWithCredit from "@/components/ImageWithCredit";
 import Loader from "@/components/Loader";
 import { fetchPostById, getAdminToken } from "@/lib/adminClient";
@@ -34,9 +34,17 @@ export default function PostPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const params = useParams();
+  const router = useRouter();
   const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   const token = useMemo(() => (typeof window !== "undefined" ? getAdminToken() || localStorage.getItem("token") : null), []);
+
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
 
   useEffect(() => {
     if (!postId) return;

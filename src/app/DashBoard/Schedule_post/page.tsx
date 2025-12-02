@@ -33,6 +33,13 @@ export default function SchedulePosts() {
   const [userId, setUserId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
+
+  useEffect(() => {
     const r = (localStorage.getItem("role") || "").toLowerCase();
     setRole(r);
 

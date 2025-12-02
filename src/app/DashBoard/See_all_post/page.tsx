@@ -30,6 +30,13 @@ export default function AllPosts() {
     const safeDate = (value?: string) => (value ? new Date(value) : new Date());
 
     useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
+
+    useEffect(() => {
         if (!token) return;
         let active = true;
         setLoading(true);
@@ -50,11 +57,11 @@ export default function AllPosts() {
                         bannerImageUrl: p.bannerImageUrl || "",
                         createdAt: p.createdAt || "",
                         publishedAt: p.publishedAt || "",
-                        author:typeof p.author === "string" ? { _id: "", fullName: p.author } : p.author,
+                        author: typeof p.author === "string" ? { _id: "", fullName: p.author } : p.author,
                         contentHtml: p.contentHtml ?? "",
                         tags: p.tags ?? [],
                         readingTimeMinutes: p.readingTimeMinutes ?? 0,
-                        slug: p.slug ?? "",         
+                        slug: p.slug ?? "",
                     }));
                     total = res.meta.total;
                 } else {
@@ -93,7 +100,7 @@ export default function AllPosts() {
                     tag: p.tags || [],
                     readTime: p.readingTimeMinutes || 0,
                     full: p,
-                    timestamp: dateObj.getTime(), 
+                    timestamp: dateObj.getTime(),
                 };
             })
             .filter((a) => a.title.toLowerCase().includes(query))

@@ -25,6 +25,13 @@ export default function BlogIndex() {
   const [authorName, setAuthorName] = useState("");
   const [query, setQuery] = useState<QueryState>({ authorId: "", page: 1, limit: 12 });
 
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
+
   // read query params from URL
   const readQueryParams = useCallback((): QueryState => {
     if (typeof window === "undefined") return { authorId: "", page: 1, limit: 12 };
@@ -146,10 +153,15 @@ export default function BlogIndex() {
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold">All posts</h1>
           <p className="opacity-80">
-            {authorId
-              ? `Latest posts by ${authorName || "this author"} on BlogCafeAI.`
-              : "Read the latest from BlogCafeAI."}
+            {authorId ? (
+              <>
+                Latest posts by <span className="font-bold">{authorName || "this author"}</span> on BlogCafeAI.
+              </>
+            ) : (
+              "Read the latest from BlogCafeAI."
+            )}
           </p>
+
         </div>
         <select
           value={limit}
@@ -160,9 +172,6 @@ export default function BlogIndex() {
           <option value={24}>24 / page</option>
         </select>
       </div>
-
-      {/* Error */}
-      {error && <div className="text-center text-red-500 py-12">{error}</div>}
 
       {/* Loading */}
       {loading && !error && (

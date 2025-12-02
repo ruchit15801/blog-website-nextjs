@@ -8,6 +8,7 @@ import Loader from "@/components/Loader";
 import { fetchAdminUsers, RemoteUser, deleteAdminUser, getAdminToken } from "@/lib/adminClient";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function UsersPage() {
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,15 @@ export default function UsersPage() {
   const [isFilterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [isLimitDropdownOpen, setLimitDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
   const [filter, setFilter] = useState<"all" | "low" | "mid" | "high">("all");
+
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
 
   // Modal & Edit
   const [showModal, setShowModal] = useState(false);
@@ -37,7 +46,7 @@ export default function UsersPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetchAdminUsers({page,limit, q: searchTerm || undefined,});
+      const res = await fetchAdminUsers({ page, limit, q: searchTerm || undefined, });
       setUsers(res.users ?? []);
       setTotal(res.total ?? 0);
       setTotalPages(res.totalPages ?? 1);
@@ -123,8 +132,8 @@ export default function UsersPage() {
               ...u,
               fullName: data.user.fullName,
               role: data.user.role,
-              avatar: data.user.avatar, 
-              avatarUrl: data.user.avatar, 
+              avatar: data.user.avatar,
+              avatarUrl: data.user.avatar,
             } : u
         )
       );
