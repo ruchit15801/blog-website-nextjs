@@ -275,6 +275,21 @@ export default function ArticlePage() {
                     corner="br"
                 />
             )}
+            <Script
+                strategy="afterInteractive"
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                crossOrigin="anonymous"
+            />
+            <ins
+                className="adsbygoogle"
+                style={{ display: "block" }}
+                data-ad-format="autorelaxed"
+                data-ad-client="ca-pub-8481647724806223"
+                data-ad-slot="1466357420"
+            />
+            <Script id="ads-init" strategy="afterInteractive">
+                {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+            </Script>
 
             {/* Main Layout */}
             <div className="flex justify-center">

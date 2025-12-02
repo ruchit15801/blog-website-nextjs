@@ -9,6 +9,7 @@ import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, ty
 import toast from "react-hot-toast";
 import { buildSlugPath } from "@/lib/slug";
 import Loader from "@/components/Loader";
+import Script from "next/script";
 
 type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
 
@@ -157,6 +158,24 @@ export default function AllPostsPage() {
                         </div>
                     </div>
 
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="7954361260"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    <Script id="ads-init-all-post-one" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
+
                     {/* Top Authors */}
                     <div className="aside-shadow rounded-2xl shadow p-6 bg-white">
                         <h3 className="text-lg font-semibold mb-3 uppercase" style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981' }}>Top Authors</h3>
@@ -173,6 +192,23 @@ export default function AllPostsPage() {
                             ))}
                         </div>
                     </div>
+
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-format="autorelaxed"
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="4945054543"
+                    />
+                    <Script id="ads-init-relaxed" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
                 </aside>
 
                 {/* Main grid */}
@@ -352,6 +388,22 @@ export default function AllPostsPage() {
                             </div>
                         </div>
                     )}
+
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-format="autorelaxed"
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="4443874551"
+                    />
+                    <Script id="ads-init-four" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
                 </section>
             </div>
         </Suspense>

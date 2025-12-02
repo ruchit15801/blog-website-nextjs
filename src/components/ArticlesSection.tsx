@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { HomeAuthor, HomePost } from "@/lib/api";
 import { buildSlugPath } from "@/lib/slug";
+import Script from "next/script";
 
 export default function ArticlesSection({
     featuredPosts,
@@ -123,7 +124,7 @@ export default function ArticlesSection({
     }, [recentPosts]);
 
     return (
-        <main className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <main className="mx-auto max-w-7xl px-4 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* ===== Main Content ===== */}
             <div className="lg:col-span-2 flex flex-col">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -179,6 +180,21 @@ export default function ArticlesSection({
                 {totalPages > 1 && (
                     <Pagination page={currentPage} totalPages={totalPages} onChange={goToPage} />
                 )}
+                <Script
+                    strategy="afterInteractive"
+                    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                    crossOrigin="anonymous"
+                />
+                <ins
+                    className="adsbygoogle"
+                    style={{ display: "block" }}
+                    data-ad-format="autorelaxed"
+                    data-ad-client="ca-pub-8481647724806223"
+                    data-ad-slot="4443874551"
+                />
+                <Script id="ads-init-four" strategy="afterInteractive">
+                    {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                </Script>
             </div>
 
             {/* ===== Sidebar ===== */}
@@ -204,7 +220,23 @@ export default function ArticlesSection({
                             Meet the brilliant minds shaping our blog. These top authors share stories that cross borders, touch emotions, and challenge the ordinary.
                         </p>
                     </div>
-
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="6065730372"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    <Script id="ads-init" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
                     {/* Featured Slider */}
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Featured Posts</h3>
@@ -230,6 +262,26 @@ export default function ArticlesSection({
                         </div>
                     </div>
 
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    {/* The ad placeholder for Home page Display Two */}
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="4830887360"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    {/* Initialize the ad */}
+                    <Script id="ads-init-two" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
+
                     {/* Top Authors */}
                     <div className="aside-shadow rounded-xl shadow p-6">
                         <h3 className="text-sm font-bold text-gray-500 uppercase mb-4">Top Authors</h3>
@@ -249,6 +301,26 @@ export default function ArticlesSection({
                             {(!topAuthors || topAuthors.length === 0) && <p className="text-sm text-gray-500">No authors to display.</p>}
                         </div>
                     </div>
+
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    {/* The ad placeholder for Home Page Display Three */}
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="1135184932"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    {/* Initialize the ad */}
+                    <Script id="ads-init-three" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
 
                     {/* Trending Tags */}
                     <div className="aside-shadow rounded-xl shadow py-6 px-6">

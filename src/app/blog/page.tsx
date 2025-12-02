@@ -153,10 +153,15 @@ export default function BlogIndex() {
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold">All posts</h1>
           <p className="opacity-80">
-            {authorId
-              ? `Latest posts by ${authorName || "this author"} on BlogCafeAI.`
-              : "Read the latest from BlogCafeAI."}
+            {authorId ? (
+              <>
+                Latest posts by <span className="font-bold">{authorName || "this author"}</span> on BlogCafeAI.
+              </>
+            ) : (
+              "Read the latest from BlogCafeAI."
+            )}
           </p>
+
         </div>
         <select
           value={limit}

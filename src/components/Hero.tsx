@@ -4,6 +4,7 @@ import Loader from "@/components/Loader";
 import Image from "next/image";
 import { listTrendingByCategory, type TrendingCategory } from "@/lib/api";
 import toast from "react-hot-toast";
+import Script from "next/script";
 
 type RemoteCategory = TrendingCategory;
 
@@ -33,14 +34,14 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
     return (
         <main>
             {/* Hero Section */}
-            <section className="hero-section py-16 sm:py-20 px-4 sm:px-6 text-center relative overflow-hidden">
+
+            <section className="hero-section pt-16 pb-6 sm:pt-20 px-4 text-center relative overflow-hidden">
                 {/* Decorative background */}
                 <div
                     aria-hidden
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                        background:
-                            "radial-gradient(1000px 400px at 50% -10%, rgba(153,149,255,.15), transparent 60%)",
+                        background: "radial-gradient(1000px 400px at 50% -10%, rgba(153,149,255,.15), transparent 60%)",
                         willChange: "transform, opacity",
                     }}
                 />
@@ -71,8 +72,9 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                 </div>
             </section>
 
+
             {/* Trending Section */}
-            <section className="trending-section py-8 sm:py-12 px-4 sm:px-6 text-center">
+            <section className="trending-section py-8 sm:py-8 px-4 sm:px-6 text-center">
                 <h2 className="uppercase text-xs sm:text-sm font-semibold mb-6 text-gray-500 tracking-widest">
                     Explore Trending Topics
                 </h2>
@@ -86,9 +88,8 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                         {/* ===== All Button ===== */}
                         <button
                             key="all"
-                            className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
-                                !selectedCat ? "bg-indigo-100" : ""
-                            }`}
+                            className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${!selectedCat ? "bg-indigo-100" : ""
+                                }`}
                             onClick={() => onCategorySelect?.(null)}>
                             <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50 text-xs sm:text-base">
                                 🌐
@@ -100,9 +101,8 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                         {categories.slice(0, 6).map((cat) => (
                             <button
                                 key={cat._id}
-                                className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
-                                    selectedCat === cat._id ? "bg-indigo-100" : ""
-                                }`}
+                                className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${selectedCat === cat._id ? "bg-indigo-100" : ""
+                                    }`}
                                 onClick={() => onCategorySelect?.(cat._id)}>
                                 <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50">
                                     <Image
@@ -122,9 +122,8 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                         {categories.slice(6, 8).map((cat) => (
                             <button
                                 key={cat._id}
-                                className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${
-                                    selectedCat === cat._id ? "bg-indigo-100" : ""
-                                }`}
+                                className={`trending-btn shadow flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full flex-shrink-0 ${selectedCat === cat._id ? "bg-indigo-100" : ""
+                                    }`}
                                 onClick={() => onCategorySelect?.(cat._id)}>
                                 <span className="inline-flex items-center justify-center rounded-full w-6 h-6 sm:w-8 sm:h-8 bg-indigo-50">
                                     <Image
@@ -142,6 +141,22 @@ export default function Hero({ selectedCat, onCategorySelect }: HeroProps) {
                     </div>
                 )}
             </section>
+
+            <Script
+                strategy="afterInteractive"
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                crossOrigin="anonymous"
+            />
+            <ins
+                className="adsbygoogle"
+                style={{ display: "block" }}
+                data-ad-format="autorelaxed"
+                data-ad-client="ca-pub-8481647724806223"
+                data-ad-slot="1466357420"
+            />
+            <Script id="ads-init" strategy="afterInteractive">
+                {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+            </Script>
         </main>
     );
 }
