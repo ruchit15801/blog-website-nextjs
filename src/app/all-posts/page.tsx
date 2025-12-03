@@ -187,7 +187,7 @@ export default function AllPostsPage() {
                                     <div className="flex-1">
                                         <div className="font-medium" style={{ color: '#29294b' }}>{a.fullName}</div>
                                     </div>
-                                    <Link href={`/blog?author=${encodeURIComponent(a._id)}`} className="text-sm link-underline">View</Link>
+                                    <Link href={`/blog/list?author=${encodeURIComponent(a._id)}`} className="text-sm link-underline">View</Link>
                                 </div>
                             ))}
                         </div>

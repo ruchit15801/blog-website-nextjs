@@ -295,7 +295,7 @@ export default function ArticlesSection({
                                             <p className="text-sm text-gray-500">Featured contributor</p>
                                         </div>
                                     </div>
-                                    <Link href={`/blog?author=${encodeURIComponent(a._id)}`} className="text-sm text-blue-600 hover:underline">View</Link>
+                                    <Link href={`/blog/list?author=${encodeURIComponent(a._id)}`} className="text-sm text-blue-600 hover:underline">View</Link>
                                 </div>
                             ))}
                             {(!topAuthors || topAuthors.length === 0) && <p className="text-sm text-gray-500">No authors to display.</p>}
