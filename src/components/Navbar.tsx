@@ -216,7 +216,7 @@ export default function Navbar() {
                                         alt={user.name}
                                         width={30}
                                         height={30}
-                                        className="rounded-full object-cover"
+                                        className="navbar_author_img object-cover"
                                     />
                                     <span className="font-medium">{user.name}</span>
                                     <svg
@@ -232,7 +232,7 @@ export default function Navbar() {
                                 {/* Mobile dropdown menu */}
                                 {userMenuOpen && (
                                     <div className="mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden flex flex-col divide-y divide-gray-200">
-                                        {user.role === "admin" && (
+                                        {user.role === "admin" || user.role === "user" && (
                                             <Link
                                                 href="/DashBoard"
                                                 className="flex items-center px-4 py-3 text-gray-700 text-sm hover:bg-indigo-50 hover:text-indigo-600 transition"

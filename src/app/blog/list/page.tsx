@@ -151,7 +151,7 @@ export default function BlogIndex() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold">All posts</h1>
           <p className="opacity-80">
@@ -163,12 +163,12 @@ export default function BlogIndex() {
               "Read the latest from BlogCafeAI."
             )}
           </p>
-
         </div>
         <select
           value={limit}
           onChange={(e) => handleLimitChange(Number(e.target.value))}
-          className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1]" >
+          className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5559d1] w-30 sm:w-auto"
+        >
           <option value={6}>6 / page</option>
           <option value={12}>12 / page</option>
           <option value={24}>24 / page</option>
