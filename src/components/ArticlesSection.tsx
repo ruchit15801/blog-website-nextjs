@@ -64,7 +64,7 @@ export default function ArticlesSection({
             date: formatDate(p.publishedAt || p.createdAt),
             author: getPostAuthorName(p),
             excerpt: "",
-            image: p.bannerImageUrl || "/images/a1.webp",
+            image: p.bannerImageUrl || "",
             tag: Array.isArray(p.tags) ? p.tags : [],
             readTime: p.readingTimeMinutes ?? 0,
         }));
@@ -73,7 +73,7 @@ export default function ArticlesSection({
     // Process featured posts for slider
     const slider = useMemo(() => {
         return (featuredPosts || []).map((p) => ({
-            img: p.bannerImageUrl || "/images/a1.webp",
+            img: p.bannerImageUrl || "",
             title: p.title,
             author: getPostAuthorName(p),
             date: formatDate(p.publishedAt || p.createdAt),
@@ -205,7 +205,7 @@ export default function ArticlesSection({
                         <h2 className="uppercase text-sm font-bold text-gray-500 mb-4">About</h2>
                         <div className="flex gap-3 items-center">
                             <Image
-                                src={topAuthors?.[0]?.avatarUrl || "/images/aside_about.webp"}
+                                src={topAuthors?.[0]?.avatarUrl || ""}
                                 alt={topAuthors?.[0]?.fullName || "Author"}
                                 width={50}
                                 height={50}
@@ -289,7 +289,7 @@ export default function ArticlesSection({
                             {(topAuthors || []).slice(0, 3).map((a) => (
                                 <div key={a._id} className="flex justify-between items-center">
                                     <div className="flex items-center gap-3">
-                                        <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
+                                        <Image src={a.avatarUrl || ""} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
                                         <div>
                                             <h4 className="font-medium">{a.fullName || "Author"}</h4>
                                             <p className="text-sm text-gray-500">Featured contributor</p>
