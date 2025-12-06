@@ -31,77 +31,98 @@ export default function SchedulePosts() {
   const [role, setRole] = useState("");
   const [token, setToken] = useState("");
   const [userId, setUserId] = useState<string | undefined>(undefined);
+  const DEFAULT_BANNERS = [
+    "/images/b1.png", "/images/b2.png", "/images/b3.png",
+    "/images/b4.png", "/images/b5.png", "/images/b6.png",
+    "/images/b7.png", "/images/b8.png", "/images/b9.png",
+    "/images/b10.png", "/images/b11.png", "/images/b12.png",
+  ];
+
+  useEffect(() => {
+    const roleFromLS = (localStorage.getItem("role") || "").toLowerCase();
+    const tokenFromLS = localStorage.getItem("token") || "";
+    const userFromLS = localStorage.getItem("userId") || undefined;
+
+    setRole(roleFromLS);
+    setToken(tokenFromLS);
+    setUserId(userFromLS);
+  }, []);
+
 
   useEffect(() => {
     if (!loading && error) {
       router.replace("/error");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, error]);
+  }, [loading, error, router]);
+
 
   useEffect(() => {
-    const r = (localStorage.getItem("role") || "").toLowerCase();
-    setRole(r);
+    if (!token) return; 
 
-    const t = localStorage.getItem(r === "admin" ? "token" : "accessToken") || "";
-    setToken(t);
-
-    const u = localStorage.getItem("userId") || undefined;
-    setUserId(u);
-  }, []);
-
-  // Fetch scheduled posts
-  useEffect(() => {
-    let active = true;
+    let ignore = false;
     setLoading(true);
     setError(null);
+
     const fetchFn = role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
 
-    const load = async () => {
-      try {
-        const res = await fetchFn({
-          page,
-          limit: perPage,
-          token,
-          q: search || undefined,
-          userId: role === "admin" ? undefined : userId,
-        });
-        if (!active) return;
+    fetchFn({
+      page,
+      limit: perPage,
+      token,
+      q: search.trim() || undefined,
+      userId: role === "admin" ? undefined : userId,
+    })
+      .then((res) => {
+        if (ignore) return;
+
         const posts = role === "admin" ? res.posts : res.data ?? [];
-        const total = role === "admin" ? res.total : res.total ?? res.meta?.total ?? posts.length;
+        const total =
+          role === "admin"
+            ? res.total
+            : res.total ?? res?.meta?.total ?? posts.length;
+
         setLivePosts(posts);
         setTotalPosts(total);
-      } catch {
-        if (active) setError("Something went wrong");
-      } finally {
-        if (active) setLoading(false);
-      }
+      })
+      .catch(() => {
+        if (!ignore) setError("Something went wrong");
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
+
+    return () => {
+      ignore = true;
     };
-    load();
-    return () => { active = false; };
-  }, [page, perPage, search, role, token, userId]);
+  }, [page, search, role, token, userId]);
+
+  const getStableImage = (postId: string) => {
+    const hash = Array.from(postId).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+  };
 
   const baseList = useMemo(() => {
-    return livePosts.map((p) => {
-      const dateString = p.createdAt ? new Date(p.createdAt).toDateString() : new Date().toDateString();
-      return {
-        id: p._id,
-        title: p.title,
-        date: dateString,
-        excerpt: "",
-        image: p.bannerImageUrl || p.imageUrls?.[0] || "",
-        author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
-        tag: p.tags || [],
-        publishedAt: p.publishedAt,
-        readTime: p.readingTimeMinutes || 0,
-      };
-    });
+    if (!livePosts.length) return [];
+
+    return livePosts.map((p) => ({
+      id: p._id,
+      title: p.title,
+      date: p.createdAt || new Date().toISOString(),
+      excerpt: "",
+      image: p.bannerImageUrl || getStableImage(p._id),
+      author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
+      tag: p.tags || [],
+      publishedAt: p.publishedAt,
+      readTime: p.readingTimeMinutes || 0,
+    }));
   }, [livePosts]);
 
   const filtered = useMemo(() => {
-    const toTime = (val: string) => new Date(val).getTime();
-    return [...baseList].sort((a, b) =>
-      sortOrder === "latest" ? toTime(b.date) - toTime(a.date) : toTime(a.date) - toTime(b.date)
+    if (!baseList.length) return [];
+    return baseList.toSorted((a, b) =>
+      sortOrder === "latest"
+        ? new Date(b.date).getTime() - new Date(a.date).getTime()
+        : new Date(a.date).getTime() - new Date(b.date).getTime()
     );
   }, [sortOrder, baseList]);
 
@@ -111,11 +132,14 @@ export default function SchedulePosts() {
 
   const handlePublishNow = async (postId: string, postTitle: string) => {
     if (!confirm(`Publish "${postTitle}" now?`)) return;
+
     try {
       if (!token) throw new Error("Token not found");
+      const fn = role === "admin" ? publishAdminPostNow : publishUserPost;
       setLoading(true);
-      const action = role === "admin" ? publishAdminPostNow : publishUserPost;
-      await action(postId, token);
+
+      await fn(postId, token);
+
       setLivePosts((prev) => prev.filter((p) => p._id !== postId));
       toast.success(`"${postTitle}" published successfully!`);
     } catch {
@@ -127,10 +151,12 @@ export default function SchedulePosts() {
 
   const handleDelete = async (postId: string) => {
     if (!confirm("Are you sure you want to delete this post?")) return;
+
     try {
       if (!token) throw new Error("Token not found");
-      const action = role === "admin" ? adminDeletePostById : deleteUserPost;
-      await action(postId, token);
+      const fn = role === "admin" ? adminDeletePostById : deleteUserPost;
+
+      await fn(postId, token);
       setLivePosts((prev) => prev.filter((p) => p._id !== postId));
       toast.success("Post deleted successfully!");
     } catch {
@@ -138,7 +164,8 @@ export default function SchedulePosts() {
     }
   };
 
-  const totalPages = Math.ceil(totalPosts / perPage);
+  const totalPages = useMemo(() => Math.ceil(totalPosts / perPage), [totalPosts]);
+
 
   return (
     <DashboardLayout>

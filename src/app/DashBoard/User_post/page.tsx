@@ -41,6 +41,25 @@ export default function UserPosts() {
     const [userOptions, setUserOptions] = useState<RemoteUser[]>([]);
     const [isUserDropdownOpen, setUserDropdownOpen] = useState<boolean>(false);
     const [isLimitDropdownOpen, setLimitDropdownOpen] = useState<boolean>(false);
+    const DEFAULT_BANNERS = [
+        "/images/b1.png",
+        "/images/b2.png",
+        "/images/b3.png",
+        "/images/b4.png",
+        "/images/b5.png",
+        "/images/b6.png",
+        "/images/b7.png",
+        "/images/b8.png",
+        "/images/b9.png",
+        "/images/b10.png",
+        "/images/b11.png",
+        "/images/b12.png",
+    ];
+
+    function getStableImage(postId: string) {
+        const hash = postId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+    }
 
     useEffect(() => {
         if (!loading && error) {
@@ -90,7 +109,7 @@ export default function UserPosts() {
                     title: p.title,
                     authorName: typeof p.author === "string" ? p.author : p.author?.fullName ?? "Unknown",
                     date: p.createdAt ?? new Date().toISOString(),
-                    image: p.bannerImageUrl || "",
+                    image: p.bannerImageUrl || getStableImage(p._id),
                     tag: p.tags ?? [],
                     publishedAt: p.publishedAt,
                     readTime: p.readingTimeMinutes ?? 0
@@ -106,6 +125,7 @@ export default function UserPosts() {
             }
         })();
         return () => { active = false };
+         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, limit, search, selectedUser]);
 
     useEffect(() => {
