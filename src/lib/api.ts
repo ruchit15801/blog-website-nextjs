@@ -123,8 +123,6 @@ export async function listAllHomePosts(params: ListAllPostsParams = {}) {
   return result;
 }
 
-<<<<<<< Updated upstream
-=======
 export type ListPostsByAuthorParams = {
   authorId: string;
   page?: number;
@@ -175,7 +173,6 @@ export async function listPostsByAuthor(params: ListPostsByAuthorParams) {
   return result;
 }
 
->>>>>>> Stashed changes
 export type TrendingCategory = { _id: string; name: string; icon?: string; imageUrl?: string };
 
 export async function listTrendingByCategory() {

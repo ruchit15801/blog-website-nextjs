@@ -42,11 +42,7 @@ export default function Home() {
     let active = true;
     setLoading(true);
     setError(null);
-<<<<<<< Updated upstream
-    listAllHomePosts({ page, limit, sort: "random", category: selectedCat }).then((res) => {
-=======
     listAllHomePosts({ page, limit, sort: "latest", category: selectedCat }).then((res) => {
->>>>>>> Stashed changes
       if (!active) return;
       setGrid(res.posts);
       setTotal(res.total);
