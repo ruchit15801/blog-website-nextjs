@@ -156,9 +156,9 @@ export default function ArticlePage() {
         return !year || !month || !day ? dateStr : new Date(year, month - 1, day).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     })();
 
-    // ------------------------ Parse Content with Images ------------------------
+    // ------------------------ Parse Content with Images and Ads ------------------------
     const contentBlocks = (() => {
-        const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" } | { type: "ad"; variant: "inner" }> = [];
+        const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" } | { type: "ad"; variant: "inner" | "content" }> = [];
         if (!post.contentHtml) return blocks;
 
         const parser = new DOMParser();
@@ -166,6 +166,7 @@ export default function ArticlePage() {
         const children = Array.from(doc.body.children);
         let usedImages = 0;
         let paragraphCount = 0;
+        let adCount = 0;
         const hasImages = post.imageUrls && post.imageUrls.length > 0;
 
         if (children.length === 0 && post.contentHtml.trim()) blocks.push(`<p>${post.contentHtml.trim()}</p>`);
@@ -173,6 +174,14 @@ export default function ArticlePage() {
         children.forEach((child) => {
             blocks.push(child.outerHTML);
             paragraphCount++;
+
+            // Insert ads every 4-5 paragraphs (user-friendly spacing)
+            if (paragraphCount % 4 === 0 && adCount < 3) {
+                blocks.push({ type: "ad", variant: "content" });
+                adCount++;
+            }
+
+            // Insert images every 3 paragraphs if available
             if (hasImages && usedImages < post.imageUrls!.length && paragraphCount % 3 === 0) {
                 const remaining = post.imageUrls!.length - usedImages;
                 const numImages = remaining > 1 ? 2 : 1;
@@ -181,15 +190,15 @@ export default function ArticlePage() {
                     blocks.push({ type: "image", url: post.imageUrls![usedImages], size: numImages > 1 ? "small" : "large" });
                     usedImages++;
                 }
-            } else if (!hasImages && paragraphCount % 3 === 0) {
+            } else if (!hasImages && paragraphCount % 3 === 0 && adCount < 2) {
+                // If no images, show inner ad instead
                 blocks.push({ type: "ad", variant: "inner" });
             }
         });
 
+        // Add remaining images at the end
         if (hasImages && usedImages < post.imageUrls!.length) {
             for (let i = usedImages; i < post.imageUrls!.length; i++) blocks.push({ type: "image", url: post.imageUrls![i], size: "large" });
-        } else if (!hasImages && blocks.length > 0) {
-            blocks.push({ type: "ad", variant: "inner" });
         }
 
         return blocks;
@@ -400,6 +409,13 @@ export default function ArticlePage() {
                                         }
 
                                         if (block.type === "ad") {
+                                            if (block.variant === "content") {
+                                                return (
+                                                    <div key={index} className="reveal-on-scroll reveal mx-auto my-8 md:w-4/5">
+                                                        <AdSense type="content" className="w-full" />
+                                                    </div>
+                                                );
+                                            }
                                             return (
                                                 <div key={index} className="reveal-on-scroll reveal mx-auto my-6 md:w-4/5">
                                                     <AdSense type="inner" className="w-full" />
