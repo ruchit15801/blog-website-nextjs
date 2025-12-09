@@ -34,6 +34,25 @@ export default function AllPostsPage() {
     const perPageOptions = [6, 12, 24];
     const [sortOpen, setSortOpen] = useState(false);
     const [perOpen, setPerOpen] = useState(false);
+    const DEFAULT_BANNERS = [
+        "/images/b1.png",
+        "/images/b2.png",
+        "/images/b3.png",
+        "/images/b4.png",
+        "/images/b5.png",
+        "/images/b6.png",
+        "/images/b7.png",
+        "/images/b8.png",
+        "/images/b9.png",
+        "/images/b10.png",
+        "/images/b11.png",
+        "/images/b12.png",
+    ];
+
+    function getStableImage(postId: string) {
+        const hash = postId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+    }
 
     useEffect(() => {
         if (!loading && error) {
@@ -183,7 +202,7 @@ export default function AllPostsPage() {
                             {authors.length === 0 && <p className="text-sm text-gray-500">No authors to display.</p>}
                             {authors.map(a => (
                                 <div key={a._id} className="flex items-center gap-3">
-                                    <Image src={a.avatarUrl || ""} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
+                                    <Image src={a.avatarUrl || "/images/p1.jpg"} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
                                     <div className="flex-1">
                                         <div className="font-medium" style={{ color: '#29294b' }}>{a.fullName}</div>
                                     </div>
@@ -291,7 +310,7 @@ export default function AllPostsPage() {
                                 <Link key={p._id} href={`/articles/${buildSlugPath(p._id, p.title)}`}>
                                     <article className="flex flex-col overflow-hidden group rounded-2xl bg-white shadow ring-1 ring-black/5 hover:-translate-y-0.5 transition-all hover:shadow-lg hover-glow">
                                         <div className="relative w-full h-56">
-                                            <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl hover-zoom" />
+                                            <Image src={p.bannerImageUrl || getStableImage(p._id)} alt={p.title} fill className="object-cover rounded-2xl hover-zoom" />
                                             <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent" />
                                             <div className="absolute top-3 right-3 flex items-center gap-1 text-white text-xs bg-black/30 px-3 py-1 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Clock className="w-5 h-5" />

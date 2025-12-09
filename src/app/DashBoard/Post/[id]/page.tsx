@@ -38,6 +38,25 @@ export default function PostPage() {
   const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
 
   const token = useMemo(() => (typeof window !== "undefined" ? getAdminToken() || localStorage.getItem("token") : null), []);
+  const DEFAULT_BANNERS = [
+    "/images/b1.png",
+    "/images/b2.png",
+    "/images/b3.png",
+    "/images/b4.png",
+    "/images/b5.png",
+    "/images/b6.png",
+    "/images/b7.png",
+    "/images/b8.png",
+    "/images/b9.png",
+    "/images/b10.png",
+    "/images/b11.png",
+    "/images/b12.png",
+  ];
+
+  function getStableImage(postId: string) {
+    const hash = postId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+  }
 
   useEffect(() => {
     if (!loading && error) {
@@ -101,9 +120,9 @@ export default function PostPage() {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
-        {post.bannerImageUrl && (
+        {(post.bannerImageUrl || getStableImage(post._id)) && (
           <ImageWithCredit
-            src={post.bannerImageUrl}
+            src={post.bannerImageUrl || getStableImage(post._id)}
             alt={post.title}
             fill
             sizes="100vw"

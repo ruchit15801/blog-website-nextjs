@@ -84,7 +84,7 @@ export default function UsersPage() {
   const handleEdit = (user: RemoteUser) => {
     setEditUser({
       ...user,
-      avatarPreview: user.avatarUrl || user.avatar || "/images/default-avatar.png",
+      avatarPreview: user.avatarUrl || user.avatar || "/images/p1.jpg",
     });
     setShowModal(true);
   };
@@ -282,7 +282,7 @@ export default function UsersPage() {
                   <td className="px-4 py-3">
                     <div className="w-10 h-10 relative rounded-full overflow-hidden">
                       <Image
-                        src={user.avatarUrl || user.avatar || "/images/default-avatar.png"}
+                        src={user.avatarUrl || user.avatar || "/images/p1.jpg"}
                         alt={user.fullName || user.name || "User"}
                         width={40}
                         height={40}
@@ -324,7 +324,7 @@ export default function UsersPage() {
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 relative rounded-full overflow-hidden">
                   <Image
-                    src={user.avatarUrl || user.avatar || "/images/default-avatar.png"}
+                    src={user.avatarUrl || user.avatar || "/images/p1.jpg"}
                     alt={user.fullName || user.name || "User"}
                     width={40}
                     height={40}
@@ -381,7 +381,7 @@ export default function UsersPage() {
                 <div className="flex flex-col gap-2 items-center relative">
                   <div className="w-20 h-20 relative rounded-full overflow-hidden mb-2 group">
                     <Image
-                      src={editUser.avatarPreview || editUser.avatarUrl || "/images/default-avatar.png"}
+                      src={editUser.avatarPreview || editUser.avatarUrl || "/images/p1.jpg"}
                       alt={editUser.fullName || "User"}
                       fill
                       className="object-cover rounded-full"

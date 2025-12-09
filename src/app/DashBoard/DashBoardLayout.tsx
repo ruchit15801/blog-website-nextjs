@@ -51,7 +51,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         const fetchProfile = storedRole === "admin" ? fetchAdminMeProfile : fetchMyProfile;
         const me = await fetchProfile(token);
         if (!isMounted) return;
-        const avatar = me.avatarUrl || "/images/default-avatar.png";
+        const avatar = me.avatarUrl || "/images/p1.jpg";
         setUser({
           fullName: me.fullName ?? "",
           email: me.email ?? "",
@@ -137,7 +137,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="mt-auto pt-2">
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-100">
               <div className="w-10 h-10 relative rounded-full overflow-hidden border">
-                <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
+                <Image src={user.avatar || '/images/p1.jpg'} alt={user.fullName} fill className="object-cover" />
               </div>
               <div className="flex flex-col">
                 <span className="font-medium text-gray-700">{user.fullName}</span>
@@ -177,7 +177,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <div className="text-sm text-gray-500">{user.email}</div>
                 </div>
                 <div className="w-10 h-10 relative rounded-full overflow-hidden border hover:shadow-md">
-                  <Image src={user.avatar} alt={user.fullName} fill className="object-cover" />
+                  <Image src={user.avatar || '/images/p1.jpg'} alt={user.fullName} fill className="object-cover" />
                 </div>
                 <svg className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${dropdownOpen ? "rotate-180" : ""}`}
                   fill="none"

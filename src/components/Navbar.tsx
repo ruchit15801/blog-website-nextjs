@@ -15,7 +15,7 @@ export default function Navbar() {
 
     const [user, setUser] = useState<{ name: string; avatar: string; role: string } | null>(null);
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null; 
+    const role = typeof window !== "undefined" ? localStorage.getItem("role") : null;
 
     useEffect(() => {
         if (!token || !role) return;
@@ -29,11 +29,17 @@ export default function Navbar() {
                     response = await fetchUserProfile(token);
                 }
                 if (!active) return;
+                const avatarUrl =
+                    ("avatarUrl" in response && response.avatarUrl) ||
+                    ("avatar" in response && response.avatar) ||
+                    "/images/p1.jpg";
                 setUser({
                     name: response.fullName || "User",
-                    avatar: ("avatarUrl" in response ? response.avatarUrl : "avatar" in response ? response.avatar : "/images/default-avatar.png") || "/images/default-avatar.png",
+                    avatar: avatarUrl,
                     role: (response.role?.toLowerCase() || role || "user") as string,
                 });
+
+                console.log("Navbar profile response:", response);
 
             } catch (err) {
                 console.error("Navbar profile fetch error:", err);
@@ -127,7 +133,7 @@ export default function Navbar() {
                                 className="flex items-center gap-2  px-3 py-1.5 hover:bg-gray-100 hover:shadow transition-all duration-200 rounded-md"
                                 onClick={() => setUserMenuOpen((v) => !v)}>
                                 <Image
-                                    src={user.avatar}
+                                    src={user.avatar || "/images/p1.jpg"}
                                     alt={user.name}
                                     width={40}
                                     height={40}
@@ -212,7 +218,7 @@ export default function Navbar() {
                                     className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 rounded-md"
                                     onClick={() => setUserMenuOpen((v) => !v)}>
                                     <Image
-                                        src={user.avatar}
+                                        src={user.avatar || "/images/p1.jpg"}
                                         alt={user.name}
                                         width={30}
                                         height={30}
@@ -232,7 +238,7 @@ export default function Navbar() {
                                 {/* Mobile dropdown menu */}
                                 {userMenuOpen && (
                                     <div className="mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden flex flex-col divide-y divide-gray-200">
-                                        {user.role === "admin" || user.role === "user" && (
+                                        {(user.role === "admin" || user.role === "user") && (
                                             <Link
                                                 href="/DashBoard"
                                                 className="flex items-center px-4 py-3 text-gray-700 text-sm hover:bg-indigo-50 hover:text-indigo-600 transition"
