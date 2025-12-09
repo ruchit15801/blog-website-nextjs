@@ -83,7 +83,7 @@ export async function getHomeOverview(page: number = 1, limit: number = 12) {
   const authors = Array.isArray(data.topAuthors) ? (data.topAuthors as HomeAuthor[]) : [];
 
   // Map to UI expectations
-  const featuredPosts = topViewed; 
+  const featuredPosts = topViewed;
   const trendingPosts = topLiked.length ? topLiked : (topCommented.length ? topCommented : topViewed);
   const recentPosts = recentData.data;
   // Normalize pagination/meta from overview's recent
@@ -458,7 +458,7 @@ export async function fetchScheduledPosts(params: {
   limit?: number;
   token: string;
   userId?: string;
-  q?: string; 
+  q?: string;
 }) {
   const { token, ...rest } = params;
   const base = process.env.NEXT_PUBLIC_API_URL || '';

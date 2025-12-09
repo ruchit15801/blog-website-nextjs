@@ -161,7 +161,7 @@ export default function ArticlePage() {
         if (!post.contentHtml) return blocks;
 
         const parser = new DOMParser();
-        const doc = parser.parseFromString(post.contentHtml, "text/html");
+        const doc = parser.parseFromString(post.contentHtml || "", "text/html");
         const children = Array.from(doc.body.children);
         let usedImages = 0;
         let paragraphCount = 0;
