@@ -12,6 +12,7 @@ import { buildSlugPath, extractIdFromSlug } from "@/lib/slug";
 import { FacebookIcon, InstagramIcon, LinkedinIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import Script from "next/script";
+import AdSense from "@/components/AdSense";
 
 type RemotePost = {
     _id: string;
@@ -166,9 +167,9 @@ export default function ArticlePage() {
         return !year || !month || !day ? dateStr : new Date(year, month - 1, day).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
     })();
 
-    // ------------------------ Parse Content with Images ------------------------
+    // ------------------------ Parse Content with Images and Ads ------------------------
     const contentBlocks = (() => {
-        const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" }> = [];
+        const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" } | { type: "ad"; variant: "inner" | "content" }> = [];
         if (!post.contentHtml) return blocks;
 
         const parser = new DOMParser();
@@ -176,25 +177,39 @@ export default function ArticlePage() {
         const children = Array.from(doc.body.children);
         let usedImages = 0;
         let paragraphCount = 0;
+        let adCount = 0;
+        const hasImages = post.imageUrls && post.imageUrls.length > 0;
 
         if (children.length === 0 && post.contentHtml.trim()) blocks.push(`<p>${post.contentHtml.trim()}</p>`);
 
         children.forEach((child) => {
             blocks.push(child.outerHTML);
             paragraphCount++;
-            if (post.imageUrls && usedImages < post.imageUrls.length && paragraphCount % 3 === 0) {
-                const remaining = post.imageUrls.length - usedImages;
+
+            // Insert ads every 4-5 paragraphs (user-friendly spacing)
+            if (paragraphCount % 4 === 0 && adCount < 3) {
+                blocks.push({ type: "ad", variant: "content" });
+                adCount++;
+            }
+
+            // Insert images every 3 paragraphs if available
+            if (hasImages && usedImages < post.imageUrls!.length && paragraphCount % 3 === 0) {
+                const remaining = post.imageUrls!.length - usedImages;
                 const numImages = remaining > 1 ? 2 : 1;
                 for (let i = 0; i < numImages; i++) {
-                    if (usedImages >= post.imageUrls.length) break;
-                    blocks.push({ type: "image", url: post.imageUrls[usedImages], size: numImages > 1 ? "small" : "large" });
+                    if (usedImages >= post.imageUrls!.length) break;
+                    blocks.push({ type: "image", url: post.imageUrls![usedImages], size: numImages > 1 ? "small" : "large" });
                     usedImages++;
                 }
+            } else if (!hasImages && paragraphCount % 3 === 0 && adCount < 2) {
+                // If no images, show inner ad instead
+                blocks.push({ type: "ad", variant: "inner" });
             }
         });
 
-        if (post.imageUrls && usedImages < post.imageUrls.length) {
-            for (let i = usedImages; i < post.imageUrls.length; i++) blocks.push({ type: "image", url: post.imageUrls[i], size: "large" });
+        // Add remaining images at the end
+        if (hasImages && usedImages < post.imageUrls!.length) {
+            for (let i = usedImages; i < post.imageUrls!.length; i++) blocks.push({ type: "image", url: post.imageUrls![i], size: "large" });
         }
 
         return blocks;
@@ -285,22 +300,11 @@ export default function ArticlePage() {
                     className="w-full h-56 sm:h-72 md:h-96 rounded-2xl"
                     corner="br"
                 />
+            ) : (
+                <div className="w-full h-56 sm:h-72 md:h-96 rounded-2xl flex items-center justify-center bg-gray-50">
+                    <AdSense type="banner" className="w-full" />
+                </div>
             )}
-            <Script
-                strategy="afterInteractive"
-                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
-                crossOrigin="anonymous"
-            />
-            <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-format="autorelaxed"
-                data-ad-client="ca-pub-8481647724806223"
-                data-ad-slot="1466357420"
-            />
-            <Script id="ads-init" strategy="afterInteractive">
-                {`(adsbygoogle = window.adsbygoogle || []).push({});`}
-            </Script>
 
             {/* Main Layout */}
             <div className="flex justify-center">
@@ -411,6 +415,21 @@ export default function ArticlePage() {
                                                         className={`relative w-full ${height} rounded-2xl shadow-xl ring-1 ring-black/5 hover-zoom`}
                                                         corner="br"
                                                     />
+                                                </div>
+                                            );
+                                        }
+
+                                        if (block.type === "ad") {
+                                            if (block.variant === "content") {
+                                                return (
+                                                    <div key={index} className="reveal-on-scroll reveal mx-auto my-8 md:w-4/5">
+                                                        <AdSense type="content" className="w-full" />
+                                                    </div>
+                                                );
+                                            }
+                                            return (
+                                                <div key={index} className="reveal-on-scroll reveal mx-auto my-6 md:w-4/5">
+                                                    <AdSense type="inner" className="w-full" />
                                                 </div>
                                             );
                                         }
