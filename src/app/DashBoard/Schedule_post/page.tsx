@@ -17,122 +17,126 @@ import {
 import { deleteUserPost, fetchScheduledPosts, publishUserPost } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
-export default function SchedulePosts() {
-  const perPage = 6;
-  const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
-  const [page, setPage] = useState(1);
-  const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [totalPosts, setTotalPosts] = useState(0);
-  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
-  const [role, setRole] = useState("");
-  const [token, setToken] = useState("");
-  const [userId, setUserId] = useState<string | undefined>(undefined);
-  const DEFAULT_BANNERS = [
+const DEFAULT_BANNERS = [
     "/images/b1.png", "/images/b2.png", "/images/b3.png",
     "/images/b4.png", "/images/b5.png", "/images/b6.png",
     "/images/b7.png", "/images/b8.png", "/images/b9.png",
     "/images/b10.png", "/images/b11.png", "/images/b12.png",
-  ];
+];
 
-  useEffect(() => {
-    const roleFromLS = (localStorage.getItem("role") || "").toLowerCase();
-    const tokenFromLS = localStorage.getItem("token") || "";
-    const userFromLS = localStorage.getItem("userId") || undefined;
-
-    setRole(roleFromLS);
-    setToken(tokenFromLS);
-    setUserId(userFromLS);
-  }, []);
-
-
-  useEffect(() => {
-    if (!loading && error) {
-      router.replace("/error");
-    }
-  }, [loading, error, router]);
-
-
-  useEffect(() => {
-    if (!token) return; 
-
-    let ignore = false;
-    setLoading(true);
-    setError(null);
-
-    const fetchFn = role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
-
-    fetchFn({
-      page,
-      limit: perPage,
-      token,
-      q: search.trim() || undefined,
-      userId: role === "admin" ? undefined : userId,
-    })
-      .then((res) => {
-        if (ignore) return;
-
-        const posts = role === "admin" ? res.posts : res.data ?? [];
-        const total =
-          role === "admin"
-            ? res.total
-            : res.total ?? res?.meta?.total ?? posts.length;
-
-        setLivePosts(posts);
-        setTotalPosts(total);
-      })
-      .catch(() => {
-        if (!ignore) setError("Something went wrong");
-      })
-      .finally(() => {
-        if (!ignore) setLoading(false);
-      });
-
-    return () => {
-      ignore = true;
-    };
-  }, [page, search, role, token, userId]);
-
-  const getStableImage = (postId: string) => {
+function getStableImage(postId: string) {
     const hash = Array.from(postId).reduce((sum, char) => sum + char.charCodeAt(0), 0);
     return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
-  };
+}
 
-  const baseList = useMemo(() => {
-    if (!livePosts.length) return [];
+export default function SchedulePosts() {
+    const perPage = 6;
+    const router = useRouter();
+    const [search, setSearch] = useState("");
+    const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
+    const [page, setPage] = useState(1);
+    const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [totalPosts, setTotalPosts] = useState(0);
+    const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+    const [role, setRole] = useState("");
+    const [token, setToken] = useState("");
+    const [userId, setUserId] = useState<string | undefined>(undefined);
 
-    return livePosts.map((p) => ({
-      id: p._id,
-      title: p.title,
-      date: p.createdAt || new Date().toISOString(),
-      excerpt: "",
-      image: p.bannerImageUrl || getStableImage(p._id),
-      author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
-      tag: p.tags || [],
-      publishedAt: p.publishedAt,
-      readTime: p.readingTimeMinutes || 0,
-    }));
-  }, [livePosts]);
+    useEffect(() => {
+        const roleFromLS = (localStorage.getItem("role") || "").toLowerCase();
+        const tokenFromLS = localStorage.getItem("token") || "";
+        const userFromLS = localStorage.getItem("userId") || undefined;
 
-  const filtered = useMemo(() => {
-    if (!baseList.length) return [];
-    return baseList.toSorted((a, b) =>
-      sortOrder === "latest"
-        ? new Date(b.date).getTime() - new Date(a.date).getTime()
-        : new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-  }, [sortOrder, baseList]);
+        setRole(roleFromLS);
+        setToken(tokenFromLS);
+        setUserId(userFromLS);
+    }, []);
+
+
+    useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+    }, [loading, error, router]);
+
+
+    useEffect(() => {
+        if (!token) return;
+
+        let ignore = false;
+        setLoading(true);
+        setError(null);
+
+        const fetchFn = role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
+
+        fetchFn({
+            page,
+            limit: perPage,
+            token,
+            q: search.trim() || undefined,
+            userId: role === "admin" ? undefined : userId,
+        })
+            .then((res) => {
+                if (ignore) return;
+
+                const posts = role === "admin" ? res.posts : res.data ?? [];
+                const total =
+                    role === "admin"
+                        ? res.total
+                        : res.total ?? res?.meta?.total ?? posts.length;
+
+                setLivePosts(posts);
+                setTotalPosts(total);
+            })
+            .catch(() => {
+                if (!ignore) setError("Something went wrong");
+            })
+            .finally(() => {
+                if (!ignore) setLoading(false);
+            });
+
+        return () => {
+            ignore = true;
+        };
+    }, [page, search, role, token, userId]);
+
+    const baseList = useMemo(() => {
+        if (!livePosts.length) return [];
+
+        return livePosts.map((p) => ({
+            id: p._id,
+            title: p.title,
+            date: p.createdAt || new Date().toISOString(),
+            excerpt: "",
+            image: p.bannerImageUrl || getStableImage(p._id),
+            author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
+            tag: p.tags || [],
+            publishedAt: p.publishedAt,
+            readTime: p.readingTimeMinutes || 0,
+        }));
+    }, [livePosts]);
+
+    const filtered = useMemo(() => {
+        if (!baseList.length) return [];
+        return baseList.toSorted((a, b) =>
+            sortOrder === "latest"
+                ? new Date(b.date).getTime() - new Date(a.date).getTime()
+                : new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+    }, [sortOrder, baseList]);
 
     const handlePublishNow = async (postId: string, postTitle: string) => {
         if (!confirm(`Publish "${postTitle}" now?`)) return;
+
         try {
             if (!token) throw new Error("Token not found");
+            const fn = role === "admin" ? publishAdminPostNow : publishUserPost;
             setLoading(true);
-            const action = role === "admin" ? publishAdminPostNow : publishUserPost;
-            await action(postId, token);
+
+            await fn(postId, token);
+
             setLivePosts((prev) => prev.filter((p) => p._id !== postId));
             toast.success(`"${postTitle}" published successfully!`);
         } catch {
@@ -142,42 +146,35 @@ export default function SchedulePosts() {
         }
     };
 
-  const handlePublishNow = async (postId: string, postTitle: string) => {
-    if (!confirm(`Publish "${postTitle}" now?`)) return;
+    const handleEdit = (post: RemotePost) => {
+        router.push(`/DashBoard/Create_post?id=${post._id}`);
+    };
 
-    try {
-      if (!token) throw new Error("Token not found");
-      const fn = role === "admin" ? publishAdminPostNow : publishUserPost;
-      setLoading(true);
+    const handleDelete = async (postId: string) => {
+        if (!confirm("Are you sure you want to delete this post?")) return;
 
-      await fn(postId, token);
+        try {
+            if (!token) throw new Error("Token not found");
+            const fn = role === "admin" ? adminDeletePostById : deleteUserPost;
 
-      setLivePosts((prev) => prev.filter((p) => p._id !== postId));
-      toast.success(`"${postTitle}" published successfully!`);
-    } catch {
-      toast.error("Failed to publish post");
-    } finally {
-      setLoading(false);
-    }
-  };
+            await fn(postId, token);
+            setLivePosts((prev) => prev.filter((p) => p._id !== postId));
+            toast.success("Post deleted successfully!");
+        } catch {
+            toast.error("Failed to delete post");
+        }
+    };
 
-  const handleDelete = async (postId: string) => {
-    if (!confirm("Are you sure you want to delete this post?")) return;
+    const totalPages = useMemo(() => Math.ceil(totalPosts / perPage), [totalPosts]);
 
-    try {
-      if (!token) throw new Error("Token not found");
-      const fn = role === "admin" ? adminDeletePostById : deleteUserPost;
-
-      await fn(postId, token);
-      setLivePosts((prev) => prev.filter((p) => p._id !== postId));
-      toast.success("Post deleted successfully!");
-    } catch {
-      toast.error("Failed to delete post");
-    }
-  };
-
-  const totalPages = useMemo(() => Math.ceil(totalPosts / perPage), [totalPosts]);
-
+    return (
+        <DashboardLayout>
+            <div className="space-y-6">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Scheduled Posts</h1>
+                        <p className="text-gray-500 text-sm sm:text-base">Manage your scheduled blog posts</p>
+                    </div>
 
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto mt-4 lg:mt-0 flex-wrap sm:flex-nowrap">
                         {/* Search */}

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 type AdSenseProps = {
-    type: "banner" | "inner" | "content";
+    type: "banner" | "inner" | "content" | "list";
     className?: string;
 };
 
@@ -45,6 +45,22 @@ export default function AdSense({ type, className = "" }: AdSenseProps) {
                     data-ad-layout-key="-fb+5w+4e-db+86"
                     data-ad-client="ca-pub-8481647724806223"
                     data-ad-slot="5865167783"
+                />
+            </div>
+        );
+    }
+
+    if (type === "list") {
+        // List ad - appears in blog listing when banner image is missing
+        return (
+            <div className={`w-full h-full ${className}`}>
+                <ins
+                    className="adsbygoogle"
+                    style={{ display: "block" }}
+                    data-ad-client="ca-pub-8481647724806223"
+                    data-ad-slot="6247654623"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"
                 />
             </div>
         );
