@@ -18,96 +18,113 @@ import { deleteUserPost, fetchScheduledPosts, publishUserPost } from "@/lib/api"
 import { useRouter } from "next/navigation";
 
 export default function SchedulePosts() {
-    const perPage = 6;
-    const router = useRouter();
-    const [search, setSearch] = useState("");
-    const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
-    const [page, setPage] = useState(1);
-    const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [totalPosts, setTotalPosts] = useState(0);
-    const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
-    const [role, setRole] = useState("");
-    const [token, setToken] = useState("");
-    const [userId, setUserId] = useState<string | undefined>(undefined);
+  const perPage = 6;
+  const router = useRouter();
+  const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
+  const [page, setPage] = useState(1);
+  const [livePosts, setLivePosts] = useState<RemotePost[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+  const [role, setRole] = useState("");
+  const [token, setToken] = useState("");
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const DEFAULT_BANNERS = [
+    "/images/b1.png", "/images/b2.png", "/images/b3.png",
+    "/images/b4.png", "/images/b5.png", "/images/b6.png",
+    "/images/b7.png", "/images/b8.png", "/images/b9.png",
+    "/images/b10.png", "/images/b11.png", "/images/b12.png",
+  ];
 
-    useEffect(() => {
-        if (!loading && error) {
-            router.replace("/error");
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [loading, error]);
+  useEffect(() => {
+    const roleFromLS = (localStorage.getItem("role") || "").toLowerCase();
+    const tokenFromLS = localStorage.getItem("token") || "";
+    const userFromLS = localStorage.getItem("userId") || undefined;
 
-    useEffect(() => {
-        const r = (localStorage.getItem("role") || "").toLowerCase();
-        setRole(r);
+    setRole(roleFromLS);
+    setToken(tokenFromLS);
+    setUserId(userFromLS);
+  }, []);
 
-        const t = localStorage.getItem(r === "admin" ? "token" : "accessToken") || "";
-        setToken(t);
 
-        const u = localStorage.getItem("userId") || undefined;
-        setUserId(u);
-    }, []);
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+  }, [loading, error, router]);
 
-    // Fetch scheduled posts
-    useEffect(() => {
-        let active = true;
-        setLoading(true);
-        setError(null);
-        const fetchFn = role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
 
-        const load = async () => {
-            try {
-                const res = await fetchFn({
-                    page,
-                    limit: perPage,
-                    token,
-                    q: search || undefined,
-                    userId: role === "admin" ? undefined : userId,
-                });
-                if (!active) return;
-                const posts = role === "admin" ? res.posts : res.data ?? [];
-                const total = role === "admin" ? res.total : res.total ?? res.meta?.total ?? posts.length;
-                setLivePosts(posts);
-                setTotalPosts(total);
-            } catch {
-                if (active) setError("Something went wrong");
-            } finally {
-                if (active) setLoading(false);
-            }
-        };
-        load();
-        return () => { active = false; };
-    }, [page, perPage, search, role, token, userId]);
+  useEffect(() => {
+    if (!token) return; 
 
-    const baseList = useMemo(() => {
-        return livePosts.map((p) => {
-            const dateString = p.createdAt ? new Date(p.createdAt).toDateString() : new Date().toDateString();
-            return {
-                id: p._id,
-                title: p.title,
-                date: dateString,
-                excerpt: "",
-                image: p.bannerImageUrl || p.imageUrls?.[0] || "",
-                author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
-                tag: p.tags || [],
-                publishedAt: p.publishedAt,
-                readTime: p.readingTimeMinutes || 0,
-            };
-        });
-    }, [livePosts]);
+    let ignore = false;
+    setLoading(true);
+    setError(null);
 
-    const filtered = useMemo(() => {
-        const toTime = (val: string) => new Date(val).getTime();
-        return [...baseList].sort((a, b) =>
-            sortOrder === "latest" ? toTime(b.date) - toTime(a.date) : toTime(a.date) - toTime(b.date)
-        );
-    }, [sortOrder, baseList]);
+    const fetchFn = role === "admin" ? fetchAdminScheduledPosts : fetchScheduledPosts;
 
-    const handleEdit = (post: RemotePost) => {
-        router.push(`/DashBoard/Create_schedule_post?id=${post._id}`);
+    fetchFn({
+      page,
+      limit: perPage,
+      token,
+      q: search.trim() || undefined,
+      userId: role === "admin" ? undefined : userId,
+    })
+      .then((res) => {
+        if (ignore) return;
+
+        const posts = role === "admin" ? res.posts : res.data ?? [];
+        const total =
+          role === "admin"
+            ? res.total
+            : res.total ?? res?.meta?.total ?? posts.length;
+
+        setLivePosts(posts);
+        setTotalPosts(total);
+      })
+      .catch(() => {
+        if (!ignore) setError("Something went wrong");
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
+
+    return () => {
+      ignore = true;
     };
+  }, [page, search, role, token, userId]);
+
+  const getStableImage = (postId: string) => {
+    const hash = Array.from(postId).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+  };
+
+  const baseList = useMemo(() => {
+    if (!livePosts.length) return [];
+
+    return livePosts.map((p) => ({
+      id: p._id,
+      title: p.title,
+      date: p.createdAt || new Date().toISOString(),
+      excerpt: "",
+      image: p.bannerImageUrl || getStableImage(p._id),
+      author: typeof p.author === "string" ? p.author : p.author?.fullName || "Admin",
+      tag: p.tags || [],
+      publishedAt: p.publishedAt,
+      readTime: p.readingTimeMinutes || 0,
+    }));
+  }, [livePosts]);
+
+  const filtered = useMemo(() => {
+    if (!baseList.length) return [];
+    return baseList.toSorted((a, b) =>
+      sortOrder === "latest"
+        ? new Date(b.date).getTime() - new Date(a.date).getTime()
+        : new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+  }, [sortOrder, baseList]);
 
     const handlePublishNow = async (postId: string, postTitle: string) => {
         if (!confirm(`Publish "${postTitle}" now?`)) return;
@@ -125,32 +142,42 @@ export default function SchedulePosts() {
         }
     };
 
-    const handleDelete = async (postId: string) => {
-        if (!confirm("Are you sure you want to delete this post?")) return;
-        try {
-            if (!token) throw new Error("Token not found");
-            const action = role === "admin" ? adminDeletePostById : deleteUserPost;
-            await action(postId, token);
-            setLivePosts((prev) => prev.filter((p) => p._id !== postId));
-            toast.success("Post deleted successfully!");
-        } catch {
-            toast.error("Failed to delete post");
-        }
-    };
+  const handlePublishNow = async (postId: string, postTitle: string) => {
+    if (!confirm(`Publish "${postTitle}" now?`)) return;
 
-    const totalPages = Math.ceil(totalPosts / perPage);
+    try {
+      if (!token) throw new Error("Token not found");
+      const fn = role === "admin" ? publishAdminPostNow : publishUserPost;
+      setLoading(true);
 
-    return (
-        <DashboardLayout>
-            <div className="flex flex-col shadow-xl pb-8">
-                {/* Header */}
-                <div
-                    className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 text-white px-8 py-10 rounded-xl"
-                    style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
-                    <div className="w-full lg:w-auto text-center lg:text-left">
-                        <h1 className="text-3xl font-bold text-white">Scheduled Posts</h1>
-                        <p className="text-gray-200 mt-1">Manage scheduled posts</p>
-                    </div>
+      await fn(postId, token);
+
+      setLivePosts((prev) => prev.filter((p) => p._id !== postId));
+      toast.success(`"${postTitle}" published successfully!`);
+    } catch {
+      toast.error("Failed to publish post");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (postId: string) => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+      if (!token) throw new Error("Token not found");
+      const fn = role === "admin" ? adminDeletePostById : deleteUserPost;
+
+      await fn(postId, token);
+      setLivePosts((prev) => prev.filter((p) => p._id !== postId));
+      toast.success("Post deleted successfully!");
+    } catch {
+      toast.error("Failed to delete post");
+    }
+  };
+
+  const totalPages = useMemo(() => Math.ceil(totalPosts / perPage), [totalPosts]);
+
 
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto mt-4 lg:mt-0 flex-wrap sm:flex-nowrap">
                         {/* Search */}

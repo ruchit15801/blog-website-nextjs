@@ -41,6 +41,17 @@ export default function ArticlePage() {
     const router = useRouter();
     const raw = Array.isArray(params?.id) ? params.id[0] : params?.id;
     const postId = extractIdFromSlug(raw) || undefined;
+    const DEFAULT_BANNERS = [
+        "/images/b1.png","/images/b2.png","/images/b3.png",
+        "/images/b4.png","/images/b5.png","/images/b6.png",
+        "/images/b7.png","/images/b8.png","/images/b9.png",
+        "/images/b10.png","/images/b11.png","/images/b12.png",
+    ];
+
+    function getStableImage(postId: string) {
+        const hash = postId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+    }
 
     useEffect(() => {
         if (!loading && error) {
@@ -279,9 +290,9 @@ export default function ArticlePage() {
             </div>
 
             {/* Banner */}
-            {post.bannerImageUrl ? (
+            {(post.bannerImageUrl || getStableImage(post._id)) && (
                 <ImageWithCredit
-                    src={post.bannerImageUrl}
+                    src={post.bannerImageUrl || getStableImage(post._id)}
                     alt={post.title}
                     fill
                     priority
@@ -495,7 +506,7 @@ export default function ArticlePage() {
                                     <Link href={`/articles/${buildSlugPath(prevPost._id, prevPost.title)}`} className="flex items-center gap-4">
                                         <ChevronLeft className="w-4 h-4 text-[#5559d1]" />
                                         <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                                            <Image src={prevPost.bannerImageUrl || "/images/a1.webp"} alt={prevPost.title} fill className="object-cover" />
+                                            <Image src={prevPost.bannerImageUrl || getStableImage((post._id))} alt={prevPost.title} fill className="object-cover" />
                                         </div>
                                         <div className="text-[#29294b] font-semibold leading-snug group-hover:underline">
                                             {prevPost.title}
@@ -518,7 +529,7 @@ export default function ArticlePage() {
                                             {nextPost.title}
                                         </div>
                                         <div className="relative w-16 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                                            <Image src={nextPost.bannerImageUrl || "/images/a1.webp"} alt={nextPost.title} fill className="object-cover" />
+                                            <Image src={nextPost.bannerImageUrl || getStableImage((post._id))} alt={nextPost.title} fill className="object-cover" />
                                         </div>
                                         <ChevronRight className="w-4 h-4 text-[#5559d1]" />
                                     </Link>

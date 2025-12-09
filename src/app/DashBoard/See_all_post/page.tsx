@@ -26,6 +26,25 @@ export default function AllPosts() {
     const token = useMemo(() => (typeof window !== "undefined" ? localStorage.getItem("token") : null), []);
     const role = useMemo(() => (typeof window !== "undefined" ? localStorage.getItem("role") || "user" : "user"), []);
     const userId = useMemo(() => (typeof window !== "undefined" ? localStorage.getItem("userId") : null), []);
+    const DEFAULT_BANNERS = [
+        "/images/b1.png",
+        "/images/b2.png",
+        "/images/b3.png",
+        "/images/b4.png",
+        "/images/b5.png",
+        "/images/b6.png",
+        "/images/b7.png",
+        "/images/b8.png",
+        "/images/b9.png",
+        "/images/b10.png",
+        "/images/b11.png",
+        "/images/b12.png",
+    ];
+
+    function getStableImage(postId: string) {
+        const hash = postId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+    }
 
     const safeDate = (value?: string) => (value ? new Date(value) : new Date());
 
@@ -54,7 +73,7 @@ export default function AllPosts() {
                     posts = res.data.map((p: UserPost) => ({
                         _id: p._id,
                         title: p.title,
-                        bannerImageUrl: p.bannerImageUrl || "",
+                        bannerImageUrl: p.bannerImageUrl || getStableImage(p._id),
                         createdAt: p.createdAt || "",
                         publishedAt: p.publishedAt || "",
                         author: typeof p.author === "string" ? { _id: "", fullName: p.author } : p.author,
@@ -82,6 +101,7 @@ export default function AllPosts() {
         return () => {
             active = false;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token, role, currentPage, userId]);
 
     // --- Base List & Filter/Sort ---
@@ -96,7 +116,7 @@ export default function AllPosts() {
                     date: dateObj.toDateString(),
                     author: typeof p.author === "string" ? p.author : p.author?.fullName || "",
                     excerpt: "",
-                    image: p.bannerImageUrl || "",
+                    image: p.bannerImageUrl || getStableImage(p._id),
                     tag: p.tags || [],
                     readTime: p.readingTimeMinutes || 0,
                     full: p,
@@ -105,6 +125,7 @@ export default function AllPosts() {
             })
             .filter((a) => a.title.toLowerCase().includes(query))
             .sort((a, b) => sortOrder === "latest" ? b.timestamp - a.timestamp : a.timestamp - b.timestamp);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [livePosts, searchQuery, sortOrder]);
 
     const handleEdit = (post: RemotePost) => router.push(`/DashBoard/Create_post?id=${post._id}`);

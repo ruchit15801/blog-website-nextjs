@@ -64,7 +64,7 @@ export default function UserProfileWithCategories() {
                     me = await fetchUserProfile(token);
                 }
                 if (!active) return;
-                const avatarUrl = 'avatarUrl' in me ? me.avatarUrl : 'avatar' in me ? me.avatar : '';
+                const avatarUrl = 'avatarUrl' in me ? me.avatarUrl : 'avatar' in me ? me.avatar : '/images/p1.jpg';
                 setProfile({
                     fullName: me.fullName || "",
                     email: me.email,

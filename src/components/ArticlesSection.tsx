@@ -56,6 +56,26 @@ export default function ArticlesSection({
         });
     };
 
+    const DEFAULT_BANNERS = [
+        "/images/b1.png",
+        "/images/b2.png",
+        "/images/b3.png",
+        "/images/b4.png",
+        "/images/b5.png",
+        "/images/b6.png",
+        "/images/b7.png",
+        "/images/b8.png",
+        "/images/b9.png",
+        "/images/b10.png",
+        "/images/b11.png",
+        "/images/b12.png",
+    ];
+
+    function getStableImage(postId: string) {
+        const hash = postId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return DEFAULT_BANNERS[hash % DEFAULT_BANNERS.length];
+    }
+
     // Process recent posts for main articles
     const articles = useMemo(() => {
         return (recentPosts || []).map((p) => ({
@@ -64,21 +84,23 @@ export default function ArticlesSection({
             date: formatDate(p.publishedAt || p.createdAt),
             author: getPostAuthorName(p),
             excerpt: "",
-            image: p.bannerImageUrl || "",
+            image: p.bannerImageUrl || getStableImage(p._id),
             tag: Array.isArray(p.tags) ? p.tags : [],
             readTime: p.readingTimeMinutes ?? 0,
         }));
+         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [recentPosts]);
 
     // Process featured posts for slider
     const slider = useMemo(() => {
         return (featuredPosts || []).map((p) => ({
-            img: p.bannerImageUrl || "",
+            img: p.bannerImageUrl || getStableImage(p._id),
             title: p.title,
             author: getPostAuthorName(p),
             date: formatDate(p.publishedAt || p.createdAt),
             tag: Array.isArray(p.tags) && p.tags.length ? p.tags[0] : "",
         }));
+         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [featuredPosts]);
 
     // Slider state
@@ -205,7 +227,7 @@ export default function ArticlesSection({
                         <h2 className="uppercase text-sm font-bold text-gray-500 mb-4">About</h2>
                         <div className="flex gap-3 items-center">
                             <Image
-                                src={topAuthors?.[0]?.avatarUrl || ""}
+                                src={topAuthors?.[0]?.avatarUrl || "/images/p1.jpg"}
                                 alt={topAuthors?.[0]?.fullName || "Author"}
                                 width={50}
                                 height={50}
@@ -289,7 +311,7 @@ export default function ArticlesSection({
                             {(topAuthors || []).slice(0, 3).map((a) => (
                                 <div key={a._id} className="flex justify-between items-center">
                                     <div className="flex items-center gap-3">
-                                        <Image src={a.avatarUrl || ""} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
+                                        <Image src={a.avatarUrl || "/images/p1.jpg"} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
                                         <div>
                                             <h4 className="font-medium">{a.fullName || "Author"}</h4>
                                             <p className="text-sm text-gray-500">Featured contributor</p>
