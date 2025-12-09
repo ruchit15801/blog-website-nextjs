@@ -42,10 +42,10 @@ export default function ArticlePage() {
     const raw = Array.isArray(params?.id) ? params.id[0] : params?.id;
     const postId = extractIdFromSlug(raw) || undefined;
     const DEFAULT_BANNERS = [
-        "/images/b1.png","/images/b2.png","/images/b3.png",
-        "/images/b4.png","/images/b5.png","/images/b6.png",
-        "/images/b7.png","/images/b8.png","/images/b9.png",
-        "/images/b10.png","/images/b11.png","/images/b12.png",
+        "/images/b1.png", "/images/b2.png", "/images/b3.png",
+        "/images/b4.png", "/images/b5.png", "/images/b6.png",
+        "/images/b7.png", "/images/b8.png", "/images/b9.png",
+        "/images/b10.png", "/images/b11.png", "/images/b12.png",
     ];
 
     function getStableImage(postId: string) {
@@ -290,7 +290,7 @@ export default function ArticlePage() {
             </div>
 
             {/* Banner */}
-            {(post.bannerImageUrl || getStableImage(post._id)) && (
+            {(post.bannerImageUrl || getStableImage(post._id)) ? (
                 <ImageWithCredit
                     src={post.bannerImageUrl || getStableImage(post._id)}
                     alt={post.title}

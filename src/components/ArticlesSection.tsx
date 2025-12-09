@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { HomeAuthor, HomePost } from "@/lib/api";
 import { buildSlugPath } from "@/lib/slug";
 import Script from "next/script";
+import AdSense from "./AdSense";
 
 export default function ArticlesSection({
     featuredPosts,
@@ -153,18 +154,26 @@ export default function ArticlesSection({
                     {paginatedArticles.map((a, i) => (
                         <Link key={a.id} href={`/articles/${buildSlugPath(a.id, a.title)}`}>
                             <article className="flex flex-col overflow-hidden group cursor-pointer rounded-2xl bg-white shadow ring-1 ring-black/5 hover:-translate-y-0.5 transition-all hover:shadow-lg hover-glow reveal-on-scroll reveal" style={{ transitionDelay: `${i * 40}ms` }}>
-                                {/* Image */}
+                                {/* Image or Ad */}
                                 <div className="relative w-full h-56">
-                                    <Image
-                                        src={a.image}
-                                        alt={a.title}
-                                        fill
-                                        className="object-cover rounded-2xl hover-zoom"
-                                        loading={i < 2 ? "eager" : "lazy"}
-                                        priority={i < 2}
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                    />
-                                    <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                    {a.image ? (
+                                        <>
+                                            <Image
+                                                src={a.image}
+                                                alt={a.title}
+                                                fill
+                                                className="object-cover rounded-2xl hover-zoom"
+                                                loading={i < 2 ? "eager" : "lazy"}
+                                                priority={i < 2}
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            />
+                                            <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                                        </>
+                                    ) : (
+                                        <div className="w-full h-full rounded-2xl overflow-hidden bg-gray-50 flex items-center justify-center">
+                                            <AdSense type="list" className="w-full h-full" />
+                                        </div>
+                                    )}
                                     {/* Tags */}
                                     <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                                         {Array.isArray(a.tag)
