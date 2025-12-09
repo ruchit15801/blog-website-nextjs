@@ -2,7 +2,7 @@
 import DashboardLayout from "../DashBoardLayout";
 import { MoreHorizontal, Search, ChevronDown } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Loader from "@/components/Loader";
 import {
     adminDeletePostById,
@@ -20,103 +20,118 @@ type UiPost = {
     title: string;
     authorName: string;
     date: string;
-    excerpt: string;
-    publishedAt: string;
-    image: string;
+    excerpt?: string;
+    publishedAt?: string;
+    image?: string;
     tag: string[] | string;
     readTime: number;
 };
 
 export default function UserPosts() {
     const router = useRouter();
-
-    // --- STATES ---
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState<string>("");
     const [selectedUser, setSelectedUser] = useState<string>("all");
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(6);
-    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState<number>(1);
+    const [limit, setLimit] = useState<number>(6);
+    const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [items, setItems] = useState<UiPost[]>([]);
-    const [, setTotal] = useState(0);
-    const [totalPages, setTotalPages] = useState(1);
+    const [, setTotal] = useState<number>(0);
+    const [totalPages, setTotalPages] = useState<number>(1);
     const [userOptions, setUserOptions] = useState<RemoteUser[]>([]);
-    const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
-    const [isLimitDropdownOpen, setLimitDropdownOpen] = useState(false);
+    const [isUserDropdownOpen, setUserDropdownOpen] = useState<boolean>(false);
+    const [isLimitDropdownOpen, setLimitDropdownOpen] = useState<boolean>(false);
 
-    // --- FETCH USERS ---
+    useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
+
     useEffect(() => {
         let active = true;
         const token = localStorage.getItem("token");
         if (!token) return;
-
-        fetchAdminUsers({ page: 1, limit: 100 }, token)
-            .then(res => {
-                if (!active) return;
-                setUserOptions(res.users || []);
-            })
-            .catch(console.error);
-
-        return () => { active = false; };
+        (async () => {
+            try {
+                const res = await fetchAdminUsers({ page: 1, limit: 100 }, token);
+                if (active) setUserOptions(res.users ?? []);
+            } catch (err) {
+                console.error(err);
+            }
+        })();
+        return () => { active = false };
     }, []);
 
-    // --- FETCH POSTS ---
     useEffect(() => {
         let active = true;
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (!token) {
-            setError('Token not found');
+            setError("Token not found");
             setLoading(false);
             return;
         }
-
         setLoading(true);
         setError(null);
-
-        const authorId = selectedUser !== 'all' ? selectedUser : undefined;
-
-        fetchUserAllPosts({ page, limit, token, search: search || undefined, authorId })
-            .then(res => {
+        const authorId = selectedUser !== "all" ? selectedUser : undefined;
+        (async () => {
+            try {
+                const res = await fetchUserAllPosts({
+                    page,
+                    limit,
+                    token,
+                    search: search || undefined,
+                    authorId
+                });
                 if (!active) return;
                 const mapped: UiPost[] = res.data.map((p: UserPost) => ({
                     id: p._id,
                     title: p.title,
-                    authorName: typeof p.author === 'string' ? p.author : p.author?.fullName || 'Unknown',
-                    date: p.createdAt || new Date().toISOString(),
-                    image: p.bannerImageUrl || '',
-                    tag: p.tags || [],
+                    authorName: typeof p.author === "string" ? p.author : p.author?.fullName ?? "Unknown",
+                    date: p.createdAt ?? new Date().toISOString(),
+                    image: p.bannerImageUrl || "",
+                    tag: p.tags ?? [],
                     publishedAt: p.publishedAt,
-                    readTime: p.readingTimeMinutes || 0,
+                    readTime: p.readingTimeMinutes ?? 0
                 }));
-
+                const total = res.meta?.total ?? mapped.length;
                 setItems(mapped);
-                setTotal(res.meta.total || mapped.length);
-                setTotalPages(Math.ceil((res.meta.total || mapped.length) / limit));
-            })
-            .catch(e => setError(e instanceof Error ? e.message : String(e)))
-            .finally(() => { if (active) setLoading(false); });
-
-        return () => { active = false; };
+                setTotal(total);
+                setTotalPages(Math.ceil(total / limit));
+            } catch (err) {
+                setError(err instanceof Error ? err.message : String(err));
+            } finally {
+                if (active) setLoading(false);
+            }
+        })();
+        return () => { active = false };
     }, [page, limit, search, selectedUser]);
 
-    // --- DEBOUNCE SEARCH ---
     useEffect(() => {
-        const t = setTimeout(() => { setPage(1); }, 250);
-        return () => clearTimeout(t);
+        const timer = setTimeout(() => setPage(1), 300);
+        return () => clearTimeout(timer);
     }, [search]);
 
-    // --- DELETE POST ---
-    const handleDelete = async (postId: string) => {
+    const handleDelete = useCallback(async (postId: string) => {
         if (!window.confirm("Are you sure you want to delete this post?")) return;
         try {
             await adminDeletePostById(postId);
             setItems(prev => prev.filter(p => p.id !== postId));
             toast.success("Post deleted successfully!");
-        } catch (err) {
-            console.error(err);
+        } catch {
             toast.error("Failed to delete post");
         }
-    };
+    }, []);
+
+    const getUserDisplay = useCallback(
+        (id: string) => {
+            if (id === "all") return "All Users";
+            const user = userOptions.find(u => u._id === id);
+            return user?.fullName ?? "Unknown User";
+        },
+        [userOptions]
+    );
 
     return (
         <DashboardLayout>
@@ -137,7 +152,7 @@ export default function UserPosts() {
                                 type="text"
                                 placeholder="Search posts..."
                                 value={search}
-                                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                                onChange={(e) => setSearch(e.target.value)}
                                 className="w-full px-3 h-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
                         </div>
@@ -146,26 +161,20 @@ export default function UserPosts() {
                         <div className="custom-dropdown w-full sm:w-48 relative">
                             <button
                                 onClick={() => setUserDropdownOpen(!isUserDropdownOpen)}
-                                className="flex items-center justify-between w-full px-3 h-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            >
-                                {selectedUser === "all"
-                                    ? "All Users"
-                                    : userOptions.find(u => u._id === selectedUser)?.fullName || "Unknown User"}
+                                className="flex items-center justify-between w-full px-3 h-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                {getUserDisplay(selectedUser)}
                                 <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isUserDropdownOpen ? "rotate-180" : ""}`} />
                             </button>
                             {isUserDropdownOpen && (
                                 <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20 max-h-60 overflow-auto">
-                                    <div
-                                        className={`option ${selectedUser === "all" ? "selected" : ""}`}
+                                    <div className={`option ${selectedUser === "all" ? "selected" : ""}`}
                                         onClick={() => { setSelectedUser("all"); setUserDropdownOpen(false); }}>
                                         All Users
                                     </div>
                                     {userOptions.map(u => (
-                                        <div
-                                            key={u._id}
+                                        <div key={u._id}
                                             className={`option ${selectedUser === u._id ? "selected" : ""}`}
-                                            onClick={() => { setSelectedUser(u._id); setUserDropdownOpen(false); }}
-                                        >
+                                            onClick={() => { setSelectedUser(u._id); setUserDropdownOpen(false); }}>
                                             {u.fullName || u.name || u.email}
                                         </div>
                                     ))}
@@ -177,19 +186,16 @@ export default function UserPosts() {
                         <div className="custom-dropdown w-full sm:w-32 relative">
                             <button
                                 onClick={() => setLimitDropdownOpen(!isLimitDropdownOpen)}
-                                className="flex items-center justify-between w-full px-3 h-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            >
+                                className="flex items-center justify-between w-full px-3 h-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400">
                                 {limit} / page
                                 <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""}`} />
                             </button>
                             {isLimitDropdownOpen && (
                                 <div className="absolute mt-1 w-full sm:w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
                                     {[6, 12, 24].map(l => (
-                                        <div
-                                            key={l}
+                                        <div key={l}
                                             className={`option rounded-md ${limit === l ? "selected" : ""}`}
-                                            onClick={() => { setLimit(l); setLimitDropdownOpen(false); }}
-                                        >
+                                            onClick={() => { setLimit(l); setLimitDropdownOpen(false); }}>
                                             {l} / page
                                         </div>
                                     ))}
@@ -204,27 +210,21 @@ export default function UserPosts() {
                     {loading && <div className="col-span-full text-center py-10"><Loader inline label="Loading posts" /></div>}
                     {error && !loading && <div className="col-span-full text-center text-red-500 py-10">{error}</div>}
                     {!loading && !error && items.map(p => (
-                        <article
-                            key={p.id}
+                        <article key={p.id}
                             onClick={() => router.push(`/DashBoard/Post/${p.id}/`)}
                             className="relative group flex flex-col overflow-hidden rounded-2xl transition bg-white px-4 pt-4 cursor-pointer shadow hover:shadow-xl">
                             <div className="relative w-full h-56">
-                                <Image src={p.image} alt={p.title} fill className="object-cover rounded-2xl" />
-
+                                <Image src={p.image ?? ''} alt={p.title} fill className="object-cover rounded-2xl" />
                                 {/* Tags */}
                                 {p.tag && (
                                     <div className="absolute top-3 left-3 flex flex-wrap gap-2">
                                         {Array.isArray(p.tag)
                                             ? p.tag.slice(0, 2).map((t, i) => (
-                                                <span key={i} className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>
-                                                    {t}
-                                                </span>
-                                            ))
-                                            : <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{p.tag}</span>
+                                                <span key={i} className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{t}</span>
+                                            )) : <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full" style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>{p.tag}</span>
                                         }
                                     </div>
                                 )}
-
                                 {/* 3-dot menu */}
                                 <details className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition" onClick={(e) => e.stopPropagation()}>
                                     <summary className="list-none cursor-pointer p-2 bg-black/20 text-white rounded-full shadow flex items-center justify-center [&::-webkit-details-marker]:hidden marker:content-none">
@@ -259,11 +259,7 @@ export default function UserPosts() {
                 {/* Pagination */}
                 {!loading && !error && items.length > 0 && totalPages > 1 && (
                     <div className="mt-10 flex justify-center">
-                        <Pagination
-                            page={page}
-                            totalPages={totalPages}
-                            onChange={setPage}
-                        />
+                        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
                     </div>
                 )}
             </div>

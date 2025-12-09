@@ -48,24 +48,23 @@ export default function CreateSchedulePost() {
     const editorRef = useRef<HTMLDivElement | null>(null);
     const [contentHtml, setContentHtml] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [minDateTime, setMinDateTime] = useState("");
 
-    // Load token
     useEffect(() => {
-        const existing = getAdminToken() || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+        const existing = getAdminToken() || localStorage.getItem("token");
         if (existing) setToken(existing);
     }, []);
 
-    // Load categories
     const loadCategories = useCallback(async () => {
-        setCatError(null);
         if (!token) return;
+        setCatError(null);
         setCatsLoading(true);
         try {
             const list = await fetchCategories(token);
             setCategories(list);
-        } catch (e: unknown) {
-            const message = e instanceof Error ? e.message : String(e);
-            setCatError(message || "Failed to load categories");
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            setCatError(msg);
             toast.error("Failed to load categories");
         } finally {
             setCatsLoading(false);
@@ -73,70 +72,60 @@ export default function CreateSchedulePost() {
     }, [token]);
 
     useEffect(() => {
-        if (token && token.length > 10) loadCategories();
+        if (token) loadCategories();
     }, [token, loadCategories]);
 
     useEffect(() => {
-        if (categoryId && categories.length > 0) {
-            const cat = categories.find(c => c._id === categoryId);
-            if (cat) setCategoryName(cat.name);
-        }
+        if (!categoryId || categories.length === 0) return;
+        const match = categories.find(c => c._id === categoryId);
+        if (match) setCategoryName(match.name);
     }, [categories, categoryId]);
 
-    // Load post if editing
     useEffect(() => {
         if (!token || !postId) return;
-
-        const loadPost = async () => {
+        (async () => {
             try {
                 setSubmitting(true);
                 const res = await fetchPostById(postId, token);
                 const post = res.post;
                 if (!post) return;
-
                 setTitle(post.title);
                 setSubtitle(post.subtitle || "");
                 setTagsList(post.tags || []);
-                setScheduleDate(post.publishedAt ? post.publishedAt.slice(0, 16) : "");
+                setScheduleDate(post.publishedAt?.slice(0, 16) || "");
                 setContentHtml(post.contentHtml || "");
                 if (editorRef.current) editorRef.current.innerHTML = post.contentHtml || "";
                 if (post.bannerImageUrl) setBannerPreviewUrl(post.bannerImageUrl);
-                if (post.imageUrls && Array.isArray(post.imageUrls)) setImagePreviewUrls(post.imageUrls);
+                if (Array.isArray(post.imageUrls)) setImagePreviewUrls(post.imageUrls);
 
-                const catName = categories.find(c => c._id === post.category)?.name || "";
-                setCategoryName(catName);
-
-            } catch (err) {
-                console.error(err);
+                const cat = categories.find(c => c._id === post.category);
+                if (cat) setCategoryName(cat.name);
+            } catch {
                 toast.error("Failed to load post data");
             } finally {
                 setSubmitting(false);
             }
-        };
-
-        loadPost();
+        })();
     }, [token, postId, categories]);
 
     const addTag = (value: string) => {
         const v = value.trim();
         if (v && !tagsList.includes(v)) setTagsList(prev => [...prev, v]);
     };
-    const [minDateTime, setMinDateTime] = useState("");
-
-    useEffect(() => {
-        const now = new Date();
-        const offset = now.getTimezoneOffset();
-        const local = new Date(now.getTime() - offset * 60 * 1000);
-        setMinDateTime(local.toISOString().slice(0, 16));
-    }, []);
-
 
     const removeTag = (idx: number) => setTagsList(prev => prev.filter((_, i) => i !== idx));
 
+    useEffect(() => {
+        const now = new Date();
+        const localISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 16);
+        setMinDateTime(localISO);
+    }, []);
+
     const handleBannerChange = (file: File | null) => {
         setBannerFile(file);
-        if (file) setBannerPreviewUrl(URL.createObjectURL(file));
-        else setBannerPreviewUrl("");
+        setBannerPreviewUrl(file ? URL.createObjectURL(file) : "");
     };
 
     const handleImagesChange = (files: File[]) => {
@@ -147,54 +136,52 @@ export default function CreateSchedulePost() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setMessage(null);
-
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        const role = typeof window !== "undefined" ? localStorage.getItem("role") : "user";
-        const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : undefined;
-
-        if (!token) { toast.error("Please enter token."); return; }
-        if (!title.trim()) { toast.error("Title is required."); return; }
-        if (!scheduleDate) { toast.error("Schedule date/time is required."); return; }
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role") || "user";
+        const userId = localStorage.getItem("userId") ?? undefined;
+        if (!token) return toast.error("Please enter token.");
+        if (!title.trim()) return toast.error("Title is required.");
+        if (!scheduleDate) return toast.error("Schedule date/time is required.");
 
         try {
             setSubmitting(true);
             saveAdminToken(token);
-
             const postData = {
                 title,
                 subtitle,
                 contentHtml,
                 publishedAt: new Date(scheduleDate).toISOString(),
-                bannerFile: bannerFile ?? undefined,
-                imageFiles: imageFiles.length > 0 ? imageFiles : undefined,
+                bannerFile: bannerFile || undefined,
+                imageFiles: imageFiles.length ? imageFiles : undefined,
                 categoryId: categoryId || undefined,
-                tags: tagsList.length > 0 ? tagsList : undefined,
+                tags: tagsList.length ? tagsList : undefined,
                 status: "scheduled" as const,
             };
-
+            const isAdmin = role === "admin";
             if (postId) {
-                if (role === "admin") {
+                if (isAdmin) {
                     await adminUpdatePostById(postId, postData, token);
                 } else {
-                    if (!userId) { toast.error("User not found"); return; }
+                    if (!userId) return toast.error("User not found");
                     await updatePost(postId, postData, token);
                 }
                 toast.success("Scheduled post updated successfully!");
             } else {
-                if (role === "admin") {
+                if (isAdmin) {
                     await createScheduledPost(postData);
                 } else {
-                    if (!userId) { toast.error("User not found."); return; }
+                    if (!userId) return toast.error("User not found");
                     await createUserScheduledPost(postData, token, userId);
                 }
                 toast.success("Scheduled post saved successfully!");
             }
+            setTimeout(() => {
+                window.location.href = "/DashBoard/Schedule_post";
+            }, 600);
 
-            setTimeout(() => { window.location.href = "/DashBoard/Schedule_post"; }, 600);
-
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : String(err);
-            toast.error(message || "Failed to save scheduled post");
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            toast.error(msg || "Failed to save scheduled post");
         } finally {
             setSubmitting(false);
         }

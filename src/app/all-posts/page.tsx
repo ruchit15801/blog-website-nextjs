@@ -9,6 +9,7 @@ import { listAllHomePosts, listTopTrendingCategories, listTopTrendingAuthors, ty
 import toast from "react-hot-toast";
 import { buildSlugPath } from "@/lib/slug";
 import Loader from "@/components/Loader";
+import Script from "next/script";
 
 type SidebarAuthor = { _id: string; fullName?: string; avatarUrl?: string };
 
@@ -25,7 +26,6 @@ export default function AllPostsPage() {
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState<"latest" | "oldest" | "random">("latest");
     const [authors, setAuthors] = useState<SidebarAuthor[]>([]);
-    // Custom dropdown state
     const sortOptions: Array<{ value: "latest" | "oldest" | "random"; label: string }> = [
         { value: "latest", label: "Latest" },
         { value: "oldest", label: "Oldest" },
@@ -34,6 +34,13 @@ export default function AllPostsPage() {
     const perPageOptions = [6, 12, 24];
     const [sortOpen, setSortOpen] = useState(false);
     const [perOpen, setPerOpen] = useState(false);
+
+    useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
 
     useEffect(() => {
         let active = true;
@@ -45,7 +52,6 @@ export default function AllPostsPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Sync state from URL on first load
     useEffect(() => {
         const p = Number(searchParams.get("page") || 1);
         const l = Number(searchParams.get("limit") || 12);
@@ -58,7 +64,6 @@ export default function AllPostsPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Reflect state into URL when it changes
     useEffect(() => {
         const sp = new URLSearchParams();
         if (page) sp.set("page", String(page));
@@ -66,7 +71,6 @@ export default function AllPostsPage() {
         if (sort) sp.set("sort", String(sort));
         if (selectedCat) sp.set("category", String(selectedCat));
         router.replace(`/all-posts?${sp.toString()}`);
-        // Smooth scroll top on page change
         if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
     }, [page, limit, sort, selectedCat, router]);
 
@@ -107,13 +111,10 @@ export default function AllPostsPage() {
         return () => io.disconnect();
     }, [posts.length, search]);
 
-    // Debounce search typing for better UX
     useEffect(() => {
         const t = setTimeout(() => { /* trigger filter already updates state */ }, 200);
         return () => clearTimeout(t);
     }, [search]);
-
-    // authors now loaded from API
 
     const filtered = useMemo(() => {
         if (!search.trim()) return posts;
@@ -126,7 +127,7 @@ export default function AllPostsPage() {
 
     const visiblePages = useMemo(() => {
         const pages: number[] = [];
-        const maxShown = 7; // including first/last and gaps
+        const maxShown = 7;
         if (totalPages <= maxShown) {
             for (let i = 1; i <= totalPages; i++) pages.push(i);
             return pages;
@@ -134,9 +135,9 @@ export default function AllPostsPage() {
         const start = Math.max(2, page - 1);
         const end = Math.min(totalPages - 1, page + 1);
         pages.push(1);
-        if (start > 2) pages.push(-1); // gap
+        if (start > 2) pages.push(-1);
         for (let i = start; i <= end; i++) pages.push(i);
-        if (end < totalPages - 1) pages.push(-2); // gap
+        if (end < totalPages - 1) pages.push(-2);
         pages.push(totalPages);
         return pages;
     }, [page, totalPages]);
@@ -157,6 +158,24 @@ export default function AllPostsPage() {
                         </div>
                     </div>
 
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="7954361260"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    <Script id="ads-init-all-post-one" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
+
                     {/* Top Authors */}
                     <div className="aside-shadow rounded-2xl shadow p-6 bg-white">
                         <h3 className="text-lg font-semibold mb-3 uppercase" style={{ fontSize: '.75rem', fontWeight: 800, color: '#696981' }}>Top Authors</h3>
@@ -168,11 +187,28 @@ export default function AllPostsPage() {
                                     <div className="flex-1">
                                         <div className="font-medium" style={{ color: '#29294b' }}>{a.fullName}</div>
                                     </div>
-                                    <Link href={`/blog?author=${encodeURIComponent(a._id)}`} className="text-sm link-underline">View</Link>
+                                    <Link href={`/blog/list?author=${encodeURIComponent(a._id)}`} className="text-sm link-underline">View</Link>
                                 </div>
                             ))}
                         </div>
                     </div>
+
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-format="autorelaxed"
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="4945054543"
+                    />
+                    <Script id="ads-init-relaxed" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
                 </aside>
 
                 {/* Main grid */}
@@ -194,8 +230,7 @@ export default function AllPostsPage() {
                                 <button
                                     type="button"
                                     className="rounded-xl px-3 py-2.5 border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1] transition flex items-center gap-2"
-                                    onClick={() => setSortOpen((v) => !v)}
-                                >
+                                    onClick={() => setSortOpen((v) => !v)}>
                                     {sortOptions.find(o => o.value === sort)?.label || "Latest"}
                                     <ChevronDown className="w-4 h-4 text-gray-400" />
                                 </button>
@@ -219,8 +254,7 @@ export default function AllPostsPage() {
                                 <button
                                     type="button"
                                     className="rounded-xl px-3 py-2.5 border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5559d1] transition flex items-center gap-2"
-                                    onClick={() => setPerOpen((v) => !v)}
-                                >
+                                    onClick={() => setPerOpen((v) => !v)}>
                                     {limit} / page
                                     <ChevronDown className="w-4 h-4 text-gray-400" />
                                 </button>
@@ -250,12 +284,12 @@ export default function AllPostsPage() {
                             </div>
                         )}
                         {error && !loading && <div className="col-span-full text-center text-red-500 py-10">{error}</div>}
-                        {!loading && !error && filtered.map((p, i) => {
+                        {!loading && !error && filtered.map((p) => {
                             const authorName = typeof p.author === "string" ? p.author : (p.author?.fullName || "");
                             const date = new Date(p.publishedAt || p.createdAt || Date.now()).toDateString();
                             return (
                                 <Link key={p._id} href={`/articles/${buildSlugPath(p._id, p.title)}`}>
-                                    <article className="flex flex-col overflow-hidden group rounded-2xl bg-white shadow ring-1 ring-black/5 hover:-translate-y-0.5 transition-all hover:shadow-lg hover-glow reveal-on-scroll reveal" style={{ transitionDelay: `${i * 40}ms` }}>
+                                    <article className="flex flex-col overflow-hidden group rounded-2xl bg-white shadow ring-1 ring-black/5 hover:-translate-y-0.5 transition-all hover:shadow-lg hover-glow">
                                         <div className="relative w-full h-56">
                                             <Image src={p.bannerImageUrl || "/images/a1.webp"} alt={p.title} fill className="object-cover rounded-2xl hover-zoom" />
                                             <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-t from-black/10 via-transparent to-transparent" />
@@ -275,8 +309,7 @@ export default function AllPostsPage() {
                                                     <span
                                                         key={t}
                                                         className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
-                                                        style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}
-                                                    >
+                                                        style={{ background: '#eef2ff', color: '#5559d1', letterSpacing: '.05em' }}>
                                                         #{" "}{t}
                                                     </span>
                                                 ))}
@@ -302,8 +335,7 @@ export default function AllPostsPage() {
                                     className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                                     aria-label="First page"
                                     title="First"
-                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                                >
+                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                                     <ChevronsLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
                                 </button>
                                 <button
@@ -312,8 +344,7 @@ export default function AllPostsPage() {
                                     className={`rounded-full p-2 transition hover-float ${page === 1 ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                                     aria-label="Previous page"
                                     title="Prev"
-                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                                >
+                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                                     <ChevronLeft className="w-4 h-4" style={{ color: '#5559d1' }} />
                                 </button>
                                 {visiblePages.map((pnum, idx) => (
@@ -331,8 +362,7 @@ export default function AllPostsPage() {
                                                 background: '#fff',
                                                 color: '#5559d1',
                                                 boxShadow: '0 5px 20px rgba(114,114,255,.12)'
-                                            }}
-                                        >
+                                            }}>
                                             {pnum}
                                         </button>
                                     )
@@ -343,8 +373,7 @@ export default function AllPostsPage() {
                                     className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                                     aria-label="Next page"
                                     title="Next"
-                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                                >
+                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                                     <ChevronRight className="w-4 h-4" style={{ color: '#5559d1' }} />
                                 </button>
                                 <button
@@ -353,17 +382,30 @@ export default function AllPostsPage() {
                                     className={`rounded-full p-2 transition hover-float ${page === totalPages ? "opacity-40 cursor-not-allowed bg-gray-100" : "bg-white"}`}
                                     aria-label="Last page"
                                     title="Last"
-                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}
-                                >
+                                    style={{ boxShadow: '0 5px 20px rgba(114,114,255,.12)' }}>
                                     <ChevronsRight className="w-4 h-4" style={{ color: '#5559d1' }} />
                                 </button>
                             </div>
                         </div>
                     )}
+
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-format="autorelaxed"
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="4443874551"
+                    />
+                    <Script id="ads-init-four" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
                 </section>
             </div>
         </Suspense>
     );
 }
-
-

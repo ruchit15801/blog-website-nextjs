@@ -21,8 +21,7 @@ export default function TiptapEditor({ initialHtml = "<p></p>", onChange }: Prop
     content: initialHtml,
     editorProps: {
       attributes: {
-        class:
-          "min-h-[400px] mt-3 rounded-2xl p-6 border-2 border-gray-300 bg-gradient-to-br from-white via-blue-50 to-purple-50 shadow-inner focus:outline-none overflow-auto transition-all duration-300 hover:shadow-lg prose prose-sm md:prose-base max-w-none",
+        class: "min-h-[400px] mt-3 rounded-2xl p-6 border-2 border-gray-300 bg-gradient-to-br from-white via-blue-50 to-purple-50 shadow-inner focus:outline-none overflow-auto transition-all duration-300 hover:shadow-lg prose prose-sm md:prose-base max-w-none",
       },
     },
     immediatelyRender: false,
@@ -30,7 +29,6 @@ export default function TiptapEditor({ initialHtml = "<p></p>", onChange }: Prop
 
   useEffect(() => {
     if (!editor) return;
-
     const update = () => {
       const html = editor.getHTML();
       setContentHtml(html);
@@ -57,7 +55,6 @@ export default function TiptapEditor({ initialHtml = "<p></p>", onChange }: Prop
   return (
     <div className="space-y-3 bg-white rounded-2xl shadow p-6 card-hover mt-4">
       <label className="text-sm font-semibold text-gray-700">Text Editor (HTML) *</label>
-
       <div className="top-0 z-20 mt-1 flex flex-wrap gap-2 bg-gradient-to-r from-purple-100 to-blue-50 p-2 rounded-xl border border-gray-200 mb-2 shadow-md">
         <button type="button" className={`px-2 py-1 rounded ${editor.isActive("bold") ? "bg-purple-300" : "bg-purple-200"}`} onClick={() => editor.chain().focus().toggleBold().run()}>Bold</button>
         <button type="button" className={`px-2 py-1 rounded ${editor.isActive("italic") ? "bg-purple-300" : "bg-purple-200"}`} onClick={() => editor.chain().focus().toggleItalic().run()}>Italic</button>
@@ -73,7 +70,6 @@ export default function TiptapEditor({ initialHtml = "<p></p>", onChange }: Prop
         <button type="button" className="px-2 py-1 bg-red-400 hover:bg-red-500 text-xs font-medium rounded text-white" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>Clear</button>
         <span className="ml-auto text-xs text-gray-500">{wordCount} words</span>
       </div>
-
       <div>
         <EditorContent editor={editor} />
       </div>

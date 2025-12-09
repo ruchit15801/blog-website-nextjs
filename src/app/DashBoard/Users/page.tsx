@@ -8,6 +8,7 @@ import Loader from "@/components/Loader";
 import { fetchAdminUsers, RemoteUser, deleteAdminUser, getAdminToken } from "@/lib/adminClient";
 import Pagination from "@/components/Pagination";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function UsersPage() {
   const [loading, setLoading] = useState(false);
@@ -18,39 +19,43 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-
   const [isFilterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [isLimitDropdownOpen, setLimitDropdownOpen] = useState(false);
-
   const [searchTerm, setSearchTerm] = useState("");
+  const router = useRouter();
   const [filter, setFilter] = useState<"all" | "low" | "mid" | "high">("all");
+
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
 
   // Modal & Edit
   const [showModal, setShowModal] = useState(false);
-  // Define a temporary type for edit state
   type EditableUser = RemoteUser & {
     avatarFile?: File;
     avatarPreview?: string;
   };
 
   const [editUser, setEditUser] = useState<EditableUser | null>(null);
-
-  // const [editUser, setEditUser] = useState<RemoteUser | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  const loadUsers = useCallback(() => {
-    setLoading(true);
-    setError(null);
-
-    fetchAdminUsers({ page, limit, q: searchTerm || undefined })
-      .then((res) => {
-        setUsers(res.users || []);
-        setTotal(res.total || 0);
-        setTotalPages(res.totalPages || 1);
-        setLimit(res.limit || limit);
-      })
-      .catch((e) => setError(e instanceof Error ? e.message : String(e)))
-      .finally(() => setLoading(false));
+  const loadUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetchAdminUsers({ page, limit, q: searchTerm || undefined, });
+      setUsers(res.users ?? []);
+      setTotal(res.total ?? 0);
+      setTotalPages(res.totalPages ?? 1);
+      setLimit(res.limit ?? limit);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
   }, [page, limit, searchTerm]);
 
   useEffect(() => {
@@ -58,17 +63,20 @@ export default function UsersPage() {
   }, [loadUsers]);
 
   const filteredUsers = useMemo(() => {
-    return users.filter((user) => {
-      const matchSearch =
-        (user.fullName || user.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (user.email || "").toLowerCase().includes(searchTerm.toLowerCase());
-
-      let matchFilter = true;
-      const totalPosts = user.totalPosts ?? 0;
-      if (filter === "low") matchFilter = totalPosts < 10;
-      else if (filter === "mid") matchFilter = totalPosts >= 10 && totalPosts <= 50;
-      else if (filter === "high") matchFilter = totalPosts > 50;
-
+    const query = searchTerm.toLowerCase();
+    return users.filter((u) => {
+      const fullName = (u.fullName || u.name || "").toLowerCase();
+      const email = (u.email || "").toLowerCase();
+      const totalPosts = u.totalPosts ?? 0;
+      const matchSearch = fullName.includes(query) || email.includes(query);
+      const matchFilter =
+        filter === "low"
+          ? totalPosts < 10
+          : filter === "mid"
+            ? totalPosts >= 10 && totalPosts <= 50
+            : filter === "high"
+              ? totalPosts > 50
+              : true;
       return matchSearch && matchFilter;
     });
   }, [users, searchTerm, filter]);
@@ -77,18 +85,17 @@ export default function UsersPage() {
     setEditUser({
       ...user,
       avatarPreview: user.avatarUrl || user.avatar || "/images/default-avatar.png",
-    } as EditableUser);
+    });
     setShowModal(true);
   };
 
   const handleDelete = async (userId: string) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
-
     try {
       setLoading(true);
       await deleteAdminUser(userId);
       toast.success("User deleted successfully!");
-      loadUsers();
+      setUsers((prev) => prev.filter((u) => u._id !== userId));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to delete user");
     } finally {
@@ -99,27 +106,37 @@ export default function UsersPage() {
   const handleUpdateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editUser) return;
-
     try {
       setUpdating(true);
-
       const formData = new FormData();
       formData.append("fullName", editUser.fullName || "");
       formData.append("role", editUser.role || "");
       if (editUser.avatarFile) formData.append("avatar", editUser.avatarFile);
-
       const token = getAdminToken();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${editUser._id}`, {
-        method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` }, // browser handles FormData Content-Type
-        body: formData,
-      });
-
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/users/${editUser._id}`,
+        {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        }
+      );
       const data = await res.json();
       if (!data.success) throw new Error(data.error?.message || "Update failed");
-
       toast.success("User updated successfully!");
-      loadUsers();
+
+      setUsers((prev) =>
+        prev.map((u) =>
+          u._id === editUser._id
+            ? {
+              ...u,
+              fullName: data.user.fullName,
+              role: data.user.role,
+              avatar: data.user.avatar,
+              avatarUrl: data.user.avatar,
+            } : u
+        )
+      );
       setShowModal(false);
       setEditUser(null);
     } catch (err) {
@@ -202,8 +219,7 @@ export default function UsersPage() {
                 onClick={() => setLimitDropdownOpen(!isLimitDropdownOpen)}
                 className="flex items-center justify-between w-full sm:w-auto px-3 h-10 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400">
                 {limit} / page
-                <ChevronDown
-                  className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${isLimitDropdownOpen ? "rotate-180" : ""}`} />
               </button>
               {isLimitDropdownOpen && (
                 <div className="absolute mt-1 w-full sm:w-48 bg-white rounded-md shadow-lg z-20">
@@ -215,8 +231,7 @@ export default function UsersPage() {
                         setLimit(l);
                         setPage(1);
                         setLimitDropdownOpen(false);
-                      }}>
-                      {l} / page
+                      }}> {l} / page
                     </div>
                   ))}
                 </div>
@@ -425,8 +440,7 @@ export default function UsersPage() {
                     type="submit"
                     disabled={updating}
                     className="px-4 py-2 rounded-lg text-white disabled:opacity-60"
-                    style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}
-                  >
+                    style={{ background: "linear-gradient(180deg, #9895ff 0%, #514dcc 100%)" }}>
                     {updating ? "Updating..." : "Update"}
                   </button>
                 </div>
@@ -434,7 +448,6 @@ export default function UsersPage() {
             </div>
           </div>
         )}
-
       </div>
     </DashboardLayout>
   );

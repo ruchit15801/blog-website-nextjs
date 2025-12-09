@@ -23,8 +23,7 @@ export default function NotFound(): React.ReactElement {
                 backgroundSize: "160% 160%, 180% 180%, auto",
                 animation: "bgpan 60s linear infinite alternate",
                 overflow: "hidden",
-            }}
-        >
+            }}>
             {/* Decorative blobs */}
             <div
                 aria-hidden
@@ -87,8 +86,7 @@ export default function NotFound(): React.ReactElement {
                     rafRef.current = requestAnimationFrame(() => {
                         el.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";
                     });
-                }}
-            >
+                }}>
                 <div ref={groupRef} style={{ transition: "transform 300ms ease" }}>
                     <div style={{ animation: "fadeup 700ms ease both" }}>
                         {/* Logo */}
@@ -105,8 +103,7 @@ export default function NotFound(): React.ReactElement {
                                 color: "#0369a1",
                                 fontWeight: 600,
                                 marginBottom: 18,
-                            }}
-                        >
+                            }}>
                             Page not found
                         </span>
 
@@ -122,10 +119,7 @@ export default function NotFound(): React.ReactElement {
                                 WebkitBackgroundClip: "text",
                                 backgroundClip: "text",
                                 color: "transparent",
-                            }}
-                        >
-                            404
-                        </h1>
+                            }}> 404</h1>
 
                         <p
                             style={{
@@ -134,8 +128,7 @@ export default function NotFound(): React.ReactElement {
                                 fontSize: "clamp(16px, 2vw, 20px)",
                                 lineHeight: 1.6,
                                 color: "#4b5563",
-                            }}
-                        >
+                            }}>
                             The page you’re looking for doesn’t exist or was moved. Try searching or go back home.
                         </p>
 
@@ -162,9 +155,7 @@ export default function NotFound(): React.ReactElement {
                                     (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
                                     (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 24px rgba(99,102,241,0.28)";
                                 }}
-                            >
-                                Back to Home
-                            </Link>
+                            > Back to Home</Link>
 
                             <Link
                                 href="/all-posts"

@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-// Image import removed (unused)
+
+import { useEffect, useState, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
 import ImageWithCredit from "@/components/ImageWithCredit";
 import Loader from "@/components/Loader";
 import { fetchPostById, getAdminToken } from "@/lib/adminClient";
@@ -18,7 +18,13 @@ type RemotePost = {
   imageUrls?: string[];
   category?: string;
   tags?: string[];
-  author?: { fullName: string; twitterUrl: string; facebookUrl: string; instagramUrl: string; linkedinUrl: string };
+  author?: {
+    fullName: string;
+    twitterUrl?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    linkedinUrl?: string;
+  };
   publishedAt?: string;
   readingTimeMinutes?: string;
 };
@@ -27,29 +33,35 @@ export default function PostPage() {
   const [post, setPost] = useState<RemotePost | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const token =
-    typeof window !== "undefined" ? getAdminToken() || localStorage.getItem("token") : null;
-
   const params = useParams();
+  const router = useRouter();
   const postId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+
+  const token = useMemo(() => (typeof window !== "undefined" ? getAdminToken() || localStorage.getItem("token") : null), []);
+
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace("/error");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error]);
 
   useEffect(() => {
     if (!postId) return;
 
     const loadPost = async () => {
-      setLoading(true);
-      setError(null);
       try {
         if (!token) throw new Error("Missing auth token. Please login.");
-        const response = await fetchPostById(postId, token);
-
-        const maybePost = (response?.post ?? response?.data ?? response) as RemotePost | undefined;
-        if (!maybePost) throw new Error("Post not found");
-        setPost(maybePost);
+        setLoading(true);
+        setError(null);
+        const res = await fetchPostById(postId, token);
+        const data: RemotePost | undefined = res?.post ?? res?.data ?? res;
+        if (!data) throw new Error("Post not found");
+        setPost(data);
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
+        const msg = err instanceof Error ? err.message : "Failed to load post";
         setError(msg);
-        toast.error(msg || "Failed to load post");
+        toast.error(msg);
       } finally {
         setLoading(false);
       }
@@ -58,43 +70,37 @@ export default function PostPage() {
     loadPost();
   }, [postId, token]);
 
+  type ContentBlock = string | { type: "image"; url: string };
+
+  const contentBlocks = useMemo<ContentBlock[]>(() => {
+    if (!post?.contentHtml) return [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(post.contentHtml, "text/html");
+    const imageUrls = post.imageUrls ?? [];
+    const blocks: ContentBlock[] = [];
+
+    let imageIndex = 0;
+    let elementCount = 0;
+    for (const el of Array.from(doc.body.children)) {
+      blocks.push(el.outerHTML);
+      elementCount++;
+      if (elementCount % 3 === 0 && imageIndex < imageUrls.length) {
+        blocks.push({ type: "image", url: imageUrls[imageIndex++] });
+      }
+    }
+    while (imageIndex < imageUrls.length) {
+      blocks.push({ type: "image", url: imageUrls[imageIndex++] });
+    }
+    return blocks;
+  }, [post]);
+
   if (loading) return <Loader inline label="Loading post..." />;
   if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
   if (!post) return <div className="text-gray-500 text-center py-10">Post not found</div>;
 
-  /** New function to inject images in content every 3 paragraphs */
-  function getContentWithImages(post: RemotePost) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(post.contentHtml, "text/html");
-    const paragraphs = Array.from(doc.body.children); // <p>, <h2>, etc
-
-    const blocks: Array<string | { type: "image"; url: string }> = [];
-    let imageIndex = 0;
-
-    paragraphs.forEach((p, i) => {
-      blocks.push(p.outerHTML); // original content block
-      if ((i + 1) % 3 === 0 && post.imageUrls && imageIndex < post.imageUrls.length) {
-        blocks.push({ type: "image", url: post.imageUrls[imageIndex] });
-        imageIndex++;
-      }
-    });
-
-    // Remaining images at the end
-    if (post.imageUrls) {
-      for (let j = imageIndex; j < post.imageUrls.length; j++) {
-        blocks.push({ type: "image", url: post.imageUrls[j] });
-      }
-    }
-
-    return blocks;
-  }
-
-  const contentBlocks = getContentWithImages(post);
-
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8">
-        {/* Banner */}
         {post.bannerImageUrl && (
           <ImageWithCredit
             src={post.bannerImageUrl}
@@ -106,21 +112,14 @@ export default function PostPage() {
           />
         )}
 
-        {/* Main Layout */}
         <div className="flex justify-center">
           <div className="flex flex-col lg:flex-row gap-6 w-full max-w-5xl mx-auto">
             {/* Sidebar */}
-            <div
-              className="w-full sm:w-auto lg:w-1/5 flex-shrink-0 flex justify-center lg:block mb-4 lg:mb-0"
-              style={{ position: "sticky", top: "80px", alignSelf: "start" }}>
+            <div className="w-full sm:w-auto lg:w-1/5 flex-shrink-0 flex justify-center lg:block mb-4 lg:mb-0" style={{ position: "sticky", top: "80px", alignSelf: "start" }}>
               <div className="flex gap-6 sm:flex-row lg:flex-col sm:items-center justify-center lg:justify-start">
                 {/* Reading Time Circle */}
-                <div
-                  className="relative flex items-center justify-center text-center font-bold rounded-full w-20 h-20 lg:w-24 lg:h-24"
-                  style={{ width: "90px", height: "90px" }}
-                >
-                  <div
-                    className="flex items-center justify-center text-gray-800  w-16 h-16 lg:w-20 lg:h-20"
+                <div className="relative flex items-center justify-center font-bold rounded-full w-20 h-20 lg:w-24 lg:h-24">
+                  <div className="flex items-center justify-center text-gray-800 w-16 h-16 lg:w-20 lg:h-20"
                     style={{
                       position: "sticky",
                       top: "100px",
@@ -130,9 +129,8 @@ export default function PostPage() {
                       background: "#fff",
                       borderRadius: "9999px",
                       transition: ".25s",
-                    }}
-                  >
-                    <span className="text-sm lg:text-base font-bold px-2" style={{ fontSize: "0.85rem" }}>
+                    }}>
+                    <span className="text-sm lg:text-base font-bold px-2 text-center">
                       {post.readingTimeMinutes || 0} min read
                     </span>
                   </div>
@@ -146,8 +144,7 @@ export default function PostPage() {
                       target="_blank"
                       rel="noreferrer"
                       aria-label="Twitter"
-                      className="hover:text-blue-600 transition-colors"
-                    >
+                      className="hover:text-blue-600 transition-colors">
                       <svg width="24" height="24" viewBox="0 0 24 24">
                         <path d="M13.982 10.622 20.54 3h-1.554l-5.693 6.618L8.745 3H3.5l6.876 10.007L3.5 21h1.554l6.012-6.989L15.868 21h5.245l-7.131-10.378Zm-2.128 2.474-.697-.997-5.543-7.93H8l4.474 6.4.697.996 5.815 8.318h-2.387l-4.745-6.787Z" />
                       </svg>
@@ -159,8 +156,7 @@ export default function PostPage() {
                       target="_blank"
                       rel="noreferrer"
                       aria-label="Facebook"
-                      className="hover:text-sky-500 transition-colors"
-                    >
+                      className="hover:text-sky-500 transition-colors">
                       <FacebookIcon />
                     </a>
                   )}
@@ -170,8 +166,7 @@ export default function PostPage() {
                       target="_blank"
                       rel="noreferrer"
                       aria-label="Instagram"
-                      className="hover:text-pink-500 transition-colors"
-                    >
+                      className="hover:text-pink-500 transition-colors">
                       <InstagramIcon />
                     </a>
                   )}
@@ -181,8 +176,7 @@ export default function PostPage() {
                       target="_blank"
                       rel="noreferrer"
                       aria-label="LinkedIn"
-                      className="hover:text-blue-700 transition-colors"
-                    >
+                      className="hover:text-blue-700 transition-colors">
                       <LinkedinIcon />
                     </a>
                   )}
@@ -194,7 +188,7 @@ export default function PostPage() {
             <div className="w-full lg:w-4/5 flex flex-col space-y-4">
               {post.publishedAt && (
                 <div className="text-sm text-indigo-600 font-medium">
-                  Published At :{" "}
+                  Published At:{" "}
                   {new Date(post.publishedAt).toLocaleString(undefined, {
                     dateStyle: "medium",
                     timeStyle: "short",
@@ -202,7 +196,7 @@ export default function PostPage() {
                 </div>
               )}
               {post.subtitle && (
-                <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-700 text-left w-full">
+                <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-700">
                   {post.subtitle}
                 </h2>
               )}

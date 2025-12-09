@@ -46,11 +46,14 @@ export default function ContactMessageDetails() {
       .then((res) => setMessage(res))
       .catch((err) => {
         console.error(err);
+        if (err?.response?.status === 404) {
+          router.replace("/error");
+          return;
+        }
         toast.error("Failed to fetch message details");
       })
       .finally(() => setLoading(false));
-  }, [id, token]);
-
+  }, [id, token , router]);
 
   if (loading) {
     return (
@@ -138,7 +141,6 @@ export default function ContactMessageDetails() {
               </div>
             </div>
           </div>
-
           {/* Divider */}
           <div className="border-t border-gray-200 my-6" />
 
@@ -154,7 +156,7 @@ export default function ContactMessageDetails() {
           </div>
 
           {/* Sent Email Section */}
-           {message.sentEmail && (message.sentEmail.subject || message.sentEmail.body) && (
+          {message.sentEmail && (message.sentEmail.subject || message.sentEmail.body) && (
             <div className="mt-10 flex flex-col items-end">
               {/* Bubble Container */}
               <div className="relative max-w-2xl w-full bg-gradient-to-br from-indigo-100 via-white to-indigo-200 rounded-2xl shadow-lg border border-indigo-200 p-6 animate-fadeIn">
@@ -205,8 +207,6 @@ export default function ContactMessageDetails() {
               </div>
             </div>
           )}
-
-
         </div>
       </div>
     </DashboardLayout>

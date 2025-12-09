@@ -22,7 +22,7 @@ type RemotePost = {
     imageUrls?: string[];
     category?: string;
     tags?: string[];
-    author?: { fullName: string, avatarUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, linkedinUrl: string };
+    author?: { fullName: string; avatarUrl: string; twitterUrl: string; facebookUrl: string; instagramUrl: string; linkedinUrl: string };
     publishedAt?: string;
     createdAt?: string;
     readingTimeMinutes?: string;
@@ -32,18 +32,23 @@ export default function ArticlePage() {
     const [post, setPost] = useState<RemotePost | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    // Public article page: no admin token required
-    const contentRef = useRef<HTMLDivElement | null>(null);
     const [progress, setProgress] = useState(0);
     const [prevPost, setPrevPost] = useState<HomePost | null>(null);
     const [nextPost, setNextPost] = useState<HomePost | null>(null);
-
+    const contentRef = useRef<HTMLDivElement | null>(null);
     const params = useParams();
     const router = useRouter();
-    // Support both legacy id route and SEO slug route "title-slug-<id>"
     const raw = Array.isArray(params?.id) ? params.id[0] : params?.id;
     const postId = extractIdFromSlug(raw) || undefined;
 
+    useEffect(() => {
+        if (!loading && error) {
+            router.replace("/error");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, error]);
+
+    // ------------------------ Fetch Single Post ------------------------
     useEffect(() => {
         if (!postId) return;
 
@@ -52,22 +57,16 @@ export default function ArticlePage() {
             setError(null);
             try {
                 const response = await fetchSinglePostById(postId);
-                // Accept flexible API shapes
-                const maybePost = (response?.post
-                    ?? response?.data
-                    ?? response) as unknown;
-                if (!maybePost || typeof maybePost !== "object") {
-                    throw new Error("Post not found");
-                }
+                const maybePost = response?.post ?? response?.data ?? response;
+                if (!maybePost || typeof maybePost !== "object") throw new Error("Post not found");
+
                 const normalized = maybePost as RemotePost;
                 setPost(normalized);
-                // If route is legacy (no slug), push pretty slug for SEO
-                const current = raw || "";
-                if (normalized?._id && normalized?.title) {
+
+                // Redirect legacy ID to slug URL
+                if (normalized._id && normalized.title) {
                     const desired = buildSlugPath(normalized._id, normalized.title);
-                    if (current !== desired) {
-                        router.replace(`/articles/${desired}`);
-                    }
+                    if (raw !== desired) router.replace(`/articles/${desired}`);
                 }
             } catch (err) {
                 const msg = err instanceof Error ? err.message : String(err);
@@ -81,57 +80,61 @@ export default function ArticlePage() {
         loadPost();
     }, [postId, raw, router]);
 
-    // Fetch neighbors (best-effort) once post is loaded
+    // ------------------------ Fetch Prev/Next Posts ------------------------
     useEffect(() => {
-        let active = true;
         if (!post?._id) return;
+        let active = true;
+
         (async () => {
             try {
-                const res = await listAllHomePosts({ page: 1, limit: 12, sort: "latest", category: undefined });
+                const res = await listAllHomePosts({ page: 1, limit: 12, sort: "latest" });
                 const arr = res.posts || [];
-                const idx = arr.findIndex(p => p._id === post._id);
+                const idx = arr.findIndex((p) => p._id === post._id);
                 if (!active) return;
-                if (idx >= 0) {
-                    setPrevPost(arr[idx + 1] || null);
-                    setNextPost(arr[idx - 1] || null);
-                } else {
-                    setPrevPost(arr[1] || null);
-                    setNextPost(arr[0] || null);
-                }
-            } catch {
-                // best-effort; ignore
-            }
+                setPrevPost(idx >= 0 ? arr[idx + 1] || null : arr[1] || null);
+                setNextPost(idx >= 0 ? arr[idx - 1] || null : arr[0] || null);
+            } catch { }
         })();
-        return () => { active = false; };
+
+        return () => {
+            active = false;
+        };
     }, [post?._id]);
 
-    // Scroll reveal animation for blocks
+    // ------------------------ Scroll Reveal ------------------------
     useEffect(() => {
-        const nodes = document.querySelectorAll('.reveal-on-scroll');
+        const nodes = document.querySelectorAll(".reveal-on-scroll");
         if (!nodes.length) return;
-        const io = new IntersectionObserver((entries) => {
-            entries.forEach((e) => {
-                if (e.isIntersecting) {
-                    e.target.classList.add('revealed');
-                }
-            });
-        }, { rootMargin: '0px 0px -5% 0px', threshold: 0.08 });
+
+        const io = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) e.target.classList.add("revealed");
+                });
+            },
+            { rootMargin: "0px 0px -5% 0px", threshold: 0.08 }
+        );
+
         nodes.forEach((n) => io.observe(n));
         return () => io.disconnect();
     }, [postId, post?.contentHtml]);
 
-    // Reading progress based on content scroll
+    // ------------------------ Reading Progress ------------------------
     useEffect(() => {
-        function handleScroll() {
+        const handleScroll = () => {
             const el = contentRef.current;
-            if (!el) { setProgress(0); return; }
+            if (!el) {
+                setProgress(0);
+                return;
+            }
             const rect = el.getBoundingClientRect();
             const viewportH = window.innerHeight || document.documentElement.clientHeight;
-            const total = rect.height - viewportH * 0.6; // start progress after header area
+            const total = rect.height - viewportH * 0.6;
             const scrolled = Math.min(Math.max(0, 0 - rect.top + viewportH * 0.2), Math.max(1, total));
             const pct = Math.round((scrolled / Math.max(1, total)) * 100);
             setProgress(Math.max(0, Math.min(100, pct)));
-        }
+        };
+
         handleScroll();
         window.addEventListener("scroll", handleScroll, { passive: true });
         window.addEventListener("resize", handleScroll);
@@ -143,128 +146,84 @@ export default function ArticlePage() {
 
     if (loading) return <Loader inline label="Loading post..." />;
     if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
-    if (!post) {
-        return <div className="text-gray-500 text-center py-10">Post not found</div>;
-    }
+    if (!post) return <div className="text-gray-500 text-center py-10">Post not found</div>;
 
-    const formatDate = (dateStr?: string) => {
+    const formattedDate = (() => {
+        const dateStr = post.publishedAt || post.createdAt;
         if (!dateStr) return "Unknown Date";
-        const parts = dateStr.split("T")[0].split("-");
-        if (parts.length !== 3) return dateStr;
-        const [year, month, day] = parts.map(Number);
-        if (!year || !month || !day) return dateStr;
-        return new Date(year, month - 1, day).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        });
-    };
-    const formattedDate = formatDate(post.publishedAt || post.createdAt);
+        const [year, month, day] = dateStr.split("T")[0].split("-").map(Number);
+        return !year || !month || !day ? dateStr : new Date(year, month - 1, day).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    })();
 
-    const getContentWithImages = () => {
+    // ------------------------ Parse Content with Images ------------------------
+    const contentBlocks = (() => {
         const blocks: Array<string | { type: "image"; url: string; size?: "small" | "large" }> = [];
+        if (!post.contentHtml) return blocks;
 
         const parser = new DOMParser();
         const doc = parser.parseFromString(post.contentHtml || "", "text/html");
         const children = Array.from(doc.body.children);
-
         let usedImages = 0;
         let paragraphCount = 0;
 
-        if (children.length === 0) {
-            const textContent = post.contentHtml?.trim();
-            if (textContent) blocks.push(`<p>${textContent}</p>`);
-        } else {
-            children.forEach((child) => {
-                blocks.push(child.outerHTML);
-                paragraphCount++;
+        if (children.length === 0 && post.contentHtml.trim()) blocks.push(`<p>${post.contentHtml.trim()}</p>`);
 
-                if (post.imageUrls && usedImages < post.imageUrls.length && paragraphCount % 3 === 0) {
-                    const remaining = post.imageUrls.length - usedImages;
-                    const numImages = remaining > 1 ? 2 : 1;
-
-                    for (let i = 0; i < numImages; i++) {
-                        if (usedImages >= post.imageUrls.length) break;
-                        blocks.push({
-                            type: "image",
-                            url: post.imageUrls[usedImages],
-                            size: numImages > 1 ? "small" : "large",
-                        });
-                        usedImages++;
-                    }
+        children.forEach((child) => {
+            blocks.push(child.outerHTML);
+            paragraphCount++;
+            if (post.imageUrls && usedImages < post.imageUrls.length && paragraphCount % 3 === 0) {
+                const remaining = post.imageUrls.length - usedImages;
+                const numImages = remaining > 1 ? 2 : 1;
+                for (let i = 0; i < numImages; i++) {
+                    if (usedImages >= post.imageUrls.length) break;
+                    blocks.push({ type: "image", url: post.imageUrls[usedImages], size: numImages > 1 ? "small" : "large" });
+                    usedImages++;
                 }
-            });
-        }
+            }
+        });
 
         if (post.imageUrls && usedImages < post.imageUrls.length) {
-            for (let i = usedImages; i < post.imageUrls.length; i++) {
-                blocks.push({ type: "image", url: post.imageUrls[i], size: "large" });
-            }
+            for (let i = usedImages; i < post.imageUrls.length; i++) blocks.push({ type: "image", url: post.imageUrls[i], size: "large" });
         }
 
         return blocks;
-    };
-
-    const contentBlocks = getContentWithImages();
+    })();
 
     const skipIndexes = new Set<number>();
 
     return (
         <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 md:px-8">
-            {/* Ultra-thin top progress bar for mobile */}
-            <div
-                className="fixed top-0 left-0 right-0 z-40 h-[2px] md:h-[2px]"
-                style={{
-                    background: `linear-gradient(90deg, #9895ff 0%, #514dcc 100%)`,
-                    transform: `scaleX(${Math.max(0, Math.min(100, progress)) / 100})`,
-                    transformOrigin: '0 0',
-                    opacity: 0.9,
-                }}
-            />
-            {/* JSON-LD Article schema */}
-            <Script id="ld-article" type="application/ld+json" strategy="afterInteractive"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        '@context': 'https://schema.org',
-                        '@type': 'Article',
-                        headline: post.title,
-                        description: (post.subtitle || '').trim() || undefined,
-                        image: [post.bannerImageUrl, ...(Array.isArray(post.imageUrls) ? post.imageUrls : [])].filter(Boolean),
-                        datePublished: post.publishedAt || post.createdAt,
-                        dateModified: post.createdAt,
-                        author: post.author?.fullName ? { '@type': 'Person', name: post.author.fullName } : undefined,
-                        mainEntityOfPage: {
-                            '@type': 'WebPage',
-                            '@id': `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${buildSlugPath(post._id, post.title)}`,
-                        },
-                        publisher: {
-                            '@type': 'Organization',
-                            name: 'BlogCafeAI',
-                            logo: {
-                                '@type': 'ImageObject',
-                                url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/images/BlogCafe_Logo.svg`,
-                                width: 512,
-                                height: 512,
-                            },
-                        },
-                    })
-                }}
-            />
-            {/* BreadcrumbList JSON-LD */}
-            <Script id="ld-breadcrumb" type="application/ld+json" strategy="afterInteractive"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        '@context': 'https://schema.org',
-                        '@type': 'BreadcrumbList',
-                        itemListElement: [
-                            { '@type': 'ListItem', position: 1, name: 'Home', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/` },
-                            { '@type': 'ListItem', position: 2, name: 'All Posts', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts` },
-                            { '@type': 'ListItem', position: 3, name: post.category || 'Uncategorized', item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/all-posts` },
-                            { '@type': 'ListItem', position: 4, name: post.title, item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blogcafeai.com'}/articles/${buildSlugPath(post._id, post.title)}` }
-                        ]
-                    })
-                }}
-            />
+            {/* Top Progress Bar */}
+            <div className="fixed top-0 left-0 right-0 z-40 h-[2px] md:h-[2px]" style={{ background: `linear-gradient(90deg, #9895ff 0%, #514dcc 100%)`, transform: `scaleX(${progress / 100})`, transformOrigin: "0 0", opacity: 0.9 }} />
+
+            {/* JSON-LD Scripts */}
+            <Script id="ld-article" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "Article",
+                    headline: post.title,
+                    description: post.subtitle?.trim() || undefined,
+                    image: [post.bannerImageUrl, ...(Array.isArray(post.imageUrls) ? post.imageUrls : [])].filter(Boolean),
+                    datePublished: post.publishedAt || post.createdAt,
+                    dateModified: post.createdAt,
+                    author: post.author?.fullName ? { "@type": "Person", name: post.author.fullName } : undefined,
+                    mainEntityOfPage: { "@type": "WebPage", "@id": `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com"}/articles/${buildSlugPath(post._id, post.title)}` },
+                    publisher: { "@type": "Organization", name: "BlogCafeAI", logo: { "@type": "ImageObject", url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com"}/images/BlogCafe_Logo.svg`, width: 512, height: 512 } }
+                })
+            }} />
+            <Script id="ld-breadcrumb" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: "Home", item: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com"}/` },
+                        { "@type": "ListItem", position: 2, name: "All Posts", item: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com"}/all-posts` },
+                        { "@type": "ListItem", position: 3, name: post.category || "Uncategorized", item: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com"}/all-posts` },
+                        { "@type": "ListItem", position: 4, name: post.title, item: `${process.env.NEXT_PUBLIC_SITE_URL || "https://www.blogcafeai.com"}/articles/${buildSlugPath(post._id, post.title)}` }
+                    ]
+                })
+            }} />
+
             {/* Header */}
             <div className="text-center space-y-3">
                 <div className="text-sm text-gray-500 py-6" style={{ color: '#696981', fontWeight: 400 }}>
@@ -316,6 +275,21 @@ export default function ArticlePage() {
                     corner="br"
                 />
             )}
+            <Script
+                strategy="afterInteractive"
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                crossOrigin="anonymous"
+            />
+            <ins
+                className="adsbygoogle"
+                style={{ display: "block" }}
+                data-ad-format="autorelaxed"
+                data-ad-client="ca-pub-8481647724806223"
+                data-ad-slot="1466357420"
+            />
+            <Script id="ads-init" strategy="afterInteractive">
+                {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+            </Script>
 
             {/* Main Layout */}
             <div className="flex justify-center">

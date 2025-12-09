@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { HomeAuthor, HomePost } from "@/lib/api";
 import { buildSlugPath } from "@/lib/slug";
+import Script from "next/script";
 
 export default function ArticlesSection({
     featuredPosts,
@@ -22,7 +23,6 @@ export default function ArticlesSection({
     onPageChange?: (page: number) => void;
 }) {
     // Helper to get author name
-    // Helper to get author name only for HomePost
     const getPostAuthorName = (post: HomePost) => {
         if (typeof post.author === "string") return post.author;
         if (post.author?.fullName) return post.author.fullName;
@@ -31,11 +31,9 @@ export default function ArticlesSection({
         return "Unknown Author";
     };
 
-
     // Robust date formatter: supports ISO and YYYY-MM-DD strings
     const formatDate = (dateStr?: string) => {
         if (!dateStr || typeof dateStr !== "string") return "Unknown Date";
-        // Fast path for YYYY-MM-DD
         const parts = dateStr.split("T")[0]?.split("-") || [];
         if (parts.length === 3) {
             const [year, month, day] = parts.map(Number);
@@ -49,7 +47,6 @@ export default function ArticlesSection({
                 } catch { /* noop */ }
             }
         }
-        // Fallback: let Date try to parse; if invalid, show Unknown
         const d = new Date(dateStr);
         if (isNaN(d.getTime())) return "Unknown Date";
         return d.toLocaleDateString("en-US", {
@@ -67,7 +64,7 @@ export default function ArticlesSection({
             date: formatDate(p.publishedAt || p.createdAt),
             author: getPostAuthorName(p),
             excerpt: "",
-            image: p.bannerImageUrl || "/images/a1.webp",
+            image: p.bannerImageUrl || "",
             tag: Array.isArray(p.tags) ? p.tags : [],
             readTime: p.readingTimeMinutes ?? 0,
         }));
@@ -76,14 +73,13 @@ export default function ArticlesSection({
     // Process featured posts for slider
     const slider = useMemo(() => {
         return (featuredPosts || []).map((p) => ({
-            img: p.bannerImageUrl || "/images/a1.webp",
+            img: p.bannerImageUrl || "",
             title: p.title,
             author: getPostAuthorName(p),
             date: formatDate(p.publishedAt || p.createdAt),
             tag: Array.isArray(p.tags) && p.tags.length ? p.tags[0] : "",
         }));
     }, [featuredPosts]);
-
 
     // Slider state
     const [index, setIndex] = useState(0);
@@ -125,11 +121,10 @@ export default function ArticlesSection({
 
     useEffect(() => {
         setIndex(0);
-        setCurrentPage(1);
     }, [recentPosts]);
 
     return (
-        <main className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <main className="mx-auto max-w-7xl px-4 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* ===== Main Content ===== */}
             <div className="lg:col-span-2 flex flex-col">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -185,6 +180,21 @@ export default function ArticlesSection({
                 {totalPages > 1 && (
                     <Pagination page={currentPage} totalPages={totalPages} onChange={goToPage} />
                 )}
+                <Script
+                    strategy="afterInteractive"
+                    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                    crossOrigin="anonymous"
+                />
+                <ins
+                    className="adsbygoogle"
+                    style={{ display: "block" }}
+                    data-ad-format="autorelaxed"
+                    data-ad-client="ca-pub-8481647724806223"
+                    data-ad-slot="4443874551"
+                />
+                <Script id="ads-init-four" strategy="afterInteractive">
+                    {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                </Script>
             </div>
 
             {/* ===== Sidebar ===== */}
@@ -195,7 +205,7 @@ export default function ArticlesSection({
                         <h2 className="uppercase text-sm font-bold text-gray-500 mb-4">About</h2>
                         <div className="flex gap-3 items-center">
                             <Image
-                                src={topAuthors?.[0]?.avatarUrl || "/images/aside_about.webp"}
+                                src={topAuthors?.[0]?.avatarUrl || ""}
                                 alt={topAuthors?.[0]?.fullName || "Author"}
                                 width={50}
                                 height={50}
@@ -210,7 +220,23 @@ export default function ArticlesSection({
                             Meet the brilliant minds shaping our blog. These top authors share stories that cross borders, touch emotions, and challenge the ordinary.
                         </p>
                     </div>
-
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="6065730372"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    <Script id="ads-init" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
                     {/* Featured Slider */}
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Featured Posts</h3>
@@ -236,6 +262,26 @@ export default function ArticlesSection({
                         </div>
                     </div>
 
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    {/* The ad placeholder for Home page Display Two */}
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="4830887360"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    {/* Initialize the ad */}
+                    <Script id="ads-init-two" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
+
                     {/* Top Authors */}
                     <div className="aside-shadow rounded-xl shadow p-6">
                         <h3 className="text-sm font-bold text-gray-500 uppercase mb-4">Top Authors</h3>
@@ -243,18 +289,38 @@ export default function ArticlesSection({
                             {(topAuthors || []).slice(0, 3).map((a) => (
                                 <div key={a._id} className="flex justify-between items-center">
                                     <div className="flex items-center gap-3">
-                                        <Image src={a.avatarUrl || "/images/aside_about.webp"} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
+                                        <Image src={a.avatarUrl || ""} alt={a.fullName || "Author"} width={40} height={40} className="about_author_img object-cover" />
                                         <div>
                                             <h4 className="font-medium">{a.fullName || "Author"}</h4>
                                             <p className="text-sm text-gray-500">Featured contributor</p>
                                         </div>
                                     </div>
-                                    <Link href={`/blog?author=${encodeURIComponent(a._id)}`} className="text-sm text-blue-600 hover:underline">View</Link>
+                                    <Link href={`/blog/list?author=${encodeURIComponent(a._id)}`} className="text-sm text-blue-600 hover:underline">View</Link>
                                 </div>
                             ))}
                             {(!topAuthors || topAuthors.length === 0) && <p className="text-sm text-gray-500">No authors to display.</p>}
                         </div>
                     </div>
+
+                    {/* Google ads  */}
+                    <Script
+                        strategy="afterInteractive"
+                        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8481647724806223"
+                        crossOrigin="anonymous"
+                    />
+                    {/* The ad placeholder for Home Page Display Three */}
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client="ca-pub-8481647724806223"
+                        data-ad-slot="1135184932"
+                        data-ad-format="auto"
+                        data-full-width-responsive="true"
+                    />
+                    {/* Initialize the ad */}
+                    <Script id="ads-init-three" strategy="afterInteractive">
+                        {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                    </Script>
 
                     {/* Trending Tags */}
                     <div className="aside-shadow rounded-xl shadow py-6 px-6">
